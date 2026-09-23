@@ -1,0 +1,790 @@
+/**
+ * SIH 26006 Maritime Intelligence Platform
+ * Module 20: Floating Storage Intelligence & Surveillance Canonical Stylesheet
+ * Namespace: .fs-*
+ */
+
+/* 1. Global Page Container */
+.fs-dashboard-container {
+  width: 100%;
+  max-width: 1720px;
+  margin: 0 auto;
+  padding: 24px 28px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+  color: var(--ol-text-primary, #F1F5F9);
+}
+
+@media (max-width: 1024px) {
+  .fs-dashboard-container {
+    padding: 20px 16px;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 640px) {
+  .fs-dashboard-container {
+    padding: 16px 12px;
+  }
+}
+
+/* 2. Top Navigation & Telemetry Row */
+.fs-top-breadcrumb-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  gap: 12px;
+  width: 100%;
+}
+
+.fs-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ol-text-secondary, #94A3B8);
+  background-color: var(--ol-surface-secondary, #0B1D2E);
+  border: 1px solid var(--ol-border, rgba(100, 190, 240, 0.14));
+  padding: 7px 14px;
+  border-radius: var(--ol-radius-md, 8px);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-decoration: none;
+}
+
+.fs-back-btn:hover {
+  color: var(--ol-cyan, #22D3EE);
+  border-color: rgba(34, 211, 238, 0.35);
+  background-color: rgba(34, 211, 238, 0.08);
+}
+
+.fs-telemetry-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--ol-text-secondary, #94A3B8);
+  background-color: var(--ol-surface-secondary, #0B1D2E);
+  border: 1px solid var(--ol-border, rgba(100, 190, 240, 0.14));
+  padding: 6px 14px;
+  border-radius: var(--ol-radius-md, 8px);
+  font-family: var(--font-mono, monospace);
+}
+
+.fs-telemetry-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #F59E0B;
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+  animation: fs-pulse 2s infinite ease-in-out;
+}
+
+@keyframes fs-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.85); }
+}
+
+/* 3. Buttons & Controls */
+.fs-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 7px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+  line-height: 1.2;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
+.fs-btn-secondary {
+  background-color: var(--ol-surface-secondary, #0B1D2E);
+  border-color: var(--ol-border, rgba(100, 190, 240, 0.16));
+  color: var(--ol-text-primary, #F1F5F9);
+}
+
+.fs-btn-secondary:hover {
+  border-color: rgba(245, 158, 11, 0.35);
+  background-color: var(--ol-surface-elevated, #0F2437);
+  color: var(--ol-amber, #F59E0B);
+}
+
+.fs-btn-primary {
+  background-color: var(--ol-amber, #F59E0B);
+  color: #040E19;
+  font-weight: 700;
+}
+
+.fs-btn-primary:hover {
+  background-color: #FBBF24;
+}
+
+/* 4. Enterprise Card Containers */
+.fs-card {
+  background-color: var(--ol-surface-primary, #091A2A);
+  border: 1px solid var(--ol-border, rgba(100, 190, 240, 0.14));
+  border-radius: var(--ol-radius-lg, 12px);
+  padding: 20px;
+  box-shadow: var(--ol-shadow-md, 0 4px 16px rgba(0, 0, 0, 0.35));
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.fs-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(100, 190, 240, 0.1);
+}
+
+.fs-card-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.fs-card-icon-wrap {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.fs-card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ol-text-primary, #F1F5F9);
+  letter-spacing: 0.01em;
+}
+
+.fs-card-subtitle {
+  font-size: 11.5px;
+  color: var(--ol-text-secondary, #94A3B8);
+  margin-top: 2px;
+}
+
+/* 5. Responsive KPI Dominant Region Typography */
+.fs-kpi-dominant-text {
+  font-size: clamp(16px, 1.4vw, 20px) !important;
+  line-height: 1.25 !important;
+  font-weight: 700;
+  word-break: break-word;
+}
+
+/* 6. Map Canvas Styling & Floating Controls */
+.fs-map-card {
+  position: relative;
+  width: 100%;
+  height: 540px;
+  border-radius: var(--ol-radius-lg, 12px);
+  overflow: hidden;
+  border: 1px solid var(--ol-border, rgba(100, 190, 240, 0.16));
+  background-color: #040E19;
+  box-shadow: var(--ol-shadow-lg, 0 10px 25px -5px rgba(0, 0, 0, 0.4));
+}
+
+.fs-map-canvas-element {
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.fs-map-toolbar {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background-color: rgba(9, 26, 42, 0.92);
+  padding: 6px;
+  border-radius: 8px;
+  border: 1px solid var(--ol-border, rgba(100, 190, 240, 0.18));
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(8px);
+}
+
+.fs-map-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background-color: var(--ol-surface-secondary, #0B1D2E);
+  border: 1px solid rgba(100, 190, 240, 0.14);
+  color: var(--ol-text-secondary, #94A3B8);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  padding: 0;
+}
+
+.fs-map-btn:hover {
+  color: var(--ol-amber, #F59E0B);
+  border-color: rgba(245, 158, 11, 0.4);
+  background-color: rgba(245, 158, 11, 0.1);
+}
+
+.fs-map-legend {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  z-index: 1000;
+  background-color: rgba(9, 26, 42, 0.95);
+  border: 1px solid var(--ol-border, rgba(100, 190, 240, 0.18));
+  padding: 12px 14px;
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  max-width: 280px;
+  font-size: 11px;
+}
+
+.fs-map-legend-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-weight: 700;
+  color: var(--ol-text-primary, #F1F5F9);
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(100, 190, 240, 0.12);
+  margin-bottom: 8px;
+}
+
+.fs-map-legend-toggle {
+  background: transparent;
+  border: none;
+  color: var(--ol-text-muted, #64748B);
+  font-size: 10.5px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.fs-map-legend-toggle:hover {
+  color: var(--ol-text-primary, #F1F5F9);
+}
+
+/* 7. Floating Storage Registry Table System */
+.fs-table-container {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: var(--ol-radius-md, 8px);
+  border: 1px solid var(--ol-border, rgba(100, 190, 240, 0.14));
+  background-color: var(--ol-surface-primary, #091A2A);
+  box-shadow: var(--ol-shadow-md, 0 4px 16px rgba(0, 0, 0, 0.35));
+  margin-top: 6px;
+}
+
+.fs-table {
+  width: 100%;
+  min-width: 1200px;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 12px;
+}
+
+.fs-table thead {
+  background-color: var(--ol-surface-secondary, #0B1D2E);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.fs-table th {
+  padding: 12px 14px;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ol-text-muted, #64748B);
+  border-bottom: 1px solid var(--ol-border, rgba(100, 190, 240, 0.16));
+  white-space: nowrap;
+  user-select: none;
+}
+
+.fs-table th.sortable {
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.fs-table th.sortable:hover {
+  color: var(--ol-amber, #F59E0B);
+}
+
+.fs-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(100, 190, 240, 0.08);
+  color: var(--ol-text-primary, #F1F5F9);
+  vertical-align: middle;
+  line-height: 1.4;
+}
+
+.fs-table tr:hover td {
+  background-color: rgba(245, 158, 11, 0.04);
+}
+
+.fs-table tr.selected td {
+  background-color: rgba(245, 158, 11, 0.08);
+  border-left-color: var(--ol-amber, #F59E0B);
+}
+
+/* Rigid Column Width Allocations */
+.fs-col-vessel {
+  width: 210px;
+  min-width: 210px;
+}
+
+.fs-col-class {
+  width: 140px;
+  min-width: 140px;
+}
+
+.fs-col-cargo {
+  width: 170px;
+  min-width: 170px;
+}
+
+.fs-col-volume {
+  width: 140px;
+  min-width: 140px;
+  text-align: right;
+}
+
+.fs-col-value {
+  width: 130px;
+  min-width: 130px;
+  text-align: right;
+}
+
+.fs-col-hub {
+  width: 180px;
+  min-width: 180px;
+}
+
+.fs-col-days {
+  width: 130px;
+  min-width: 130px;
+  text-align: center;
+}
+
+.fs-col-action {
+  width: 80px;
+  min-width: 80px;
+  text-align: center;
+}
+
+/* Badges & Inspect Button */
+.fs-cargo-badge {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.fs-cargo-crude {
+  background-color: rgba(245, 158, 11, 0.15);
+  color: var(--ol-amber, #F59E0B);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.fs-cargo-clean {
+  background-color: rgba(56, 189, 248, 0.15);
+  color: #38BDF8;
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+.fs-cargo-dirty {
+  background-color: rgba(148, 163, 184, 0.15);
+  color: #94A3B8;
+  border-color: rgba(148, 163, 184, 0.3);
+}
+
+.fs-cargo-lng {
+  background-color: rgba(192, 132, 252, 0.15);
+  color: #C084FC;
+  border-color: rgba(192, 132, 252, 0.3);
+}
+
+.fs-cargo-lpg {
+  background-color: rgba(16, 185, 129, 0.15);
+  color: #10B981;
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.fs-cargo-chem {
+  background-color: rgba(244, 63, 94, 0.15);
+  color: #F43F5E;
+  border-color: rgba(244, 63, 94, 0.3);
+}
+
+.fs-duration-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-family: var(--font-mono, monospace);
+  font-weight: 700;
+  background-color: var(--ol-surface-secondary, #0B1D2E);
+  border: 1px solid rgba(100, 190, 240, 0.14);
+}
+
+.fs-inspect-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  background-color: var(--ol-surface-secondary, #0B1D2E);
+  border: 1px solid var(--ol-border, rgba(100, 190, 240, 0.18));
+  color: var(--ol-text-secondary, #94A3B8);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.fs-inspect-btn:hover {
+  background-color: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.4);
+  color: var(--ol-amber, #F59E0B);
+}
+
+/* 8. Pagination Container */
+.fs-pagination-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-top: 14px;
+  margin-top: 4px;
+  border-top: 1px solid rgba(100, 190, 240, 0.1);
+  font-size: 12px;
+  color: var(--ol-text-secondary, #94A3B8);
+}
+
+.fs-pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fs-pagination-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 10px;
+  border-radius: 6px;
+  background-color: var(--ol-surface-secondary, #0B1D2E);
+  border: 1px solid var(--ol-border, rgba(100, 190, 240, 0.16));
+  color: var(--ol-text-primary, #F1F5F9);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-size: 11.5px;
+}
+
+.fs-pagination-btn:hover:not(:disabled) {
+  border-color: var(--ol-amber, #F59E0B);
+  color: var(--ol-amber, #F59E0B);
+}
+
+.fs-pagination-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* 9. Slide-out Vessel Inspection Drawer */
+.fs-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(4, 14, 25, 0.75);
+  backdrop-filter: blur(6px);
+  z-index: 9998;
+  display: flex;
+  justify-content: flex-end;
+  animation: fs-fade-in 0.2s ease-out;
+}
+
+@keyframes fs-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.fs-drawer-content {
+  width: 520px;
+  max-width: 90vw;
+  height: 100vh;
+  background-color: #071524;
+  border-left: 1px solid var(--ol-border, rgba(100, 190, 240, 0.2));
+  box-shadow: -10px 0 35px rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  box-sizing: border-box;
+  animation: fs-slide-left 0.25s ease-out;
+  color: var(--ol-text-primary, #F1F5F9);
+}
+
+@keyframes fs-slide-left {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.fs-drawer-header {
+  padding: 18px 22px;
+  border-bottom: 1px solid rgba(100, 190, 240, 0.12);
+  background-color: #05101C;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.fs-drawer-close-btn {
+  background-color: var(--ol-surface-secondary, #0B1D2E);
+  border: 1px solid rgba(100, 190, 240, 0.16);
+  color: var(--ol-text-secondary, #94A3B8);
+  border-radius: 8px;
+  padding: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.fs-drawer-close-btn:hover {
+  background-color: rgba(244, 63, 94, 0.15);
+  border-color: rgba(244, 63, 94, 0.35);
+  color: #F43F5E;
+}
+
+.fs-drawer-body {
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.fs-drawer-section {
+  background-color: var(--ol-surface-secondary, #0B1D2E);
+  border: 1px solid rgba(100, 190, 240, 0.1);
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.fs-drawer-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ol-text-secondary, #94A3B8);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(100, 190, 240, 0.08);
+}
+
+.fs-drawer-grid-2col {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 480px) {
+  .fs-drawer-grid-2col {
+    grid-template-columns: 1fr;
+  }
+}
+
+.fs-drawer-stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.fs-drawer-label {
+  font-size: 10.5px;
+  color: var(--ol-text-muted, #64748B);
+  font-weight: 500;
+}
+
+.fs-drawer-value {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ol-text-primary, #F1F5F9);
+}
+
+.fs-drawer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(100, 190, 240, 0.04);
+}
+
+/* 10. Cross-Module Integration Cards (No White Buttons!) */
+.fs-modules-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+@media (max-width: 440px) {
+  .fs-modules-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.fs-module-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background-color: #05101C;
+  border: 1px solid rgba(100, 190, 240, 0.12);
+  cursor: pointer;
+  transition: all 0.18s ease;
+  text-align: left;
+  box-sizing: border-box;
+}
+
+.fs-module-card:hover {
+  background-color: var(--ol-surface-secondary, #0B1D2E);
+  border-color: var(--ol-amber, #F59E0B);
+  transform: translateY(-1px);
+}
+
+.fs-module-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.fs-module-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ol-text-primary, #F1F5F9);
+}
+
+.fs-module-card:hover .fs-module-title {
+  color: var(--ol-amber, #F59E0B);
+}
+
+.fs-module-desc {
+  font-size: 10.5px;
+  color: var(--ol-text-secondary, #94A3B8);
+  line-height: 1.35;
+}
+
+/* 11. Sub-Tab Grids & Progress Bar Utilities */
+.fs-grid-2col {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 860px) {
+  .fs-grid-2col {
+    grid-template-columns: 1fr;
+  }
+}
+
+.fs-grid-3col {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 1080px) {
+  .fs-grid-3col {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 680px) {
+  .fs-grid-3col {
+    grid-template-columns: 1fr;
+  }
+}
+
+.fs-subcard {
+  background-color: var(--ol-surface-secondary, #0B1D2E);
+  border: 1px solid rgba(100, 190, 240, 0.12);
+  border-radius: 8px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fs-progress-track {
+  width: 100%;
+  height: 8px;
+  background-color: #040E19;
+  border: 1px solid rgba(100, 190, 240, 0.14);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.fs-progress-fill {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.4s ease-out;
+}
+
+.fs-info-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background-color: #05101C;
+  border: 1px solid rgba(100, 190, 240, 0.14);
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ol-text-secondary, #94A3B8);
+}
+

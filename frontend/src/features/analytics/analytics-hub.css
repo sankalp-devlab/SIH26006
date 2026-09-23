@@ -1,0 +1,589 @@
+/* ==========================================================================
+   ANALYTICS & INTELLIGENCE HUB — ENTERPRISE COMMAND CENTER STYLESHEET
+   OceanLens / SIH Maritime 26006
+   ========================================================================== */
+
+.hub-root {
+  background-color: #020a12;
+  color: #e2e8f0;
+  font-family: var(--font-sans, 'Inter', sans-serif);
+  min-height: 100vh;
+  padding: 0.75rem 1.25rem 3.5rem 1.25rem;
+  box-sizing: border-box;
+}
+
+.hub-mono {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================================
+   1. BREADCRUMBS
+   ========================================================================== */
+.hub-breadcrumb-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding-bottom: 0.75rem;
+  margin-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.1);
+}
+
+.hub-breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.hub-breadcrumb-link {
+  color: #94a3b8;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.15s ease;
+}
+
+.hub-breadcrumb-link:hover {
+  color: #38bdf8;
+}
+
+.hub-breadcrumb-current {
+  color: #f1f5f9;
+  font-weight: 600;
+}
+
+.hub-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: rgba(11, 34, 61, 0.7);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  padding: 0.25rem 0.65rem;
+  font-size: 0.71875rem;
+  font-weight: 600;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.hub-back-btn:hover {
+  background: #0d2c52;
+  border-color: #38bdf8;
+  color: #ffffff;
+}
+
+/* ==========================================================================
+   2. HERO INTELLIGENCE OVERVIEW
+   ========================================================================== */
+.hub-hero {
+  background: linear-gradient(135deg, #051325 0%, #081a33 100%);
+  border: 1px solid rgba(56, 189, 248, 0.18);
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.25rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.hub-hero-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.hub-hero-title-area {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.hub-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #38bdf8;
+}
+
+.hub-hero-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #f8fafc;
+  margin: 0;
+}
+
+.hub-hero-subtitle {
+  font-size: 0.8125rem;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.hub-hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.hub-time-pill {
+  font-size: 0.6875rem;
+  color: #94a3b8;
+  background: rgba(2, 10, 18, 0.6);
+  border: 1px solid rgba(56, 189, 248, 0.15);
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+}
+
+.hub-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: #091e36;
+  color: #cbd5e1;
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  padding: 0.35rem 0.7rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.hub-action-btn:hover {
+  background: #0e2d52;
+  border-color: #38bdf8;
+  color: #ffffff;
+}
+
+/* 5 Executive KPI Cards in Hero */
+.hub-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.75rem;
+}
+
+.hub-kpi-card {
+  background: rgba(3, 11, 22, 0.7);
+  border: 1px solid rgba(56, 189, 248, 0.14);
+  border-radius: 6px;
+  padding: 0.75rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.hub-kpi-card:hover {
+  border-color: rgba(56, 189, 248, 0.3);
+  background: rgba(5, 17, 34, 0.85);
+}
+
+.hub-kpi-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+  margin-bottom: 0.3rem;
+}
+
+.hub-kpi-val {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #f8fafc;
+  line-height: 1.1;
+  margin-bottom: 0.3rem;
+}
+
+.hub-kpi-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.6875rem;
+}
+
+.hub-sparkline {
+  width: 48px;
+  height: 16px;
+}
+
+.hub-sparkline path {
+  fill: none;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ==========================================================================
+   3. CATEGORY FILTERS & SEARCH TOOLBAR
+   ========================================================================== */
+.hub-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.hub-filter-tabs {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.hub-filter-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.hub-tab-btn {
+  background: #061325;
+  color: #94a3b8;
+  border: 1px solid rgba(56, 189, 248, 0.15);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 0.35rem 0.75rem;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.hub-tab-btn.active,
+.hub-tab-btn:hover {
+  background: #0284c7;
+  color: #ffffff;
+  border-color: #38bdf8;
+}
+
+.hub-search-box {
+  position: relative;
+  width: 260px;
+  max-width: 100%;
+}
+
+.hub-search-box input {
+  width: 100%;
+  background: #061325;
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  color: #f8fafc;
+  font-size: 0.75rem;
+  padding: 0.4rem 0.75rem 0.4rem 2rem;
+  border-radius: 4px;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.hub-search-box input:focus {
+  border-color: #38bdf8;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
+}
+
+.hub-search-icon {
+  position: absolute;
+  left: 0.65rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #64748b;
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   4. ANALYTICS MODULE GRID & CARDS
+   ========================================================================== */
+.hub-section-title-wrap {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.hub-section-title {
+  font-size: 0.9375rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #f1f5f9;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.hub-section-sub {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.hub-module-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+/* Base Module Card */
+.hub-card {
+  background: #061325;
+  border: 1px solid rgba(56, 189, 248, 0.14);
+  border-radius: 6px;
+  padding: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.2s ease,
+              box-shadow 0.2s ease;
+}
+
+.hub-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(56, 189, 248, 0.4);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5), 0 0 12px rgba(56, 189, 248, 0.12);
+}
+
+.hub-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.hub-card-icon-wrap {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  background: rgba(56, 189, 248, 0.1);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #38bdf8;
+}
+
+.hub-card-badge {
+  font-size: 0.625rem;
+  font-weight: 700;
+  background: #091e36;
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  padding: 0.15rem 0.45rem;
+  border-radius: 3px;
+  letter-spacing: 0.05em;
+}
+
+.hub-card-title {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #f8fafc;
+  margin: 0 0 0.4rem 0;
+  letter-spacing: -0.01em;
+}
+
+.hub-card-desc {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  line-height: 1.45;
+  margin: 0 0 0.85rem 0;
+}
+
+.hub-card-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+}
+
+.hub-metric-chip {
+  font-size: 0.65rem;
+  font-weight: 600;
+  background: rgba(2, 10, 18, 0.75);
+  color: #cbd5e1;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.2rem 0.5rem;
+  border-radius: 3px;
+}
+
+.hub-card-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #38bdf8;
+  padding-top: 0.6rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  transition: color 0.15s ease;
+}
+
+.hub-card:hover .hub-card-cta {
+  color: #00e5ff;
+}
+
+.hub-cta-arrow {
+  transition: transform 0.2s ease;
+}
+
+.hub-card:hover .hub-cta-arrow {
+  transform: translateX(4px);
+}
+
+/* PRIMARY FEATURE CARDS */
+.hub-card-primary {
+  background: linear-gradient(135deg, #061830 0%, #0a2444 100%);
+  border-color: rgba(56, 189, 248, 0.25);
+}
+
+.hub-card-primary .hub-card-title {
+  font-size: 1.05rem;
+}
+
+.hub-card-primary .hub-card-icon-wrap {
+  background: rgba(56, 189, 248, 0.18);
+  border-color: #38bdf8;
+  color: #ffffff;
+}
+
+/* SPECIAL SKIPPER AI CARD */
+.hub-card-special {
+  background: linear-gradient(135deg, #081a2f 0%, #0c2b4c 100%);
+  border-color: rgba(0, 229, 255, 0.35);
+  box-shadow: 0 4px 20px rgba(0, 229, 255, 0.08);
+}
+
+.hub-card-special .hub-card-badge {
+  background: rgba(0, 229, 255, 0.15);
+  color: #00e5ff;
+  border-color: rgba(0, 229, 255, 0.4);
+}
+
+.hub-card-special .hub-card-icon-wrap {
+  background: rgba(0, 229, 255, 0.2);
+  border-color: #00e5ff;
+  color: #00e5ff;
+}
+
+/* ==========================================================================
+   5. MARKET COMMAND CENTER SECTION (3 Panels)
+   ========================================================================== */
+.hub-command-section {
+  margin-top: 1rem;
+}
+
+.hub-command-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.hub-command-panel {
+  background: #061325;
+  border: 1px solid rgba(56, 189, 248, 0.12);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.hub-command-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.85rem;
+  background: rgba(10, 26, 47, 0.65);
+  border-bottom: 1px solid rgba(56, 189, 248, 0.08);
+}
+
+.hub-command-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+}
+
+.hub-command-body {
+  padding: 0.75rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.hub-signal-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.3rem 0.4rem;
+  background: rgba(4, 14, 27, 0.5);
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  font-size: 0.71875rem;
+}
+
+.hub-signal-name {
+  color: #cbd5e1;
+  font-weight: 600;
+}
+
+.hub-signal-val {
+  color: #f8fafc;
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   6. RESPONSIVE BREAKPOINTS
+   ========================================================================== */
+@media (max-width: 1280px) {
+  .hub-kpi-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .hub-module-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .hub-command-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .hub-root {
+    padding: 0.5rem 0.75rem 2.5rem 0.75rem;
+  }
+  .hub-kpi-grid {
+    display: flex;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    scrollbar-width: thin;
+  }
+  .hub-kpi-card {
+    min-width: 180px;
+  }
+  .hub-module-grid {
+    grid-template-columns: 1fr;
+  }
+  .hub-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .hub-search-box {
+    width: 100%;
+  }
+}

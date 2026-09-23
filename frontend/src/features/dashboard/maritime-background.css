@@ -1,0 +1,173 @@
+/* ==========================================================================
+   MARITIME DASHBOARD HERO ATMOSPHERE
+   Cinematic Commercial Maritime Vessel Background Layer
+   SIH 26006 / OceanLens Command Center
+   ========================================================================== */
+
+.maritime-dashboard-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 560px;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+  overflow: hidden;
+  contain: strict;
+}
+
+/* 1. Photorealistic Commercial Vessel Image Layer */
+.maritime-dashboard-bg__photo {
+  position: absolute;
+  inset: -12px;
+  background-size: cover;
+  background-position: 70% 30%;
+  background-repeat: no-repeat;
+  opacity: 0.88;
+  filter: contrast(1.06) saturate(1.04) brightness(0.94);
+  will-change: transform;
+  transform-origin: 70% 35%;
+  animation: maritimeSubtleDrift 34s ease-in-out infinite alternate;
+}
+
+/* Slow, organic ocean atmosphere drift */
+@keyframes maritimeSubtleDrift {
+  0% {
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+  50% {
+    transform: scale(1.02) translate3d(-6px, -2px, 0);
+  }
+  100% {
+    transform: scale(1.035) translate3d(-10px, -4px, 0);
+  }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .maritime-dashboard-bg__photo {
+    animation: none;
+    transform: none;
+  }
+}
+
+/* 2. Left-to-Right Readability Gradient */
+/* Ensures 100% contrast for MARITIME OVERVIEW & system status on left, while vessel glows on right */
+.maritime-dashboard-bg__gradient-h {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    to right,
+    #020a12 0%,
+    rgba(2, 10, 18, 0.98) 18%,
+    rgba(2, 10, 18, 0.88) 36%,
+    rgba(2, 10, 18, 0.55) 58%,
+    rgba(2, 10, 18, 0.22) 80%,
+    rgba(2, 10, 18, 0.65) 100%
+  );
+}
+
+/* 3. Top-to-Bottom Seamless Dissolve into Dashboard Panels */
+.maritime-dashboard-bg__gradient-v {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: linear-gradient(
+    to bottom,
+    rgba(2, 10, 18, 0.1) 0%,
+    rgba(2, 10, 18, 0.16) 24%,
+    rgba(2, 10, 18, 0.46) 54%,
+    rgba(2, 10, 18, 0.84) 80%,
+    #020a12 100%
+  );
+}
+
+/* 4. Peripheral Vignette */
+.maritime-dashboard-bg__vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  background: radial-gradient(
+    ellipse 85% 70% at 75% 35%,
+    transparent 42%,
+    rgba(2, 10, 18, 0.45) 75%,
+    rgba(2, 10, 18, 0.88) 100%
+  );
+}
+
+/* 5. Subtle Tactical Intelligence Grid Mesh */
+.maritime-dashboard-bg__grid {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  background-image: 
+    linear-gradient(to right, rgba(56, 189, 248, 0.025) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(56, 189, 248, 0.025) 1px, transparent 1px);
+  background-size: 50px 50px;
+  mask-image: radial-gradient(ellipse at 65% 45%, rgba(0, 0, 0, 0.5) 20%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse at 65% 45%, rgba(0, 0, 0, 0.5) 20%, transparent 75%);
+}
+
+/* ==========================================================================
+   RESPONSIVE TUNING
+   ========================================================================== */
+
+@media (min-width: 1600px) {
+  .maritime-dashboard-bg {
+    height: 600px;
+  }
+  .maritime-dashboard-bg__photo {
+    background-position: 68% 28%;
+  }
+}
+
+@media (max-width: 1280px) {
+  .maritime-dashboard-bg {
+    height: 500px;
+  }
+  .maritime-dashboard-bg__photo {
+    background-position: 72% 28%;
+  }
+  .maritime-dashboard-bg__gradient-h {
+    background: linear-gradient(
+      to right,
+      #020a12 0%,
+      rgba(2, 10, 18, 0.98) 22%,
+      rgba(2, 10, 18, 0.88) 42%,
+      rgba(2, 10, 18, 0.55) 68%,
+      rgba(2, 10, 18, 0.32) 85%,
+      rgba(2, 10, 18, 0.7) 100%
+    );
+  }
+}
+
+@media (max-width: 1024px) {
+  .maritime-dashboard-bg {
+    height: 440px;
+  }
+  .maritime-dashboard-bg__photo {
+    background-position: 75% 25%;
+    opacity: 0.8;
+  }
+}
+
+@media (max-width: 768px) {
+  .maritime-dashboard-bg {
+    height: 380px;
+  }
+  .maritime-dashboard-bg__photo {
+    background-position: 78% 20%;
+    opacity: 0.7;
+  }
+  .maritime-dashboard-bg__gradient-h {
+    background: linear-gradient(
+      to right,
+      #020a12 0%,
+      rgba(2, 10, 18, 0.96) 42%,
+      rgba(2, 10, 18, 0.78) 75%,
+      rgba(2, 10, 18, 0.88) 100%
+    );
+  }
+}

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OfficeApp
+  xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0"
+  xmlns:ov="http://schemas.microsoft.com/office/taskpaneappversionoverrides"
+  xsi:type="TaskPaneApp">
+
+  <!-- Core Add-in Metadata -->
+  <Id>d3b07384-d113-4f44-934c-2292f7682e01</Id>
+  <Version>1.0.0.0</Version>
+  <ProviderName>SIH 26006 Maritime Intelligence Platform</ProviderName>
+  <DefaultLocale>en-US</DefaultLocale>
+  <DisplayName DefaultValue="Maritime Intelligence Platform" />
+  <Description DefaultValue="Direct authenticated shipping data query, fleet analytics, and live refreshable pivot tables inside Microsoft Excel." />
+  <IconUrl DefaultValue="https://raw.githubusercontent.com/lucide-icons/lucide/main/icons/anchor.png" />
+  <HighResolutionIconUrl DefaultValue="https://raw.githubusercontent.com/lucide-icons/lucide/main/icons/anchor.png" />
+  <SupportUrl DefaultValue="https://github.com/sankalp-devlab/SIH26006" />
+
+  <!-- Supported Office Applications -->
+  <Hosts>
+    <Host Name="Workbook" />
+  </Hosts>
+
+  <!-- Security & Allowed Domains -->
+  <AppDomains>
+    <AppDomain>http://localhost:5173</AppDomain>
+    <AppDomain>https://localhost:5173</AppDomain>
+  </AppDomains>
+
+  <!-- Default Taskpane Entrypoint -->
+  <DefaultSettings>
+    <SourceLocation DefaultValue="http://localhost:5173/excel-taskpane" />
+  </DefaultSettings>
+
+  <!-- Document Read/Write Capabilities -->
+  <Permissions>ReadWriteDocument</Permissions>
+
+  <VersionOverrides xmlns="http://schemas.microsoft.com/office/taskpaneappversionoverrides" xsi:type="VersionOverridesV1_0">
+    <Hosts>
+      <Host xsi:type="Workbook">
+        <DesktopFormFactor>
+          <ExtensionPoint xsi:type="PrimaryCommandSurface">
+            <CustomTab id="MaritimePlatformTab">
+              <Group id="MaritimeDataGroup">
+                <Label resid="GroupLabel" />
+                <Icon>
+                  <bt:Image size="16" resid="Icon16" />
+                  <bt:Image size="32" resid="Icon32" />
+                  <bt:Image size="80" resid="Icon80" />
+                </Icon>
+                <Control xsi:type="Button" id="OpenTaskpaneButton">
+                  <Label resid="TaskpaneButtonLabel" />
+                  <Supertip>
+                    <Title resid="TaskpaneButtonLabel" />
+                    <Description resid="TaskpaneButtonDescription" />
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="Icon16" />
+                    <bt:Image size="32" resid="Icon32" />
+                    <bt:Image size="80" resid="Icon80" />
+                  </Icon>
+                  <Action xsi:type="ShowTaskpane">
+                    <TaskpaneId>MaritimeTaskpane</TaskpaneId>
+                    <SourceLocation resid="TaskpaneUrl" />
+                  </Action>
+                </Control>
+              </Group>
+              <Label resid="TabLabel" />
+            </CustomTab>
+          </ExtensionPoint>
+        </DesktopFormFactor>
+      </Host>
+    </Hosts>
+    <Resources>
+      <bt:Images>
+        <bt:Image id="Icon16" DefaultValue="https://raw.githubusercontent.com/lucide-icons/lucide/main/icons/anchor.png" />
+        <bt:Image id="Icon32" DefaultValue="https://raw.githubusercontent.com/lucide-icons/lucide/main/icons/anchor.png" />
+        <bt:Image id="Icon80" DefaultValue="https://raw.githubusercontent.com/lucide-icons/lucide/main/icons/anchor.png" />
+      </bt:Images>
+      <bt:Urls>
+        <bt:Url id="TaskpaneUrl" DefaultValue="http://localhost:5173/excel-taskpane" />
+      </bt:Urls>
+      <bt:ShortStrings>
+        <bt:String id="GroupLabel" DefaultValue="Maritime Intelligence" />
+        <bt:String id="TaskpaneButtonLabel" DefaultValue="Maritime Explorer" />
+        <bt:String id="TabLabel" DefaultValue="Maritime Analytics" />
+      </bt:ShortStrings>
+      <bt:LongStrings>
+        <bt:String id="TaskpaneButtonDescription" DefaultValue="Open the Maritime Intelligence live query and data insertion taskpane." />
+      </bt:LongStrings>
+    </Resources>
+  </VersionOverrides>
+</OfficeApp>
