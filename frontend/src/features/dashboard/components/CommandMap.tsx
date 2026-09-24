@@ -361,7 +361,7 @@ export function CommandMap({
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <span style={{ fontSize: '0.6875rem', color: '#64748b' }}>
-            CARTO DARK TILES &middot; AUTO-SCALED
+            DARK NAUTICAL TILES &middot; AUTO-SCALED
           </span>
         </div>
       </div>
