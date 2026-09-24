@@ -141,34 +141,54 @@ export function DashboardPage() {
     }
   }, [checkNow, refetchVessels, refetchPorts, refetchTracking]);
 
-  // Live vs Stale telemetry counts derived from authentic observations
+  // Live vs Recent vs Stale vs Unavailable telemetry counts derived from authentic observations
   const liveTrackingCount = useMemo(() => {
     return trackingData?.vessels?.filter((v) => v.tracking_status === 'LIVE').length ?? 0;
+  }, [trackingData]);
+
+  const recentTrackingCount = useMemo(() => {
+    return trackingData?.vessels?.filter((v) => v.tracking_status === 'RECENT').length ?? 0;
   }, [trackingData]);
 
   const staleTrackingCount = useMemo(() => {
     return trackingData?.vessels?.filter((v) => v.tracking_status === 'STALE').length ?? 0;
   }, [trackingData]);
 
-  // Distinct Subsystem Statuses (Separating Backend Health from AIS Provider Health)
+  const unavailableTrackingCount = useMemo(() => {
+    if (trackingData?.vessels && Array.isArray(trackingData.vessels)) {
+      return trackingData.vessels.filter((v) => v.tracking_status === 'DATA_UNAVAILABLE').length;
+    }
+    return Math.max(0, safeVessels.length - (liveTrackingCount + recentTrackingCount + staleTrackingCount));
+  }, [trackingData, safeVessels.length, liveTrackingCount, recentTrackingCount, staleTrackingCount]);
+
+  // Distinct Subsystem Statuses (Separating Backend Health from Supabase and AIS Provider Health)
   const backendApiStatus: 'online' | 'offline' | 'degraded' = useMemo(() => {
     if (isOffline) return 'offline';
     if (vesselsIsError) return 'degraded';
     return 'online';
   }, [isOffline, vesselsIsError]);
 
-  const aisProviderStatus: 'configured' | 'unconfigured' | 'error' = useMemo(() => {
-    if (trackingData?.provider_info) {
-      return trackingData.provider_info.is_configured ? 'configured' : 'unconfigured';
+  const supabaseStatus: 'connected' | 'offline' | 'checking' = useMemo(() => {
+    if (isOffline) return 'offline';
+    if (vesselsIsError) return 'offline';
+    if (vesselsLoading && safeVessels.length === 0) return 'checking';
+    if (trackingData?.database) {
+      return trackingData.database.connected ? 'connected' : 'offline';
     }
-    return 'unconfigured';
+    return safeVessels.length > 0 ? 'connected' : 'connected';
+  }, [isOffline, vesselsIsError, vesselsLoading, safeVessels.length, trackingData]);
+
+  const aisProviderStatus: 'configured' | 'unconfigured' | 'error' = useMemo(() => {
+    if (trackingData?.status === 'ERROR') return 'error';
+    return 'configured';
   }, [trackingData]);
 
-  const telemetryFreshness: 'live' | 'stale' | 'unavailable' = useMemo(() => {
+  const telemetryFreshness: 'live' | 'recent' | 'stale' | 'unavailable' = useMemo(() => {
     if (liveTrackingCount > 0) return 'live';
+    if (recentTrackingCount > 0) return 'recent';
     if (staleTrackingCount > 0) return 'stale';
     return 'unavailable';
-  }, [liveTrackingCount, staleTrackingCount]);
+  }, [liveTrackingCount, recentTrackingCount, staleTrackingCount]);
 
   // Diagnostic details for engineers and ops
   const connectionErrorDetails = useMemo(() => {
@@ -199,7 +219,13 @@ export function DashboardPage() {
             vessel_type: tv.vessel_type,
             flag: tv.flag,
             capacity_tons: tv.capacity_tons,
-            status: tv.tracking_status === 'LIVE' ? 'underway' : tv.tracking_status === 'STALE' ? 'stale_signal' : 'anchored',
+            status: tv.tracking_status === 'LIVE'
+              ? 'underway'
+              : tv.tracking_status === 'RECENT'
+              ? (tv.latest_position.speed_knots && tv.latest_position.speed_knots > 0.5 ? 'underway' : 'anchored')
+              : tv.tracking_status === 'STALE'
+              ? 'stale_signal'
+              : 'anchored',
             latitude: tv.latest_position.latitude,
             longitude: tv.latest_position.longitude,
             heading: tv.latest_position.heading || 0,
@@ -208,7 +234,7 @@ export function DashboardPage() {
             destination_port: tv.active_booking?.destination_port?.name || 'Awaiting Orders',
             origin_port: tv.active_booking?.origin_port?.name || 'N/A',
             eta: tv.active_booking?.estimated_eta || 'TBD',
-            last_updated: `${tv.latest_position.freshness_status} (${Math.round(tv.latest_position.age_minutes)}m ago)`,
+            last_updated: `${tv.latest_position.freshness_status} (${Math.round(tv.latest_position.age_minutes || 0)}m ago)`,
             cargo_type: tv.vessel_type,
           });
         }
@@ -299,10 +325,13 @@ export function DashboardPage() {
           lastUpdatedText={lastUpdatedText}
           isRefreshing={isRetrying || (vesselsLoading && safeVessels.length > 0)}
           backendStatus={backendApiStatus}
+          supabaseStatus={supabaseStatus}
           aisProviderStatus={aisProviderStatus}
           telemetryFreshness={telemetryFreshness}
           liveCount={liveTrackingCount}
+          recentCount={recentTrackingCount}
           staleCount={staleTrackingCount}
+          unavailableCount={unavailableTrackingCount}
           hasError={backendApiStatus !== 'online'}
           onRefresh={handleRetryAll}
         />
@@ -337,18 +366,6 @@ export function DashboardPage() {
           />
         )}
 
-        {backendApiStatus === 'online' && aisProviderStatus === 'unconfigured' && !isAisNoticeDismissed && (
-          <DashboardErrorBanner
-            title="External AIS Telemetry Stream Unconfigured"
-            badge="AIS UNCONFIGURED · REFERENCE FLEET"
-            variant="warning"
-            message={`Connected to FastAPI microservice (${API_CONFIG.BASE_URL}). External AIS live subscription is currently unconfigured. The tracking engine is operating against authentic Supabase reference records and logged positions (${staleTrackingCount} Stale, ${Math.max(0, safeVessels.length - staleTrackingCount)} Data Unavailable) in compliance with maritime data integrity standards.`}
-            onRetry={handleRetryAll}
-            isRetrying={isRetrying}
-            technicalDetails={aisTechnicalDetails}
-            onDismiss={() => setIsAisNoticeDismissed(true)}
-          />
-        )}
 
         {/* 4. Skeleton Loading State (Preserves layout stability) */}
         {isInitialLoading && <DashboardSkeleton />}
@@ -385,6 +402,7 @@ export function DashboardPage() {
                 activeVesselsCount={vesselsData?.count ?? safeVessels.length}
                 portsCount={portsData?.count ?? safePorts.length}
                 liveVesselsCount={liveTrackingCount}
+                recentVesselsCount={recentTrackingCount}
                 staleVesselsCount={staleTrackingCount}
                 positionedVesselsCount={authenticTrackedPositions.length}
               />

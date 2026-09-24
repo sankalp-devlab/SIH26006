@@ -140,6 +140,12 @@ export interface TrackingSystemStatus {
   status: string;
   engine_name: string;
   engine_version: string;
+  database?: {
+    connected: boolean;
+    provider: string;
+    table_vessels?: string;
+    table_positions?: string;
+  };
   provider_info: {
     provider_type: string;
     is_configured: boolean;

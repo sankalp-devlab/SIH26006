@@ -228,6 +228,13 @@ export const TrackingDashboardPage: React.FC = () => {
           </div>
 
           <div style={{ padding: '10px 14px', backgroundColor: 'var(--color-bg-surface)', borderRadius: '8px', border: '1px solid var(--color-border-subtle)' }}>
+            <div style={{ fontSize: '0.6875rem', color: '#0284c7', fontWeight: 600 }}>Recent Signals (2h–24h)</div>
+            <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#0284c7', marginTop: '2px' }}>
+              {systemStatus.metrics.recent_vessels_count || 0}
+            </div>
+          </div>
+
+          <div style={{ padding: '10px 14px', backgroundColor: 'var(--color-bg-surface)', borderRadius: '8px', border: '1px solid var(--color-border-subtle)' }}>
             <div style={{ fontSize: '0.6875rem', color: '#f59e0b', fontWeight: 600 }}>Stale Signals (&gt; 24h)</div>
             <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#f59e0b', marginTop: '2px' }}>
               {systemStatus.metrics.stale_vessels_count}
