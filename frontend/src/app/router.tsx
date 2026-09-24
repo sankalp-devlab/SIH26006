@@ -90,6 +90,26 @@ export const router = createBrowserRouter([
         element: <VesselMapPage />,
       },
       {
+        path: '/live-map',
+        element: <VesselMapPage />,
+      },
+      {
+        path: '/vessel-map',
+        element: <VesselMapPage />,
+      },
+      {
+        path: '/vessels/map',
+        element: <VesselMapPage />,
+      },
+      {
+        path: '/fleet-map',
+        element: <VesselMapPage />,
+      },
+      {
+        path: '/tracking/map',
+        element: <VesselMapPage />,
+      },
+      {
         path: '/vessels/:id',
         element: <VesselDashboardPage />,
       },

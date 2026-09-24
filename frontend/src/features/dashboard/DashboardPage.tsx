@@ -92,14 +92,15 @@ export function DashboardPage() {
 
   // Retry & Status Lifecycle States
   const [isRetrying, setIsRetrying] = useState(false);
-  const [isBannerDismissed, setIsBannerDismissed] = useState(false);
+  const [isErrorBannerDismissed, setIsErrorBannerDismissed] = useState(false);
+  const [isAisNoticeDismissed, setIsAisNoticeDismissed] = useState(false);
   const [lastSuccessfulRefresh, setLastSuccessfulRefresh] = useState<Date | null>(new Date());
 
   // Update last successful refresh timestamp when vessels or tracking data loads
   useEffect(() => {
     if (vesselsData || trackingData) {
       setLastSuccessfulRefresh(new Date());
-      setIsBannerDismissed(false);
+      setIsErrorBannerDismissed(false);
     }
   }, [vesselsData, trackingData]);
 
@@ -140,10 +141,39 @@ export function DashboardPage() {
     }
   }, [checkNow, refetchVessels, refetchPorts, refetchTracking]);
 
+  // Live vs Stale telemetry counts derived from authentic observations
+  const liveTrackingCount = useMemo(() => {
+    return trackingData?.vessels?.filter((v) => v.tracking_status === 'LIVE').length ?? 0;
+  }, [trackingData]);
+
+  const staleTrackingCount = useMemo(() => {
+    return trackingData?.vessels?.filter((v) => v.tracking_status === 'STALE').length ?? 0;
+  }, [trackingData]);
+
+  // Distinct Subsystem Statuses (Separating Backend Health from AIS Provider Health)
+  const backendApiStatus: 'online' | 'offline' | 'degraded' = useMemo(() => {
+    if (isOffline) return 'offline';
+    if (vesselsIsError) return 'degraded';
+    return 'online';
+  }, [isOffline, vesselsIsError]);
+
+  const aisProviderStatus: 'configured' | 'unconfigured' | 'error' = useMemo(() => {
+    if (trackingData?.provider_info) {
+      return trackingData.provider_info.is_configured ? 'configured' : 'unconfigured';
+    }
+    return 'unconfigured';
+  }, [trackingData]);
+
+  const telemetryFreshness: 'live' | 'stale' | 'unavailable' = useMemo(() => {
+    if (liveTrackingCount > 0) return 'live';
+    if (staleTrackingCount > 0) return 'stale';
+    return 'unavailable';
+  }, [liveTrackingCount, staleTrackingCount]);
+
   // Diagnostic details for engineers and ops
-  const technicalErrorDetails = useMemo(() => {
+  const connectionErrorDetails = useMemo(() => {
     const errorMsg = vesselsError instanceof Error ? vesselsError.message : vesselsError ? String(vesselsError) : 'Failed to reach API endpoint';
-    return `Endpoint: ${API_CONFIG.BASE_URL}/tracking/vessels?limit=50&offset=0\nHealth Probe: ${API_CONFIG.BASE_URL}${API_CONFIG.HEALTH_ENDPOINT}\nStatus: ${isOffline ? 'OFFLINE (Connection Refused)' : 'ERROR'}\nDetails: ${errorMsg}\nTimestamp: ${new Date().toISOString()}`;
+    return `Target API Base URL: ${API_CONFIG.BASE_URL}\nHealth Probe: ${API_CONFIG.BASE_URL}${API_CONFIG.HEALTH_ENDPOINT}\nConnection Status: ${isOffline ? 'OFFLINE (Connection Refused / Network Error)' : 'DEGRADED'}\nError Details: ${errorMsg}\nTimestamp: ${new Date().toISOString()}`;
   }, [vesselsError, isOffline]);
 
   // Telemetry enrichment: Grounded strictly in authentic observations from public.vessel_positions
@@ -154,7 +184,13 @@ export function DashboardPage() {
         if (
           tv.latest_position &&
           typeof tv.latest_position.latitude === 'number' &&
-          typeof tv.latest_position.longitude === 'number'
+          typeof tv.latest_position.longitude === 'number' &&
+          !isNaN(tv.latest_position.latitude) &&
+          !isNaN(tv.latest_position.longitude) &&
+          tv.latest_position.latitude >= -90 &&
+          tv.latest_position.latitude <= 90 &&
+          tv.latest_position.longitude >= -180 &&
+          tv.latest_position.longitude <= 180
         ) {
           positions.push({
             id: tv.vessel_id,
@@ -184,18 +220,14 @@ export function DashboardPage() {
     return MapDataService.enrichVesselsWithPositions(safeVessels);
   }, [trackingData, safeVessels]);
 
-  const liveTrackingCount = useMemo(() => {
-    return trackingData?.vessels?.filter((v) => v.tracking_status === 'LIVE').length ?? 0;
-  }, [trackingData]);
-
-  const staleTrackingCount = useMemo(() => {
-    return trackingData?.vessels?.filter((v) => v.tracking_status === 'STALE').length ?? 0;
-  }, [trackingData]);
+  const aisTechnicalDetails = useMemo(() => {
+    const provider = trackingData?.provider_info;
+    return `Microservice: ${API_CONFIG.BASE_URL}\nHealth Probe: OK (${API_CONFIG.BASE_URL}${API_CONFIG.HEALTH_ENDPOINT})\nAIS Provider: ${provider?.provider_type || 'SUPABASE_VESSEL_POSITIONS'}\nProvider Configured: ${provider?.is_configured ? 'true' : 'false'}\nProvider URL: ${provider?.provider_url || 'null (Direct Database Telemetry)'}\nProvider Status: ${provider?.status_message || 'External AIS subscription is unconfigured.'}\nRegistered Fleet: ${safeVessels.length} vessels (361K DWT)\nPersisted Coordinates: ${authenticTrackedPositions.length} vessels\nFreshness Policy: Rule 28 (Authentic positions only; unlogged coordinates reported as DATA_UNAVAILABLE)\nTimestamp: ${new Date().toISOString()}`;
+  }, [trackingData, safeVessels.length, authenticTrackedPositions.length]);
 
   // Loading & Error States
   const isInitialLoading = (vesselsLoading || portsLoading) && safeVessels.length === 0 && !vesselsIsError;
-  const hasError = vesselsIsError || isOffline;
-  const hasErrorBanner = hasError && !isBannerDismissed;
+  const hasError = backendApiStatus !== 'online';
   const isEmpty = !isInitialLoading && !hasError && safeVessels.length === 0;
 
   // Visibility preferences from localStorage
@@ -266,31 +298,55 @@ export function DashboardPage() {
           onOpenCustomize={() => setIsCustomizeOpen(true)}
           lastUpdatedText={lastUpdatedText}
           isRefreshing={isRetrying || (vesselsLoading && safeVessels.length > 0)}
-          hasError={Boolean(hasError)}
+          backendStatus={backendApiStatus}
+          aisProviderStatus={aisProviderStatus}
+          telemetryFreshness={telemetryFreshness}
+          liveCount={liveTrackingCount}
+          staleCount={staleTrackingCount}
+          hasError={backendApiStatus !== 'online'}
+          onRefresh={handleRetryAll}
         />
 
         {/* 2. Live Market Ticker */}
         {visibility.ticker && <LiveMarketTicker />}
 
-        {/* 3. Compact Enterprise Error Banner (Non-destructive) */}
-        {hasErrorBanner && (
+        {/* 3. Distinct Enterprise Status Banners */}
+        {backendApiStatus === 'offline' && !isErrorBannerDismissed && (
           <DashboardErrorBanner
-            title={
-              isOffline
-                ? 'OceanLens Maritime API Offline'
-                : 'Unable to Load Live Vessel Feed'
-            }
-            message={
-              isOffline
-                ? 'FastAPI maritime service (http://127.0.0.1:8000) is currently unreachable. Displaying cached intelligence where available.'
-                : (vesselsError instanceof Error
-                    ? vesselsError.message
-                    : 'The maritime intelligence feed could not be reached. Please verify the backend connection.')
-            }
+            title="OceanLens Maritime API Offline"
+            badge="API OFFLINE"
+            variant="error"
+            message={`FastAPI maritime service (${API_CONFIG.BASE_URL}) is currently unreachable. Displaying cached intelligence where available.`}
             onRetry={handleRetryAll}
             isRetrying={isRetrying}
-            technicalDetails={technicalErrorDetails}
-            onDismiss={() => setIsBannerDismissed(true)}
+            technicalDetails={connectionErrorDetails}
+            onDismiss={() => setIsErrorBannerDismissed(true)}
+          />
+        )}
+
+        {backendApiStatus === 'degraded' && !isErrorBannerDismissed && (
+          <DashboardErrorBanner
+            title="Maritime Intelligence Feed Degraded"
+            badge="API DEGRADED"
+            variant="warning"
+            message={vesselsError instanceof Error ? vesselsError.message : 'The vessel registry service encountered a partial error. Cached intelligence displayed.'}
+            onRetry={handleRetryAll}
+            isRetrying={isRetrying}
+            technicalDetails={connectionErrorDetails}
+            onDismiss={() => setIsErrorBannerDismissed(true)}
+          />
+        )}
+
+        {backendApiStatus === 'online' && aisProviderStatus === 'unconfigured' && !isAisNoticeDismissed && (
+          <DashboardErrorBanner
+            title="External AIS Telemetry Stream Unconfigured"
+            badge="AIS UNCONFIGURED · REFERENCE FLEET"
+            variant="warning"
+            message={`Connected to FastAPI microservice (${API_CONFIG.BASE_URL}). External AIS live subscription is currently unconfigured. The tracking engine is operating against authentic Supabase reference records and logged positions (${staleTrackingCount} Stale, ${Math.max(0, safeVessels.length - staleTrackingCount)} Data Unavailable) in compliance with maritime data integrity standards.`}
+            onRetry={handleRetryAll}
+            isRetrying={isRetrying}
+            technicalDetails={aisTechnicalDetails}
+            onDismiss={() => setIsAisNoticeDismissed(true)}
           />
         )}
 

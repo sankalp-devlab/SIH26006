@@ -23,8 +23,10 @@ from tracking_engine import TrackingEngine
 
 
 # --------------------------------------------------
-# FASTAPI APP
+# ENVIRONMENT & FASTAPI APP
 # --------------------------------------------------
+
+load_dotenv()
 
 app = FastAPI(
     title="SIH 26006 API",
@@ -42,18 +44,20 @@ ALLOWED_ORIGINS = [
     "http://127.0.0.1:5174",
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "https://sih-26006.vercel.app",
 ]
 
 cors_env = os.getenv("CORS_ORIGINS")
 if cors_env:
     for origin in cors_env.split(","):
-        trimmed = origin.strip()
+        trimmed = origin.strip().strip("'\"")
         if trimmed and trimmed not in ALLOWED_ORIGINS:
             ALLOWED_ORIGINS.append(trimmed)
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
+    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -63,8 +67,6 @@ app.add_middleware(
 # --------------------------------------------------
 # SUPABASE CONNECTION
 # --------------------------------------------------
-
-load_dotenv()
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_SECRET_KEY")

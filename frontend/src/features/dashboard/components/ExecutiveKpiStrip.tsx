@@ -54,13 +54,14 @@ export function ExecutiveKpiStrip({
 
     const avgSpeed = speedCount > 0 ? (speedSum / speedCount).toFixed(1) + ' kn' : '14.0 kn';
     const dwtFormatted = totalDwt > 0 ? `${(totalDwt / 1000).toFixed(0)}K DWT` : (totalVessels > 0 ? '361K DWT' : 'Unavailable');
+    const unavailCount = Math.max(0, totalVessels - (liveVesselsCount + staleVesselsCount));
 
     return {
-      totalVessels: totalVessels > 0 ? `${totalVessels} Ships` : 'Unavailable',
+      totalVessels: totalVessels > 0 ? `${totalVessels} Ships` : (totalVessels === 0 ? '0 Ships' : 'Unavailable'),
       liveTelemetry: `${liveVesselsCount} Live`,
-      telemetrySub: `${staleVesselsCount} Stale · ${totalVessels - (liveVesselsCount + staleVesselsCount)} Unavail`,
+      telemetrySub: totalVessels > 0 ? `${staleVesselsCount} Stale · ${unavailCount} Unavail` : 'Awaiting Signals',
       totalDwt: dwtFormatted,
-      portsCount: portsCount ? `${portsCount} Hubs` : 'Unavailable',
+      portsCount: typeof portsCount === 'number' && portsCount >= 0 ? `${portsCount} Hubs` : 'Unavailable',
       distinctClasses: classes.size > 0 ? `${classes.size} Classes` : '4 Classes',
       avgSpeed,
     };
@@ -82,10 +83,10 @@ export function ExecutiveKpiStrip({
       label: 'LIVE AIS TELEMETRY',
       value: calculated.liveTelemetry,
       sub: calculated.telemetrySub,
-      delta: liveVesselsCount > 0 ? 'Verified' : 'Rule 28',
+      delta: liveVesselsCount > 0 ? 'Verified' : (staleVesselsCount > 0 ? 'Reference' : 'Rule 28'),
       isPositive: liveVesselsCount > 0,
       sparklinePoints: '0,12 8,10 16,11 24,9 32,8 40,6 48,4',
-      sparklineColor: '#34d399',
+      sparklineColor: liveVesselsCount > 0 ? '#34d399' : (staleVesselsCount > 0 ? '#fbbf24' : '#64748b'),
     },
     {
       id: 'trade_volume',

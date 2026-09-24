@@ -98,6 +98,14 @@ const ROUTE_ALIASES: Record<string, string[]> = {
     '/analytics/bookings',
     '/analytics/commercial-bookings',
   ],
+  '/map': [
+    '/map',
+    '/live-map',
+    '/vessel-map',
+    '/vessels/map',
+    '/fleet-map',
+    '/tracking/map',
+  ],
   '/voyages': [
     '/voyages',
     '/voyages-analytics',

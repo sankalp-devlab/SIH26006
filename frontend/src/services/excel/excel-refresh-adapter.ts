@@ -45,7 +45,7 @@ export class ExcelRefreshAdapter {
    * Resolves the API endpoint URL for Excel refresh
    */
   public static resolveRefreshEndpoint(config: DataQueryConfig, baseUrl?: string): string {
-    const host = baseUrl || (typeof window !== 'undefined' && window.location.origin
+    const host = baseUrl || this.DEFAULT_BASE_URL || (typeof window !== 'undefined' && window.location.origin
       ? window.location.origin
       : this.DEFAULT_BASE_URL);
 

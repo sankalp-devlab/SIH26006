@@ -1,0 +1,18 @@
+{
+  "buildCommand": "cd frontend && npm install && npm run build",
+  "outputDirectory": "frontend/dist",
+  "rewrites": [
+    {
+      "source": "/api/excel/refresh",
+      "destination": "https://oceanlens-backend.onrender.com/api/excel/refresh"
+    },
+    {
+      "source": "/api-proxy/(.*)",
+      "destination": "https://oceanlens-backend.onrender.com/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

@@ -3,10 +3,13 @@ import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { Settings, Bell, Key, Server, Save } from 'lucide-react';
+import { API_CONFIG } from '../../config/api';
+import { useApiStatus } from '../api-status/ApiStatusContext';
 
 export default function SettingsPage() {
+  const { isOnline, isOffline } = useApiStatus();
   const [activeTab, setActiveTab] = useState<'general' | 'api' | 'notifications'>('general');
-  const [apiBaseUrl, setApiBaseUrl] = useState(import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000');
+  const [apiBaseUrl, setApiBaseUrl] = useState(API_CONFIG.BASE_URL);
   const [saved, setSaved] = useState(false);
 
   const handleSave = (e: React.FormEvent) => {
@@ -111,7 +114,9 @@ export default function SettingsPage() {
                     <span style={{ fontWeight: 600, fontSize: 14 }}>FastAPI Microservice (Uvicorn)</span>
                     <p style={{ margin: '2px 0 0', fontSize: 12, color: '#64748b' }}>Primary calculation and query routing server</p>
                   </div>
-                  <Badge variant="success">Online &bull; Port 8000</Badge>
+                  <Badge variant={isOnline ? 'success' : isOffline ? 'danger' : 'warning'}>
+                    {isOnline ? 'Online · Live Microservice' : isOffline ? 'Offline · Disconnected' : 'Checking Status'}
+                  </Badge>
                 </div>
 
                 <div className="form-group">
@@ -123,7 +128,7 @@ export default function SettingsPage() {
                     onChange={(e) => setApiBaseUrl(e.target.value)}
                   />
                   <span className="text-xs text-muted" style={{ marginTop: 4, display: 'block' }}>
-                    Proxied via Vite dev server (/api/* rewrite to 127.0.0.1:8000)
+                    Active maritime intelligence microservice base URL
                   </span>
                 </div>
 

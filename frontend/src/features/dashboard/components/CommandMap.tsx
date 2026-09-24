@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { MapTilesService } from '../../../services/map/map-tiles.service';
 import {
   Plus,
   Minus,
@@ -82,10 +83,11 @@ export function CommandMap({
     });
 
     // Dark cartographic nautical tiles
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; CartoDB &copy; OpenStreetMap',
-      maxZoom: 18,
-      subdomains: 'abcd',
+    const tileConfig = MapTilesService.getTileConfig('dark');
+    L.tileLayer(tileConfig.url, {
+      attribution: tileConfig.attribution,
+      maxZoom: tileConfig.maxZoom,
+      subdomains: tileConfig.subdomains,
     }).addTo(map);
 
     vesselGroupRef.current.addTo(map);
@@ -238,7 +240,18 @@ export function CommandMap({
     vesselGroupRef.current.clearLayers();
     if (!activeLayers.vessels) return;
 
-    safeVessels.forEach((v) => {
+    const validVessels = safeVessels.filter((v) =>
+      typeof v.latitude === 'number' &&
+      typeof v.longitude === 'number' &&
+      !isNaN(v.latitude) &&
+      !isNaN(v.longitude) &&
+      v.latitude >= -90 &&
+      v.latitude <= 90 &&
+      v.longitude >= -180 &&
+      v.longitude <= 180
+    );
+
+    validVessels.forEach((v) => {
       const isSelected = v.id === selectedVesselId;
       const heading = v.heading || 0;
 
