@@ -31,6 +31,10 @@ class CostFeaturePipeline:
 
     # Standardized categorical mapping for vessel types
     VESSEL_TYPE_MAP: Dict[str, int] = {
+        "handysize": 1,
+        "supramax": 1,
+        "panamax": 1,
+        "capesize": 1,
         "bulk carrier": 1,
         "container": 2,
         "general cargo": 3,

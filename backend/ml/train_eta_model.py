@@ -48,13 +48,18 @@ def train_eta_model(
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
-    # 1. Load data if path provided
-    if historical_df is None and csv_path and os.path.exists(csv_path):
-        try:
-            historical_df = pd.read_csv(csv_path)
-        except Exception as e:
-            report["reason"] = f"Failed to read CSV at {csv_path}: {e}"
-            return report
+    # 1. Load data if path provided or discover default
+    if historical_df is None:
+        if csv_path is None:
+            default_csv = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "Data", "historical_voyages.csv"))
+            if os.path.exists(default_csv):
+                csv_path = default_csv
+        if csv_path and os.path.exists(csv_path):
+            try:
+                historical_df = pd.read_csv(csv_path)
+            except Exception as e:
+                report["reason"] = f"Failed to read CSV at {csv_path}: {e}"
+                return report
 
     # 2. Audit historical dataset
     audit = audit_historical_dataset(historical_df)
@@ -79,9 +84,11 @@ def train_eta_model(
     X, y = EtaFeaturePipeline.extract_features_from_dataframe(historical_df)
 
     # Remove any NaN targets
+    X = X.reset_index(drop=True)
+    y = y.reset_index(drop=True)
     valid_idx = y.dropna().index
-    X = X.loc[valid_idx]
-    y = y.loc[valid_idx]
+    X = X.iloc[valid_idx].reset_index(drop=True)
+    y = y.iloc[valid_idx].reset_index(drop=True)
 
     n_samples = len(X)
     train_end = int(n_samples * 0.70)

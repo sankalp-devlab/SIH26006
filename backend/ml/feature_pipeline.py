@@ -139,7 +139,7 @@ class EtaFeaturePipeline:
                 except Exception:
                     targets.append(np.nan)
 
-        X = pd.DataFrame(processed_rows)[cls.FEATURE_COLUMNS]
-        y = pd.Series(targets, name="actual_voyage_duration_hours") if targets else None
+        X = pd.DataFrame(processed_rows)[cls.FEATURE_COLUMNS].reset_index(drop=True)
+        y = pd.Series(targets, name="actual_voyage_duration_hours").reset_index(drop=True) if targets else None
 
         return X, y

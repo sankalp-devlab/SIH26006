@@ -1,0 +1,45 @@
+{
+  "model_name": "XGBoost Maritime Voyage Cost Predictor",
+  "model_version": "1.0.0",
+  "trained_at": "2026-09-25T08:46:42.823075+00:00",
+  "algorithm": "XGBoost Regressor (Scikit-Learn API)",
+  "target_field": "actual_total_voyage_cost",
+  "target_unit": "USD",
+  "features": [
+    "distance_nm",
+    "effective_speed_knots",
+    "voyage_duration_days",
+    "vessel_capacity_tons",
+    "vessel_draft_m",
+    "vessel_type_encoded",
+    "cargo_weight_tons",
+    "cargo_volume_m3",
+    "capacity_utilization_pct",
+    "fuel_consumption_laden_mt_day",
+    "departure_month",
+    "departure_dayofweek"
+  ],
+  "train_rows": 588,
+  "val_rows": 126,
+  "test_rows": 126,
+  "metrics": {
+    "mae_usd": 40634.008978174614,
+    "rmse_usd": 71646.85020723332,
+    "r2_score": 0.9807163150004417
+  },
+  "feature_importances": {
+    "distance_nm": 0.24431049823760986,
+    "effective_speed_knots": 0.0009386052843183279,
+    "voyage_duration_days": 0.41974005103111267,
+    "vessel_capacity_tons": 0.2635799050331116,
+    "vessel_draft_m": 0.04681271314620972,
+    "vessel_type_encoded": 0.0,
+    "cargo_weight_tons": 0.019532274454832077,
+    "cargo_volume_m3": 0.002817900152876973,
+    "capacity_utilization_pct": 0.000980351702310145,
+    "fuel_consumption_laden_mt_day": 0.0,
+    "departure_month": 0.0006526421057060361,
+    "departure_dayofweek": 0.0006349862669594586
+  },
+  "xgboost_version": "3.4.1"
+}

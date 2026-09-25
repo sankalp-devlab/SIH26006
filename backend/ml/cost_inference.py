@@ -36,6 +36,8 @@ class XGBoostCostPredictor:
     def get_instance(cls) -> "XGBoostCostPredictor":
         if cls._instance is None:
             cls._instance = cls()
+        elif cls._instance.model is None:
+            cls._instance._load_model()
         return cls._instance
 
     def _load_model(self):

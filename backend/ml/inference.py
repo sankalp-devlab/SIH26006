@@ -29,7 +29,7 @@ class XGBoostEtaPredictor:
 
     @classmethod
     def load_model(cls) -> Tuple[Optional[xgb.XGBRegressor], Optional[Dict[str, Any]]]:
-        if cls._loaded:
+        if cls._loaded and cls._model is not None:
             return cls._model, cls._metadata
 
         cls._loaded = True

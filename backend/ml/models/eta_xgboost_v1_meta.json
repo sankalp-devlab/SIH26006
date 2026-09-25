@@ -1,0 +1,44 @@
+{
+  "model_name": "xgboost_eta",
+  "model_version": "1.0",
+  "target": "actual_voyage_duration_hours",
+  "features": [
+    "distance_nm",
+    "effective_speed_knots",
+    "theoretical_voyage_hours",
+    "vessel_capacity_tons",
+    "vessel_draft_m",
+    "cargo_weight_tons",
+    "weight_capacity_ratio",
+    "vessel_type_encoded",
+    "departure_month",
+    "departure_day",
+    "departure_hour",
+    "departure_dayofweek"
+  ],
+  "metrics": {
+    "xgboost_mae_hours": 11.13,
+    "xgboost_rmse_hours": 25.05,
+    "xgboost_r2": 0.9882,
+    "baseline_mae_hours": 28.43,
+    "baseline_rmse_hours": 30.39,
+    "test_sample_count": 126,
+    "train_sample_count": 588,
+    "val_sample_count": 126
+  },
+  "feature_importances": {
+    "distance_nm": 0.7194,
+    "theoretical_voyage_hours": 0.176,
+    "vessel_capacity_tons": 0.054,
+    "cargo_weight_tons": 0.0131,
+    "effective_speed_knots": 0.0118,
+    "departure_day": 0.0116,
+    "departure_dayofweek": 0.0057,
+    "departure_hour": 0.004,
+    "weight_capacity_ratio": 0.0021,
+    "departure_month": 0.0015,
+    "vessel_draft_m": 0.0006,
+    "vessel_type_encoded": 0.0003
+  },
+  "trained_at": "2026-09-25T08:46:23.973485+00:00"
+}

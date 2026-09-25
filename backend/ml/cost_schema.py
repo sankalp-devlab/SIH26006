@@ -145,10 +145,13 @@ def audit_historical_cost_dataset(df: Optional[pd.DataFrame] = None) -> Dict[str
 
     # 3. Check for Data Leakage
     feature_cols = [c for c in df.columns if c != target_col]
+    # For a unified multi-target historical dataset, actual_voyage_duration_hours is the target
+    # for Module 15 (ETA) and is not used as a feature in CostFeaturePipeline.
+    allowed_multitarget = {"actual_voyage_duration_hours", "actual_voyage_duration"}
     leaked = [
         c
         for c in feature_cols
-        if c.lower() in HistoricalCostSchema.FORBIDDEN_LEAKAGE_FIELDS
+        if c.lower() in HistoricalCostSchema.FORBIDDEN_LEAKAGE_FIELDS and c.lower() not in allowed_multitarget
     ]
     if leaked:
         report["leakage_detected"] = True

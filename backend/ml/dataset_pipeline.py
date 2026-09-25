@@ -407,26 +407,46 @@ class HistoricalDatasetPipeline:
         # Historical voyage logs are 0 rows.
         historical_records_discovered = sum(d["row_count"] for d in voyage_datasets)
 
-        # 3. Evaluate historical dimensions on candidate data (empty in authentic state)
+        # 3. Evaluate historical dimensions on candidate data
         candidate_df: Optional[pd.DataFrame] = None
+        cleaned_records_count = 0
+        root = cls.get_base_dir(base_dir)
+
+        if voyage_datasets:
+            for vds in voyage_datasets:
+                if vds.get("source_type") == "local_file":
+                    csv_full_path = root / vds["relative_path"]
+                    if csv_full_path.exists():
+                        try:
+                            raw_df = pd.read_csv(csv_full_path)
+                            candidate_df, clean_stats = cls.clean_and_deduplicate(raw_df)
+                            cleaned_records_count = clean_stats["final_row_count"]
+                            break
+                        except Exception:
+                            pass
+
         dimensions_report = cls.validate_historical_voyage_dimensions(candidate_df)
 
         # 4. Target availability for downstream ML modules
         targets_report = cls.assess_target_availability(candidate_df)
 
         # 5. Determine overall Module 14 status
-        if historical_records_discovered >= 50 and targets_report["module_15_eta"]["is_available"]:
+        if (
+            historical_records_discovered >= 50
+            and targets_report["module_15_eta"]["is_available"]
+            and targets_report["module_16_cost"]["is_available"]
+        ):
             pipeline_status = "COMPLETE"
+            remaining_blockers = []
         else:
             # Honestly report status as BLOCKED / PENDING_HISTORICAL_DATA
             pipeline_status = "BLOCKED"
-
-        remaining_blockers = [
-            "No empirical completed voyage observations in Data/ or Supabase tables.",
-            "Module 15 ETA training label ('actual_voyage_duration_hours') is unavailable in source files.",
-            "Module 16 Cost training label ('actual_total_voyage_cost') is unavailable in source files.",
-            "Per non-negotiable Rules 28 and 33, model training on synthetic or fabricated data is strictly prohibited.",
-        ]
+            remaining_blockers = [
+                "No empirical completed voyage observations in Data/ or Supabase tables.",
+                "Module 15 ETA training label ('actual_voyage_duration_hours') is unavailable in source files.",
+                "Module 16 Cost training label ('actual_total_voyage_cost') is unavailable in source files.",
+                "Per non-negotiable Rules 28 and 33, model training on synthetic or fabricated data is strictly prohibited.",
+            ]
 
         return {
             "status": pipeline_status,
@@ -437,7 +457,7 @@ class HistoricalDatasetPipeline:
             },
             "datasets_discovered": discovered,
             "historical_records_discovered": historical_records_discovered,
-            "valid_records_after_cleaning": 0,
+            "valid_records_after_cleaning": cleaned_records_count,
             "historical_dimensions": dimensions_report,
             "targets_assessment": targets_report,
             "downstream_compatibility": {

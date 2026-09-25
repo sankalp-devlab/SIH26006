@@ -28,7 +28,7 @@ MODEL_PATH = MODEL_DIR / "xgboost_cost_model.joblib"
 METADATA_PATH = MODEL_DIR / "cost_metadata.json"
 
 
-def train_cost_model(df: Optional[pd.DataFrame] = None) -> Dict[str, Any]:
+def train_cost_model(df: Optional[pd.DataFrame] = None, csv_path: Optional[str] = None) -> Dict[str, Any]:
     """
     Trains an XGBoost regression model to predict maritime voyage cost.
     If historical dataset is missing or insufficient, halts execution cleanly
@@ -37,6 +37,18 @@ def train_cost_model(df: Optional[pd.DataFrame] = None) -> Dict[str, Any]:
     print("=" * 60)
     print("MODULE 16: STARTING XGBOOST COST MODEL TRAINING PIPELINE")
     print("=" * 60)
+
+    # 0. Load data if path provided or discover default
+    if df is None:
+        if csv_path is None:
+            default_csv = Path(__file__).resolve().parent.parent.parent / "Data" / "historical_voyages.csv"
+            if default_csv.exists():
+                csv_path = str(default_csv)
+        if csv_path and os.path.exists(csv_path):
+            try:
+                df = pd.read_csv(csv_path)
+            except Exception as e:
+                print(f"Error reading CSV at {csv_path}: {e}")
 
     # 1. Audit historical dataset
     audit = audit_historical_cost_dataset(df)
