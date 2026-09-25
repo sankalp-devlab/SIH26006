@@ -117,10 +117,12 @@ export const CargoDetailDrawer: React.FC<CargoDetailDrawerProps> = ({
   } = useRecommendations();
 
   const handleTriggerRouteCalc = async () => {
-    if (!cargo?.origin_port?.id || !cargo?.destination_port?.id) return;
+    const originPortId = cargo?.origin_port?.id ?? cargo?.origin_port_id;
+    const destPortId = cargo?.destination_port?.id ?? cargo?.destination_port_id;
+    if (!originPortId || !destPortId) return;
     await calculate({
-      origin_port_id: cargo.origin_port.id,
-      destination_port_id: cargo.destination_port.id,
+      origin_port_id: originPortId,
+      destination_port_id: destPortId,
       vessel_id: cargo.matched_vessel?.vessel_id,
       cargo_id: cargo.id,
       cargo_type: cargo.cargo_type,
@@ -129,74 +131,86 @@ export const CargoDetailDrawer: React.FC<CargoDetailDrawerProps> = ({
   };
 
   const handleTriggerCostCalc = async (bunkerPrice?: number, dailyHire?: number) => {
-    if (!cargo?.origin_port?.id || !cargo?.destination_port?.id) return;
+    const originPortId = cargo?.origin_port?.id ?? cargo?.origin_port_id;
+    const destPortId = cargo?.destination_port?.id ?? cargo?.destination_port_id;
+    if (!originPortId || !destPortId) return;
     const vesselId = cargo.matched_vessel?.vessel_id || 1;
     await calculateCost({
       cargo_id: cargo.id,
       vessel_id: vesselId,
-      origin_port_id: cargo.origin_port.id,
-      destination_port_id: cargo.destination_port.id,
+      origin_port_id: originPortId,
+      destination_port_id: destPortId,
       bunker_price_usd_per_mt: bunkerPrice,
       daily_hire_usd: dailyHire,
     });
   };
 
   const handleTriggerEtaCalc = async (departureTimeOverride?: string) => {
-    if (!cargo?.origin_port?.id || !cargo?.destination_port?.id) return;
+    const originPortId = cargo?.origin_port?.id ?? cargo?.origin_port_id;
+    const destPortId = cargo?.destination_port?.id ?? cargo?.destination_port_id;
+    if (!originPortId || !destPortId) return;
     const vesselId = cargo.matched_vessel?.vessel_id || 1;
     await calculateEta({
       cargo_id: cargo.id,
       vessel_id: vesselId,
-      origin_port_id: cargo.origin_port.id,
-      destination_port_id: cargo.destination_port.id,
+      origin_port_id: originPortId,
+      destination_port_id: destPortId,
       departure_time: departureTimeOverride,
     });
   };
 
   const handleTriggerMlEta = async () => {
-    if (!cargo?.origin_port?.id || !cargo?.destination_port?.id) return;
+    const originPortId = cargo?.origin_port?.id ?? cargo?.origin_port_id;
+    const destPortId = cargo?.destination_port?.id ?? cargo?.destination_port_id;
+    if (!originPortId || !destPortId) return;
     const vesselId = cargo.matched_vessel?.vessel_id || 1;
     await predictMlEta({
       cargo_id: cargo.id,
       vessel_id: vesselId,
-      origin_port_id: cargo.origin_port.id,
-      destination_port_id: cargo.destination_port.id,
+      origin_port_id: originPortId,
+      destination_port_id: destPortId,
     });
   };
 
   const handleTriggerMlCost = async (bunkerPrice?: number, dailyHire?: number) => {
-    if (!cargo?.origin_port?.id || !cargo?.destination_port?.id) return;
+    const originPortId = cargo?.origin_port?.id ?? cargo?.origin_port_id;
+    const destPortId = cargo?.destination_port?.id ?? cargo?.destination_port_id;
+    if (!originPortId || !destPortId) return;
     const vesselId = cargo.matched_vessel?.vessel_id || 1;
     await predictMlCost({
       cargo_id: cargo.id,
       vessel_id: vesselId,
-      origin_port_id: cargo.origin_port.id,
-      destination_port_id: cargo.destination_port.id,
+      origin_port_id: originPortId,
+      destination_port_id: destPortId,
       bunker_price_usd_per_mt: bunkerPrice,
       daily_hire_usd: dailyHire,
     });
   };
 
   const handleTriggerRiskAssess = async () => {
-    if (!cargo?.origin_port?.id || !cargo?.destination_port?.id) return;
+    const originPortId = cargo?.origin_port?.id ?? cargo?.origin_port_id;
+    const destPortId = cargo?.destination_port?.id ?? cargo?.destination_port_id;
+    if (!originPortId || !destPortId) return;
     const vesselId = cargo.matched_vessel?.vessel_id || 1;
     await assessRisk({
       cargo_id: cargo.id,
       vessel_id: vesselId,
-      origin_port_id: cargo.origin_port.id,
-      destination_port_id: cargo.destination_port.id,
+      origin_port_id: originPortId,
+      destination_port_id: destPortId,
     });
   };
 
   const handleTriggerRecommendations = async () => {
-    if (!cargo?.origin_port?.id || !cargo?.destination_port?.id) return;
+    const originPortId = cargo?.origin_port?.id ?? cargo?.origin_port_id;
+    const destPortId = cargo?.destination_port?.id ?? cargo?.destination_port_id;
+    if (!originPortId || !destPortId) return;
     await generateRecommendations({
       cargo_id: cargo.id,
       cargo_type: cargo.cargo_type,
       weight_tons: cargo.weight_tons,
       cargo_description: cargo.description || cargo.commodity,
-      origin_port_id: cargo.origin_port.id,
-      destination_port_id: cargo.destination_port.id,
+      origin_port_id: originPortId,
+      destination_port_id: destPortId,
       preference: selectedPreference,
       bunker_price_usd_per_mt: bunkerPrice,
       daily_hire_usd: dailyHire,

@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { portsService } from '../services/api/ports.service';
 import { vesselsService } from '../services/api/vessels.service';
 import { routesService } from '../services/api/routes.service';
+import { trackingService } from '../services/api/tracking.service';
 import type { Port } from '../types/port';
 import type { Vessel } from '../types/vessel';
 import type { Route } from '../types/route';
@@ -82,6 +83,13 @@ export function useMapData(): MapDataResult {
     staleTime: 1000 * 60 * 5,
   });
 
+  // 4. Fetch real tracked vessel positions from tracking service (backed by public.vessel_positions)
+  const trackingQuery = useQuery({
+    queryKey: ['map', 'tracking'],
+    queryFn: () => trackingService.getTrackedVessels(),
+    staleTime: 1000 * 60 * 2,
+  });
+
   const ports = useMemo(() => portsQuery.data?.ports ?? [], [portsQuery.data]);
   const vessels = useMemo(() => vesselsQuery.data?.vessels ?? [], [vesselsQuery.data]);
   const routes = useMemo(() => routesQuery.data?.routes ?? [], [routesQuery.data]);
@@ -109,25 +117,53 @@ export function useMapData(): MapDataResult {
   }, [ports]);
 
   // Separate vessels with real coordinates from unpositioned vessels
+  // Merges vessel specifications with latest authentic positions from public.vessel_positions
   // RULE: Never invent fake coordinates.
   const { positionedVessels, unpositionedVessels } = useMemo(() => {
     const positioned: VesselPosition[] = [];
     const unpositioned: Vessel[] = [];
 
+    const trackingMap = new Map<number, NonNullable<typeof trackingQuery.data>['vessels'][0]>();
+    (trackingQuery.data?.vessels || []).forEach((t) => {
+      trackingMap.set(t.vessel_id, t);
+    });
+
     vessels.forEach((v) => {
-      // Check if vessel has valid coordinates directly attached
-      const rawLat = (v as any).latitude;
-      const rawLng = (v as any).longitude;
+      // 1. Check if vessel has valid coordinates directly attached
+      let lat = (v as any).latitude;
+      let lng = (v as any).longitude;
+      let heading = (v as any).heading ?? 0;
+      let speed = (v as any).speed_knots ?? (v.speed_laden_knots || 0);
+      let status = v.status || 'underway';
+      let lastUpdated = 'Fleet Registry';
+
+      // 2. Fall back to authentic stored telemetry from public.vessel_positions
+      const tracked = trackingMap.get(v.id);
+      if (tracked?.latest_position) {
+        if (
+          typeof tracked.latest_position.latitude === 'number' &&
+          typeof tracked.latest_position.longitude === 'number'
+        ) {
+          lat = tracked.latest_position.latitude;
+          lng = tracked.latest_position.longitude;
+          heading = tracked.latest_position.heading ?? heading;
+          speed = tracked.latest_position.speed_knots ?? speed;
+          status = tracked.tracking_status === 'LIVE' ? 'underway' : tracked.tracking_status === 'RECENT' ? 'underway' : 'anchored';
+          lastUpdated = tracked.latest_position.recorded_at
+            ? new Date(tracked.latest_position.recorded_at).toLocaleDateString()
+            : 'AIS Telemetry';
+        }
+      }
 
       if (
-        typeof rawLat === 'number' &&
-        typeof rawLng === 'number' &&
-        !isNaN(rawLat) &&
-        !isNaN(rawLng) &&
-        rawLat >= -90 &&
-        rawLat <= 90 &&
-        rawLng >= -180 &&
-        rawLng <= 180
+        typeof lat === 'number' &&
+        typeof lng === 'number' &&
+        !isNaN(lat) &&
+        !isNaN(lng) &&
+        lat >= -90 &&
+        lat <= 90 &&
+        lng >= -180 &&
+        lng <= 180
       ) {
         positioned.push({
           id: v.id,
@@ -136,16 +172,16 @@ export function useMapData(): MapDataResult {
           vessel_type: v.vessel_type || 'Commercial Vessel',
           flag: v.flag,
           capacity_tons: v.capacity_tons,
-          status: v.status || 'underway',
-          latitude: rawLat,
-          longitude: rawLng,
-          heading: (v as any).heading ?? 0,
-          speed_knots: (v as any).speed_knots ?? (v.speed_laden_knots || 0),
+          status,
+          latitude: lat,
+          longitude: lng,
+          heading,
+          speed_knots: speed,
           draft_m: v.draft_m,
           destination_port: (v as any).destination_port ?? 'Awaiting orders',
           origin_port: (v as any).origin_port ?? 'Not assigned',
           eta: (v as any).eta ?? 'TBD',
-          last_updated: 'Live Telemetry',
+          last_updated: lastUpdated,
           cargo_type: v.cargo_types,
           fuel_consumption_mt_day: v.fuel_laden_mt_day ?? undefined,
         });
@@ -155,7 +191,7 @@ export function useMapData(): MapDataResult {
     });
 
     return { positionedVessels: positioned, unpositionedVessels: unpositioned };
-  }, [vessels]);
+  }, [vessels, trackingQuery.data]);
 
   // Resolve routes with their real origin and destination ports
   const resolvedRoutes = useMemo<ResolvedRoute[]>(() => {
@@ -188,19 +224,21 @@ export function useMapData(): MapDataResult {
     [resolvedRoutes]
   );
 
-  const isLoading = portsQuery.isLoading || vesselsQuery.isLoading || routesQuery.isLoading;
-  const isError = portsQuery.isError || vesselsQuery.isError || routesQuery.isError;
-  const error = (portsQuery.error || vesselsQuery.error || routesQuery.error) as Error | null;
+  const isLoading = portsQuery.isLoading || vesselsQuery.isLoading || routesQuery.isLoading || trackingQuery.isLoading;
+  const isError = portsQuery.isError || vesselsQuery.isError || routesQuery.isError || trackingQuery.isError;
+  const error = (portsQuery.error || vesselsQuery.error || routesQuery.error || trackingQuery.error) as Error | null;
   const dataUpdatedAt = Math.max(
     portsQuery.dataUpdatedAt || 0,
     vesselsQuery.dataUpdatedAt || 0,
-    routesQuery.dataUpdatedAt || 0
+    routesQuery.dataUpdatedAt || 0,
+    trackingQuery.dataUpdatedAt || 0
   );
 
   const refetchAll = () => {
     portsQuery.refetch();
     vesselsQuery.refetch();
     routesQuery.refetch();
+    trackingQuery.refetch();
   };
 
   return {

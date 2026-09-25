@@ -43,10 +43,11 @@ export const BookingsPage: React.FC = () => {
     setError(null);
     try {
       const response = await bookingService.getBookings({ limit: 100 });
-      setBookings(response.bookings || []);
+      const list = response?.bookings || [];
+      setBookings(list);
       // If an active booking is selected, refresh its details
       if (activeBooking) {
-        const refreshed = response.bookings.find((b) => b.booking_id === activeBooking.booking_id);
+        const refreshed = list.find((b) => b.booking_id === activeBooking.booking_id);
         if (refreshed) setActiveBooking(refreshed);
       }
     } catch (err: any) {

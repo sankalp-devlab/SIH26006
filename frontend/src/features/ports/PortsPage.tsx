@@ -76,13 +76,13 @@ export function PortsPage() {
       id: 'activity',
       label: 'Live Vessel Activity',
       icon: Ship,
-      badge: payload?.activities.length,
+      badge: payload?.activities?.length,
     },
     {
       id: 'terminals',
       label: 'Terminals & Berthing Lineup',
       icon: Building2,
-      badge: payload?.terminals.length,
+      badge: payload?.terminals?.length,
     },
     {
       id: 'commercial',

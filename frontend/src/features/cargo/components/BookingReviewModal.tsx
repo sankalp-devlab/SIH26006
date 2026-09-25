@@ -74,8 +74,8 @@ export const BookingReviewModal: React.FC<BookingReviewModalProps> = ({
     const payload: CreateBookingRequest = {
       cargo_id: cargo.id,
       vessel_id: selectedVessel.vessel_id,
-      origin_port_id: cargo.origin_port?.id,
-      destination_port_id: cargo.destination_port?.id,
+      origin_port_id: cargo.origin_port?.id ?? cargo.origin_port_id ?? undefined,
+      destination_port_id: cargo.destination_port?.id ?? cargo.destination_port_id ?? undefined,
       estimated_cost: estCost,
       cost_source: costSource,
       estimated_eta: estArrival,

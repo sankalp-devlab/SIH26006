@@ -12,6 +12,44 @@ import type {
   BookingFilters,
 } from '../../types/booking';
 
+/**
+ * Normalizes any raw bookings payload into a safe BookingRecord[] array.
+ */
+export function normalizeBookings(raw: unknown): BookingRecord[] {
+  if (!raw) return [];
+  if (Array.isArray(raw)) return raw as BookingRecord[];
+  if (typeof raw === 'object') {
+    const obj = raw as Record<string, unknown>;
+    if (Array.isArray(obj.bookings)) return obj.bookings as BookingRecord[];
+    if (Array.isArray(obj.data)) return obj.data as BookingRecord[];
+    if (Array.isArray(obj.items)) return obj.items as BookingRecord[];
+    if (Array.isArray(obj.results)) return obj.results as BookingRecord[];
+  }
+  return [];
+}
+
+/**
+ * Normalizes any raw API response into a valid BookingListResponse object.
+ */
+export function normalizeBookingsResponse(raw: unknown): BookingListResponse {
+  const bookings = normalizeBookings(raw);
+  let count = bookings.length;
+  let limit = 100;
+  let offset = 0;
+  if (raw && typeof raw === 'object') {
+    const obj = raw as Record<string, unknown>;
+    if (typeof obj.count === 'number') count = obj.count;
+    if (typeof obj.limit === 'number') limit = obj.limit;
+    if (typeof obj.offset === 'number') offset = obj.offset;
+  }
+  return {
+    count,
+    limit,
+    offset,
+    bookings,
+  };
+}
+
 export const bookingService = {
   /**
    * Submits a formal booking request for a cargo consignment with an eligible vessel.
@@ -41,7 +79,8 @@ export const bookingService = {
       params.offset = filters.offset;
     }
 
-    return apiClient.get<BookingListResponse>('/bookings', { params });
+    const raw = await apiClient.get<unknown>('/bookings', { params });
+    return normalizeBookingsResponse(raw);
   },
 
   /**
