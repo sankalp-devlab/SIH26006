@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Plus,
   RefreshCw,
@@ -6,6 +7,7 @@ import {
   Radio,
   Boxes,
   Compass,
+  Sparkles,
 } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
 import type { CargoAnalyticsSummary, CargoRecord } from '../../../types/cargo';
@@ -31,6 +33,7 @@ export const CargoHeader: React.FC<CargoHeaderProps> = ({
   onOpenMaritimeOptions,
   cargos,
 }) => {
+  const navigate = useNavigate();
   const handleExportCSV = () => {
     if (cargos.length === 0) return;
     const headers = [
@@ -189,6 +192,31 @@ export const CargoHeader: React.FC<CargoHeaderProps> = ({
         >
           New Cargo Inquiry
         </Button>
+
+        {/* Dedicated Vessel Booking Intelligence */}
+        <button
+          type="button"
+          onClick={() => navigate('/vessel-intelligence')}
+          className="btn btn-sm"
+          style={{
+            height: '36px',
+            padding: '0 14px',
+            borderRadius: '6px',
+            backgroundColor: 'rgba(14, 165, 233, 0.15)',
+            border: '1px solid rgba(56, 189, 248, 0.4)',
+            color: '#38bdf8',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            fontSize: '12px',
+            fontWeight: 700,
+            cursor: 'pointer',
+          }}
+          title="Open Dedicated Vessel Booking Intelligence Module"
+        >
+          <Sparkles size={13} />
+          <span>Vessel Intelligence</span>
+        </button>
 
         {/* Dedicated Find Maritime Options Action */}
         {onOpenMaritimeOptions && (

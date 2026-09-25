@@ -12,6 +12,7 @@ import { VoyagesPage } from '../features/voyages/VoyagesPage';
 import { BookingsPage } from '../features/bookings/BookingsPage';
 import { TrackingDashboardPage } from '../features/tracking/TrackingDashboardPage';
 import { AnalyticsPage } from '../features/analytics/AnalyticsPage';
+import { VesselBookingIntelligencePage } from '../features/vessel-intelligence/VesselBookingIntelligencePage';
 import { NotFoundPage } from '../pages/NotFoundPage';
 
 // Stubs & Capability Modules
@@ -76,6 +77,18 @@ export const router = createBrowserRouter([
       {
         path: '/bookings',
         element: <BookingsPage />,
+      },
+      {
+        path: '/vessel-intelligence',
+        element: <VesselBookingIntelligencePage />,
+      },
+      {
+        path: '/booking-intelligence',
+        element: <VesselBookingIntelligencePage />,
+      },
+      {
+        path: '/vessel-booking-intelligence',
+        element: <VesselBookingIntelligencePage />,
       },
       {
         path: '/tracking',

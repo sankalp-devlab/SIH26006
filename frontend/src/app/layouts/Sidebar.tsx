@@ -28,6 +28,7 @@ import {
   FileSpreadsheet,
   Database,
   Bot,
+  Sparkles,
 } from 'lucide-react';
 import { Tooltip } from '../../components/ui/Tooltip';
 import { useFavourites } from '../../hooks/useFavourites';
@@ -115,6 +116,11 @@ const ROUTE_ALIASES: Record<string, string[]> = {
     '/analytics/bookings',
     '/analytics/commercial-bookings',
   ],
+  '/vessel-intelligence': [
+    '/vessel-intelligence',
+    '/booking-intelligence',
+    '/vessel-booking-intelligence',
+  ],
   '/map': [
     '/map',
     '/live-map',
@@ -158,6 +164,7 @@ const NAV_SECTIONS: NavSectionConfig[] = [
       { to: '/voyages', label: 'Voyages', icon: Route },
       { to: '/ports', label: 'Port Insights', icon: Anchor },
       { to: '/cargo', label: 'Cargo', icon: Package },
+      { to: '/vessel-intelligence', label: 'Booking Intelligence', icon: Sparkles },
       { to: '/bookings', label: 'Commercial Bookings', icon: BookmarkCheck },
       { to: '/tracking', label: 'Live Vessel Tracking', icon: Radio },
       { to: '/routes', label: 'Routes', icon: Navigation },

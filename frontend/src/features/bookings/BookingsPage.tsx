@@ -22,6 +22,7 @@ import {
   ArrowRight,
   BookmarkCheck,
   Radio,
+  Sparkles,
 } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { bookingService } from '../../services/api/booking.service';
@@ -167,6 +168,19 @@ export const BookingsPage: React.FC = () => {
             disabled={isLoading}
           >
             Refresh Bookings
+          </Button>
+
+          <Button
+            size="sm"
+            variant="primary"
+            icon={<Sparkles size={14} />}
+            onClick={() => navigate('/vessel-intelligence')}
+            style={{
+              background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+              fontWeight: 700,
+            }}
+          >
+            Vessel Booking Intelligence
           </Button>
         </div>
       </div>
