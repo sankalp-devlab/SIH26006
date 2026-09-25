@@ -89,81 +89,61 @@ export const PortVesselActivityTab: React.FC<PortVesselActivityTabProps> = ({
   };
 
   return (
-    <div className="space-y-4">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       {/* Control Bar: Status Tabs + Search + Terminal Filter */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-slate-900/60 p-4 rounded-xl border border-slate-800 backdrop-blur-md">
+      <div className="piw-filter-bar">
         {/* Status Filter Buttons */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0">
+        <div className="piw-filter-pills-row">
           <button
+            type="button"
             onClick={() => setStatusFilter('all')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 ${
-              statusFilter === 'all'
-                ? 'bg-cyan-600 text-white shadow-sm'
-                : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700'
-            }`}
+            className={`piw-pill-btn ${statusFilter === 'all' ? 'active-all' : ''}`}
           >
-            All Activity
-            <span className="bg-slate-950/40 px-1.5 py-0.2 rounded text-[10px] font-mono">
-              {counts.all}
-            </span>
+            <span>All Activity</span>
+            <span className="piw-pill-count">{counts.all}</span>
           </button>
 
           <button
+            type="button"
             onClick={() => setStatusFilter('arriving')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 ${
-              statusFilter === 'arriving'
-                ? 'bg-cyan-600 text-white shadow-sm'
-                : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700'
-            }`}
+            className={`piw-pill-btn ${statusFilter === 'arriving' ? 'active-arriving' : ''}`}
           >
-            <Ship className="h-3.5 w-3.5" />
-            Arriving
-            <span className="bg-slate-950/40 px-1.5 py-0.2 rounded text-[10px] font-mono">
-              {counts.arriving}
-            </span>
+            <Ship size={14} />
+            <span>Arriving</span>
+            <span className="piw-pill-count">{counts.arriving}</span>
           </button>
 
           <button
+            type="button"
             onClick={() => setStatusFilter('waiting')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 ${
-              statusFilter === 'waiting'
-                ? 'bg-amber-600 text-white shadow-sm'
-                : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700'
-            }`}
+            className={`piw-pill-btn ${statusFilter === 'waiting' ? 'active-waiting' : ''}`}
           >
-            <Anchor className="h-3.5 w-3.5" />
-            At Anchorage
-            <span className="bg-slate-950/40 px-1.5 py-0.2 rounded text-[10px] font-mono">
-              {counts.waiting}
-            </span>
+            <Anchor size={14} />
+            <span>At Anchorage</span>
+            <span className="piw-pill-count">{counts.waiting}</span>
           </button>
 
           <button
+            type="button"
             onClick={() => setStatusFilter('operating')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 ${
-              statusFilter === 'operating'
-                ? 'bg-emerald-600 text-white shadow-sm'
-                : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700'
-            }`}
+            className={`piw-pill-btn ${statusFilter === 'operating' ? 'active-operating' : ''}`}
           >
-            <Activity className="h-3.5 w-3.5" />
-            Operating Berths
-            <span className="bg-slate-950/40 px-1.5 py-0.2 rounded text-[10px] font-mono">
-              {counts.operating}
-            </span>
+            <Activity size={14} />
+            <span>Operating Berths</span>
+            <span className="piw-pill-count">{counts.operating}</span>
           </button>
         </div>
 
         {/* Search & Terminal Select */}
-        <div className="flex items-center gap-2">
-          <div className="relative flex-1 md:w-56">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+        <div className="piw-filter-controls-right">
+          <div className="piw-search-container">
+            <Search size={14} color="#64748b" />
             <input
               type="text"
               placeholder="Search vessel or cargo..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-950/80 border border-slate-700 rounded-lg text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+              className="piw-search-input"
             />
           </div>
 
@@ -171,7 +151,7 @@ export const PortVesselActivityTab: React.FC<PortVesselActivityTabProps> = ({
             value={terminalFilter}
             onChange={(e) => setTerminalFilter(e.target.value)}
             aria-label="Filter by terminal"
-            className="text-xs bg-slate-950/80 border border-slate-700 rounded-lg text-slate-300 py-1.5 px-2.5 focus:outline-none focus:border-cyan-500"
+            className="piw-select-dropdown"
           >
             <option value="all">All Terminals</option>
             {terminals.map((t) => (
@@ -184,175 +164,142 @@ export const PortVesselActivityTab: React.FC<PortVesselActivityTabProps> = ({
       </div>
 
       {/* Activity Data Table */}
-      <div className="rounded-xl border border-slate-800 bg-slate-900/60 overflow-hidden backdrop-blur-md">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-950/60 text-slate-400 border-b border-slate-800 font-semibold uppercase tracking-wider">
+      <div className="piw-table-card">
+        <div className="piw-table-wrapper">
+          <table className="piw-table">
+            <thead>
               <tr>
-                <th
-                  onClick={() => handleSort('name')}
-                  className="py-3 px-4 cursor-pointer hover:text-cyan-400 select-none"
-                >
-                  <div className="flex items-center gap-1">
-                    Vessel Name & IMO
-                    <ArrowUpDown className="h-3 w-3" />
-                  </div>
+                <th onClick={() => handleSort('name')} style={{ cursor: 'pointer' }}>
+                  <button type="button">
+                    <span>Vessel Name & IMO</span>
+                    <ArrowUpDown size={12} />
+                  </button>
                 </th>
-                <th
-                  onClick={() => handleSort('dwt')}
-                  className="py-3 px-3 cursor-pointer hover:text-cyan-400 select-none"
-                >
-                  <div className="flex items-center gap-1">
-                    Class / DWT
-                    <ArrowUpDown className="h-3 w-3" />
-                  </div>
+                <th onClick={() => handleSort('dwt')} style={{ cursor: 'pointer' }}>
+                  <button type="button">
+                    <span>Class / DWT</span>
+                    <ArrowUpDown size={12} />
+                  </button>
                 </th>
-                <th className="py-3 px-3">Status</th>
-                <th className="py-3 px-3">Terminal & Berth</th>
-                <th className="py-3 px-3">Cargo Manifest</th>
-                <th
-                  onClick={() => handleSort('waiting_hours')}
-                  className="py-3 px-3 cursor-pointer hover:text-cyan-400 select-none"
-                >
-                  <div className="flex items-center gap-1">
-                    Wait Time
-                    <ArrowUpDown className="h-3 w-3" />
-                  </div>
+                <th>Status</th>
+                <th>Terminal & Berth</th>
+                <th>Cargo Manifest</th>
+                <th onClick={() => handleSort('waiting_hours')} style={{ cursor: 'pointer' }}>
+                  <button type="button">
+                    <span>Wait Time</span>
+                    <ArrowUpDown size={12} />
+                  </button>
                 </th>
-                <th
-                  onClick={() => handleSort('eta')}
-                  className="py-3 px-3 cursor-pointer hover:text-cyan-400 select-none"
-                >
-                  <div className="flex items-center gap-1">
-                    ETA / Timeline
-                    <ArrowUpDown className="h-3 w-3" />
-                  </div>
+                <th onClick={() => handleSort('eta')} style={{ cursor: 'pointer' }}>
+                  <button type="button">
+                    <span>ETA / Timeline</span>
+                    <ArrowUpDown size={12} />
+                  </button>
                 </th>
-                <th className="py-3 px-4 text-right">Actions</th>
+                <th style={{ textAlign: 'right' }}>Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60 text-slate-200 font-normal">
+            <tbody>
               {processedActivities.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-8 text-center text-slate-400">
+                  <td colSpan={8} style={{ padding: '32px', textAlign: 'center', color: '#64748b' }}>
                     No vessel movements match the current filter criteria.
                   </td>
                 </tr>
               ) : (
                 processedActivities.map((act) => (
-                  <tr
-                    key={act.id}
-                    className="hover:bg-slate-800/40 transition-colors"
-                  >
+                  <tr key={act.id}>
                     {/* Vessel Name & IMO */}
-                    <td className="py-3 px-4">
-                      <div className="font-semibold text-slate-100 flex items-center gap-1.5">
+                    <td>
+                      <div style={{ fontWeight: 600, color: '#f1f5f9', display: 'flex', alignItems: 'center', gap: '6px' }}>
                         {act.vessel_id ? (
                           <Link
                             to={`/vessels/${act.vessel_id}`}
-                            className="text-cyan-400 hover:underline flex items-center gap-1 font-medium"
+                            style={{ color: '#00d8ff', textDecoration: 'none', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                           >
-                            {act.vessel_name}
-                            <ExternalLink className="h-2.5 w-2.5 inline" />
+                            <span>{act.vessel_name}</span>
+                            <ExternalLink size={12} />
                           </Link>
                         ) : (
                           <span>{act.vessel_name}</span>
                         )}
                       </div>
-                      <div className="text-[10px] text-slate-400 font-mono">
+                      <div style={{ fontSize: '10.5px', color: '#64748b', fontFamily: 'var(--font-mono, monospace)', marginTop: '2px' }}>
                         IMO {act.imo} • Flag: {act.flag}
                       </div>
                     </td>
 
                     {/* Class & DWT */}
-                    <td className="py-3 px-3">
-                      <div className="font-medium text-slate-200">{act.vessel_type}</div>
-                      <div className="text-[10px] text-slate-400 font-mono">
+                    <td>
+                      <div style={{ fontWeight: 500, color: '#e2e8f0' }}>{act.vessel_type}</div>
+                      <div style={{ fontSize: '10.5px', color: '#64748b', fontFamily: 'var(--font-mono, monospace)', marginTop: '2px' }}>
                         {act.dwt.toLocaleString()} DWT
                       </div>
                     </td>
 
                     {/* Status Badge */}
-                    <td className="py-3 px-3">
-                      <span
-                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold uppercase border ${
-                          act.status === 'operating'
-                            ? 'bg-emerald-950/80 text-emerald-400 border-emerald-800/60'
-                            : act.status === 'waiting'
-                            ? 'bg-amber-950/80 text-amber-400 border-amber-800/60'
-                            : 'bg-cyan-950/80 text-cyan-400 border-cyan-800/60'
-                        }`}
-                      >
-                        <span
-                          className={`h-1.5 w-1.5 rounded-full ${
-                            act.status === 'operating'
-                              ? 'bg-emerald-500'
-                              : act.status === 'waiting'
-                              ? 'bg-amber-500'
-                              : 'bg-cyan-500'
-                          }`}
-                        />
+                    <td>
+                      <span className={`piw-status-badge piw-status-${act.status}`}>
+                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'currentColor' }} />
                         {act.status}
                       </span>
                     </td>
 
                     {/* Terminal & Berth */}
-                    <td className="py-3 px-3">
-                      <div className="font-medium text-slate-200 text-xs">
-                        {act.terminal_name}
-                      </div>
-                      <div className="text-[10px] text-slate-400 font-mono">
+                    <td>
+                      <div style={{ fontWeight: 500, color: '#e2e8f0' }}>{act.terminal_name}</div>
+                      <div style={{ fontSize: '10.5px', color: '#64748b', fontFamily: 'var(--font-mono, monospace)', marginTop: '2px' }}>
                         {act.berth_assigned || 'Berth pending'}
                       </div>
                     </td>
 
                     {/* Cargo */}
-                    <td className="py-3 px-3">
-                      <div className="font-medium text-slate-200">{act.cargo_type}</div>
-                      <div className="text-[10px] text-slate-400 font-mono">
+                    <td>
+                      <div style={{ fontWeight: 500, color: '#e2e8f0' }}>{act.cargo_type}</div>
+                      <div style={{ fontSize: '10.5px', color: '#38bdf8', fontFamily: 'var(--font-mono, monospace)', marginTop: '2px' }}>
                         {act.operation} {act.cargo_quantity_mt.toLocaleString()} MT
                       </div>
                     </td>
 
                     {/* Waiting Hours */}
-                    <td className="py-3 px-3">
+                    <td>
                       {act.waiting_hours && act.waiting_hours > 0 ? (
-                        <div className="flex items-center gap-1 text-amber-300 font-mono font-semibold">
-                          <Clock className="h-3 w-3 text-amber-400" />
-                          {act.waiting_hours.toFixed(1)} hrs
+                        <div className="piw-wait-badge">
+                          <Clock size={12} />
+                          <span>{act.waiting_hours.toFixed(1)} hrs</span>
                         </div>
                       ) : (
-                        <span className="text-slate-500 font-mono">—</span>
+                        <span style={{ color: '#64748b', fontFamily: 'var(--font-mono, monospace)' }}>—</span>
                       )}
                     </td>
 
                     {/* ETA */}
-                    <td className="py-3 px-3">
-                      <div className="font-mono text-slate-200 text-[11px]">
+                    <td>
+                      <div style={{ fontFamily: 'var(--font-mono, monospace)', color: '#ffffff', fontSize: '12px' }}>
                         {act.eta ? new Date(act.eta).toLocaleDateString() : 'In Port'}
                       </div>
-                      <div className="text-[10px] text-slate-400 font-mono">
+                      <div style={{ fontSize: '10.5px', color: '#64748b', fontFamily: 'var(--font-mono, monospace)', marginTop: '2px' }}>
                         {act.eta ? new Date(act.eta).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Berthed'}
                       </div>
                     </td>
 
                     {/* Actions */}
-                    <td className="py-3 px-4 text-right">
-                      <div className="flex items-center justify-end gap-1.5">
+                    <td style={{ textAlign: 'right' }}>
+                      <div className="piw-action-group" style={{ justifyContent: 'flex-end' }}>
                         <Link
                           to={`/distance-calculator?origin=${encodeURIComponent(portName)}&destination=Singapore`}
                           title="Calculate routing distance from this port"
-                          className="p-1 rounded bg-slate-800 text-slate-300 hover:text-cyan-400 hover:bg-slate-700 transition-colors"
+                          className="piw-action-btn"
                         >
-                          <Navigation className="h-3.5 w-3.5" />
+                          <Navigation size={13} />
                         </Link>
                         {act.vessel_id && (
                           <Link
                             to={`/vessels/${act.vessel_id}`}
                             title="View vessel profile"
-                            className="p-1 rounded bg-slate-800 text-slate-300 hover:text-cyan-400 hover:bg-slate-700 transition-colors"
+                            className="piw-action-btn"
                           >
-                            <ExternalLink className="h-3.5 w-3.5" />
+                            <ExternalLink size={13} />
                           </Link>
                         )}
                       </div>

@@ -1,0 +1,769 @@
+/* ==========================================================================
+   MODULE 13: PORT INSIGHTS & OPERATIONAL ANALYTICS WORKSPACE STYLES
+   Engineered for high-density nautical intelligence, real-time berth monitoring,
+   bunker prices, and terminal infrastructure.
+   ========================================================================== */
+
+/* Workspace Container */
+.piw-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  box-sizing: border-box;
+  animation: piwFadeIn 0.25s ease-out;
+}
+
+@keyframes piwFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   WORKSPACE TABS (NO HORIZONTAL WHITE SCROLLBAR)
+   -------------------------------------------------------------------------- */
+.piw-tabs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid rgba(80, 180, 255, 0.15);
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  overflow-x: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+.piw-tabs::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+.piw-tab-btn {
+  height: 40px;
+  padding: 0 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #94a3b8;
+  background: #081729;
+  border: 1px solid rgba(80, 180, 255, 0.14);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+
+.piw-tab-btn:hover {
+  color: #ffffff;
+  border-color: rgba(56, 189, 248, 0.35);
+  background: #0d2238;
+}
+
+.piw-tab-btn.active {
+  color: #00d8ff;
+  background: rgba(0, 216, 255, 0.14);
+  border-color: #00d8ff;
+  box-shadow: 0 0 16px rgba(0, 216, 255, 0.15);
+}
+
+.piw-tab-badge {
+  padding: 1px 7px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-family: var(--font-mono, monospace);
+  font-weight: 700;
+  background: rgba(80, 180, 255, 0.15);
+  color: #38bdf8;
+}
+
+.piw-tab-btn.active .piw-tab-badge {
+  background: rgba(0, 216, 255, 0.28);
+  color: #00d8ff;
+}
+
+/* --------------------------------------------------------------------------
+   FILTER CONTROL BAR & SEGMENTED PILLS (TAB 1)
+   -------------------------------------------------------------------------- */
+.piw-filter-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #081729;
+  border: 1px solid rgba(80, 180, 255, 0.16);
+  border-radius: 10px;
+  padding: 12px 16px;
+  box-sizing: border-box;
+}
+
+@media (min-width: 768px) {
+  .piw-filter-bar {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.piw-filter-pills-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.piw-filter-pills-row::-webkit-scrollbar {
+  display: none;
+}
+
+.piw-pill-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 13px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.16s ease;
+  white-space: nowrap;
+}
+
+.piw-pill-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.piw-pill-btn.active-all {
+  background: rgba(2, 132, 199, 0.25);
+  border-color: #0284c7;
+  color: #ffffff;
+}
+
+.piw-pill-btn.active-arriving {
+  background: rgba(56, 189, 248, 0.2);
+  border-color: #38bdf8;
+  color: #38bdf8;
+}
+
+.piw-pill-btn.active-waiting {
+  background: rgba(245, 158, 11, 0.2);
+  border-color: #f59e0b;
+  color: #fbbf24;
+}
+
+.piw-pill-btn.active-operating {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: #10b981;
+  color: #34d399;
+}
+
+.piw-pill-count {
+  background: rgba(0, 0, 0, 0.45);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-family: var(--font-mono, monospace);
+  font-weight: 700;
+}
+
+.piw-filter-controls-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.piw-search-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #050e1a;
+  border: 1px solid rgba(80, 180, 255, 0.2);
+  border-radius: 6px;
+  padding: 0 10px;
+  height: 36px;
+  transition: border-color 0.15s ease;
+}
+
+.piw-search-container:focus-within {
+  border-color: #00d8ff;
+  box-shadow: 0 0 10px rgba(0, 216, 255, 0.25);
+}
+
+.piw-search-input {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 12.5px;
+  outline: none;
+  width: 170px;
+}
+
+.piw-search-input::placeholder {
+  color: #64748b;
+}
+
+.piw-select-dropdown {
+  background: #050e1a;
+  border: 1px solid rgba(80, 180, 255, 0.2);
+  color: #e2e8f0;
+  border-radius: 6px;
+  height: 36px;
+  padding: 0 10px;
+  font-size: 12px;
+  outline: none;
+  cursor: pointer;
+}
+
+.piw-select-dropdown:focus {
+  border-color: #00d8ff;
+}
+
+/* --------------------------------------------------------------------------
+   STRUCTURED MARITIME TABLES
+   -------------------------------------------------------------------------- */
+.piw-table-card {
+  background: #081729;
+  border: 1px solid rgba(80, 180, 255, 0.16);
+  border-radius: 10px;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.piw-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(80, 180, 255, 0.2) transparent;
+}
+
+.piw-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  text-align: left;
+}
+
+.piw-table th {
+  background: rgba(10, 24, 44, 0.95);
+  color: #94a3b8;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(80, 180, 255, 0.15);
+  white-space: nowrap;
+}
+
+.piw-table th button {
+  background: transparent;
+  border: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+}
+
+.piw-table th button:hover {
+  color: #00d8ff;
+}
+
+.piw-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: #cbd5e1;
+  vertical-align: middle;
+}
+
+.piw-table tr:hover td {
+  background: rgba(56, 189, 248, 0.04);
+}
+
+.piw-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* Status Chips */
+.piw-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 5px;
+  white-space: nowrap;
+}
+
+.piw-status-waiting {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+}
+
+.piw-status-operating {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.piw-status-arriving {
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.35);
+}
+
+.piw-status-confirmed {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.piw-wait-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono, monospace);
+  font-weight: 700;
+  color: #fbbf24;
+  background: rgba(245, 158, 11, 0.1);
+  padding: 3px 7px;
+  border-radius: 4px;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  font-size: 11.5px;
+}
+
+.piw-wait-badge.low {
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.25);
+}
+
+/* Action Icon Buttons */
+.piw-action-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.piw-action-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #38bdf8;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-decoration: none;
+}
+
+.piw-action-btn:hover {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: rgba(56, 189, 248, 0.35);
+  color: #ffffff;
+}
+
+/* --------------------------------------------------------------------------
+   TERMINALS INFRASTRUCTURE & OCCUPANCY (TAB 2)
+   -------------------------------------------------------------------------- */
+.piw-section-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.piw-section-heading {
+  font-size: 15px;
+  font-weight: 700;
+  color: #f8fafc;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.piw-terminals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.piw-terminal-card {
+  background: #081729;
+  border: 1px solid rgba(80, 180, 255, 0.16);
+  border-radius: 10px;
+  padding: 16px;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+.piw-terminal-card:hover {
+  border-color: rgba(0, 216, 255, 0.35);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.piw-terminal-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.piw-terminal-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+}
+
+.piw-terminal-type-tag {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: rgba(56, 189, 248, 0.12);
+  color: var(--ol-accent-light);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  padding: 2px 7px;
+  border-radius: 4px;
+  margin-top: 4px;
+}
+
+.piw-occupancy-badge {
+  font-family: var(--font-mono, monospace);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 5px;
+  border: 1px solid currentColor;
+}
+
+.piw-occupancy-badge.high {
+  background: rgba(244, 63, 94, 0.15);
+  color: #f43f5e;
+  border-color: rgba(244, 63, 94, 0.35);
+}
+
+.piw-occupancy-badge.normal {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border-color: rgba(16, 185, 129, 0.35);
+}
+
+.piw-occupancy-progress-wrap {
+  margin-bottom: 14px;
+}
+
+.piw-occupancy-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11.5px;
+  color: #94a3b8;
+  margin-bottom: 5px;
+}
+
+.piw-progress-track {
+  height: 7px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.piw-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+/* Crucial: Proper multi-line technical specs so text never runs together */
+.piw-specs-3col {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.piw-spec-unit {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.piw-spec-unit-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+  display: block;
+}
+
+.piw-spec-unit-value {
+  font-family: var(--font-mono, monospace);
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #f1f5f9;
+  display: block;
+}
+
+.piw-seq-badge {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(56, 189, 248, 0.15);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  color: #38bdf8;
+  font-size: 11px;
+  font-family: var(--font-mono, monospace);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* --------------------------------------------------------------------------
+   PORT TARIFFS & BUNKER PRICES (TAB 3)
+   -------------------------------------------------------------------------- */
+.piw-bunkers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.piw-bunker-card {
+  background: #081729;
+  border: 1px solid rgba(80, 180, 255, 0.16);
+  border-radius: 10px;
+  padding: 16px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.2s ease;
+}
+
+.piw-bunker-card:hover {
+  border-color: rgba(0, 216, 255, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.piw-bunker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.piw-bunker-grade-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: 0.02em;
+}
+
+.piw-bunker-avail-badge {
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.piw-bunker-avail-badge.avail {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.piw-bunker-avail-badge.limited {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+}
+
+.piw-bunker-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin: 6px 0;
+}
+
+.piw-bunker-price-val {
+  font-family: var(--font-mono, monospace);
+  font-size: 24px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.piw-bunker-price-unit {
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.piw-bunker-delta-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11.5px;
+  font-weight: 700;
+  margin-top: 4px;
+}
+
+.piw-bunker-supplier-name {
+  font-size: 10.5px;
+  color: #64748b;
+  margin-top: 8px;
+}
+
+/* Two-Column Dues & DA Simulator Layout */
+.piw-commercial-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
+  gap: 20px;
+}
+
+@media (max-width: 1024px) {
+  .piw-commercial-columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+.piw-da-card {
+  background: #081729;
+  border: 1px solid rgba(80, 180, 255, 0.2);
+  border-radius: 10px;
+  padding: 18px;
+  box-sizing: border-box;
+}
+
+.piw-da-input-group {
+  margin-bottom: 14px;
+}
+
+.piw-da-input-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #94a3b8;
+  margin-bottom: 5px;
+}
+
+.piw-da-range-slider {
+  width: 100%;
+  accent-color: #00d8ff;
+  cursor: pointer;
+}
+
+.piw-da-breakdown-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  font-size: 12px;
+  color: #cbd5e1;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+}
+
+.piw-da-total-box {
+  background: rgba(0, 216, 255, 0.08);
+  border: 1px solid rgba(0, 216, 255, 0.3);
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 14px;
+  text-align: center;
+}
+
+.piw-da-total-val {
+  font-family: var(--font-mono, monospace);
+  font-size: 22px;
+  font-weight: 800;
+  color: #00d8ff;
+  margin-top: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   HISTORICAL CALLS & TURNAROUND (TAB 4)
+   -------------------------------------------------------------------------- */
+.piw-historical-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.piw-stat-card {
+  background: #081729;
+  border: 1px solid rgba(80, 180, 255, 0.16);
+  border-radius: 10px;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.piw-stat-card-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #94a3b8;
+  letter-spacing: 0.05em;
+  display: block;
+}
+
+.piw-stat-card-val {
+  font-family: var(--font-mono, monospace);
+  font-size: 26px;
+  font-weight: 800;
+  margin: 6px 0 2px 0;
+}
+
+.piw-stat-card-sub {
+  font-size: 11px;
+  color: #64748b;
+  display: block;
+}
+
+/* SVG Bar Chart Card */
+.piw-chart-card {
+  background: #081729;
+  border: 1px solid rgba(80, 180, 255, 0.16);
+  border-radius: 10px;
+  padding: 18px;
+  box-sizing: border-box;
+  margin-bottom: 20px;
+}
+
+.piw-chart-inner {
+  background: #050e1a;
+  border: 1px solid rgba(80, 180, 255, 0.12);
+  border-radius: 8px;
+  padding: 14px;
+  margin-top: 10px;
+}

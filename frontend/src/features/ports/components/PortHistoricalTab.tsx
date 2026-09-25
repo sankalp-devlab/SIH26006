@@ -83,94 +83,100 @@ export const PortHistoricalTab: React.FC<PortHistoricalTabProps> = ({
   }, [filteredVisits]);
 
   // SVG Histogram Generation
-  const chartHeight = 100;
-  const chartWidth = 500;
+  const chartHeight = 110;
+  const chartWidth = 600;
   const simulatedMonthlyVolumes = [24, 28, 22, 35, 30, 42, 38, 45, 40, 52, 48, filteredVisits.length || 36];
   const maxVolume = Math.max(...simulatedMonthlyVolumes, 55);
 
+  const ranges: PortDateRange[] = ['today', '7d', '30d', '90d'];
+
   return (
-    <div className="space-y-6">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       {/* 1. Header & Date Range Selectors */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-900/60 p-4 rounded-xl border border-slate-800 backdrop-blur-md">
-        <div className="flex items-center gap-2">
-          <Calendar className="h-5 w-5 text-cyan-400" />
-          <div>
-            <h3 className="font-semibold text-slate-100">
-              Historical Port Calls & Turnaround Analytics
-            </h3>
-            <p className="text-xs text-slate-400">
-              Archived voyages, cargo tonnage discharged, and berth dwell times
-            </p>
+      <div className="piw-card">
+        <div className="piw-section-header-row" style={{ flexWrap: 'wrap', gap: '10px' }}>
+          <div className="piw-section-heading">
+            <Calendar size={18} color="var(--ol-accent-light)" />
+            <div>
+              <span>Historical Port Calls & Turnaround Analytics</span>
+              <p style={{ fontSize: '11.5px', color: '#94a3b8', margin: '2px 0 0 0', fontWeight: 400 }}>
+                Archived voyages, cargo tonnage discharged, and berth dwell times
+              </p>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: '4px', background: '#050e1a', padding: '3px', borderRadius: '6px', border: '1px solid rgba(80, 180, 255, 0.15)' }}>
+            {ranges.map((rng) => (
+              <button
+                key={rng}
+                type="button"
+                onClick={() => onDateRangeChange(rng)}
+                style={{
+                  padding: '4px 10px',
+                  borderRadius: '4px',
+                  fontSize: '11px',
+                  fontFamily: 'var(--font-mono, monospace)',
+                  fontWeight: 700,
+                  border: 'none',
+                  cursor: 'pointer',
+                  background: dateRange === rng ? 'rgba(0, 216, 255, 0.2)' : 'transparent',
+                  color: dateRange === rng ? '#00d8ff' : '#94a3b8',
+                }}
+              >
+                {rng.toUpperCase()}
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* Date Range Selector Pills */}
-        <div className="flex items-center gap-1.5 bg-slate-950/80 p-1 rounded-lg border border-slate-800">
-          {(['7d', '30d', '90d', '1y'] as PortDateRange[]).map((rng) => (
-            <button
-              key={rng}
-              onClick={() => onDateRangeChange(rng)}
-              className={`px-3 py-1 rounded text-xs font-semibold uppercase transition-colors ${
-                dateRange === rng
-                  ? 'bg-cyan-600 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
-              }`}
-            >
-              {rng}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* 2. Key Aggregate Summary Metrics */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4 backdrop-blur-md">
-          <span className="text-xs text-slate-400 uppercase font-semibold">Total Port Calls</span>
-          <div className="mt-2 text-2xl font-bold font-mono text-slate-100">
-            {stats.totalCalls}
+        {/* 2. Key Aggregate Summary Metrics */}
+        <div className="piw-historical-kpis">
+          <div className="piw-stat-card">
+            <span className="piw-stat-card-label">Total Port Calls</span>
+            <div className="piw-stat-card-val" style={{ color: '#ffffff' }}>
+              {stats.totalCalls}
+            </div>
+            <span className="piw-stat-card-sub">within selected window</span>
           </div>
-          <span className="text-[11px] text-slate-400 mt-1 block">within selected window</span>
-        </div>
 
-        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4 backdrop-blur-md">
-          <span className="text-xs text-slate-400 uppercase font-semibold">Avg Turnaround Time</span>
-          <div className="mt-2 text-2xl font-bold font-mono text-cyan-400">
-            {stats.avgTurnaround.toFixed(1)} hrs
+          <div className="piw-stat-card">
+            <span className="piw-stat-card-label">Avg Turnaround Time</span>
+            <div className="piw-stat-card-val" style={{ color: '#00d8ff' }}>
+              {stats.avgTurnaround.toFixed(1)} hrs
+            </div>
+            <span className="piw-stat-card-sub">berth to unberth duration</span>
           </div>
-          <span className="text-[11px] text-slate-400 mt-1 block">berth to unberth duration</span>
-        </div>
 
-        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4 backdrop-blur-md">
-          <span className="text-xs text-slate-400 uppercase font-semibold">Total Cargo Handled</span>
-          <div className="mt-2 text-2xl font-bold font-mono text-emerald-400">
-            {(stats.totalCargo / 1000).toFixed(1)}k MT
+          <div className="piw-stat-card">
+            <span className="piw-stat-card-label">Total Cargo Handled</span>
+            <div className="piw-stat-card-val" style={{ color: '#34d399' }}>
+              {(stats.totalCargo / 1000).toFixed(1)}k MT
+            </div>
+            <span className="piw-stat-card-sub">discharged & loaded</span>
           </div>
-          <span className="text-[11px] text-slate-400 mt-1 block">discharged & loaded</span>
-        </div>
 
-        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4 backdrop-blur-md">
-          <span className="text-xs text-slate-400 uppercase font-semibold">Avg Anchorage Waiting</span>
-          <div className="mt-2 text-2xl font-bold font-mono text-amber-400">
-            {stats.avgWait.toFixed(1)} hrs
+          <div className="piw-stat-card">
+            <span className="piw-stat-card-label">Avg Anchorage Waiting</span>
+            <div className="piw-stat-card-val" style={{ color: '#fbbf24' }}>
+              {stats.avgWait.toFixed(1)} hrs
+            </div>
+            <span className="piw-stat-card-sub">prior to pilot boarding</span>
           </div>
-          <span className="text-[11px] text-slate-400 mt-1 block">prior to pilot boarding</span>
         </div>
-      </div>
 
-      {/* 3. Monthly Vessel Call Volume Chart */}
-      <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-5 backdrop-blur-md">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <BarChart2 className="h-4 w-4 text-cyan-400" />
-            <h4 className="font-semibold text-sm text-slate-200">
-              Vessel Call Volume Distribution
-            </h4>
+        {/* 3. Monthly Vessel Call Volume Chart */}
+        <div className="piw-chart-inner">
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 600, color: '#f1f5f9' }}>
+              <BarChart2 size={15} color="#00d8ff" />
+              <span>Vessel Call Volume Distribution</span>
+            </div>
+            <span style={{ fontSize: '11px', color: '#64748b', fontFamily: 'var(--font-mono, monospace)' }}>
+              Calls / Period
+            </span>
           </div>
-          <span className="text-xs text-slate-400 font-mono">Calls / Period</span>
-        </div>
 
-        <div className="rounded-lg bg-slate-950/60 p-3 border border-slate-800/60">
-          <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} className="w-full h-24 overflow-visible">
+          <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} style={{ width: '100%', height: '90px', overflow: 'visible' }}>
             {simulatedMonthlyVolumes.map((vol, idx) => {
               const barWidth = (chartWidth - 60) / simulatedMonthlyVolumes.length - 8;
               const x = 30 + idx * ((chartWidth - 60) / simulatedMonthlyVolumes.length);
@@ -178,20 +184,23 @@ export const PortHistoricalTab: React.FC<PortHistoricalTabProps> = ({
               const y = chartHeight - barH - 15;
 
               return (
-                <g key={idx} className="group">
+                <g key={idx}>
                   <rect
                     x={x}
                     y={y}
                     width={barWidth}
                     height={barH}
                     rx={3}
-                    className="fill-cyan-600/70 hover:fill-cyan-400 transition-colors"
+                    fill={idx === simulatedMonthlyVolumes.length - 1 ? '#00d8ff' : '#0284c7'}
+                    opacity={idx === simulatedMonthlyVolumes.length - 1 ? 0.9 : 0.65}
                   />
                   <text
                     x={x + barWidth / 2}
                     y={y - 4}
                     textAnchor="middle"
-                    className="text-[8px] fill-slate-400 font-mono"
+                    fill="#94a3b8"
+                    fontSize="9"
+                    fontFamily="monospace"
                   >
                     {vol}
                   </text>
@@ -199,124 +208,127 @@ export const PortHistoricalTab: React.FC<PortHistoricalTabProps> = ({
               );
             })}
           </svg>
-          <div className="flex justify-between text-[10px] text-slate-400 px-4 mt-1 border-t border-slate-800/80 pt-1.5">
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: '#64748b', marginTop: '4px', borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '6px' }}>
             <span>Historical Past (W1 - W11)</span>
-            <span className="text-cyan-400 font-semibold">Current Interval (W12)</span>
+            <span style={{ color: '#00d8ff', fontWeight: 600 }}>Current Interval (W12)</span>
           </div>
         </div>
       </div>
 
       {/* 4. Filterable Historical Call Log Table */}
-      <div className="rounded-xl border border-slate-800 bg-slate-900/60 overflow-hidden backdrop-blur-md">
-        <div className="p-4 border-b border-slate-800 flex items-center justify-between gap-3">
-          <div className="relative flex-1 sm:w-64">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+      <div className="piw-card">
+        <div className="piw-section-header-row" style={{ flexWrap: 'wrap', gap: '10px' }}>
+          <div className="piw-search-container">
+            <Search size={14} color="#64748b" />
             <input
               type="text"
               placeholder="Search historical calls by vessel, cargo, terminal..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-950/80 border border-slate-700 rounded-lg text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+              className="piw-search-input"
+              style={{ width: '280px' }}
             />
           </div>
 
-          <div className="text-xs text-slate-400">
-            Showing <strong className="text-slate-200">{filteredVisits.length}</strong> recorded calls
+          <div style={{ fontSize: '12px', color: '#94a3b8' }}>
+            Showing <strong style={{ color: '#ffffff' }}>{filteredVisits.length}</strong> recorded calls
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-950/60 text-slate-400 border-b border-slate-800 font-semibold uppercase tracking-wider">
-              <tr>
-                <th
-                  onClick={() => {
-                    setSortField('date');
-                    setSortAsc(!sortAsc);
-                  }}
-                  className="py-3 px-4 cursor-pointer hover:text-cyan-400 select-none"
-                >
-                  <div className="flex items-center gap-1">
-                    Call Dates
-                    <ArrowUpDown className="h-3 w-3" />
-                  </div>
-                </th>
-                <th className="py-3 px-4">Vessel & IMO</th>
-                <th className="py-3 px-3">Class / DWT</th>
-                <th className="py-3 px-3">Terminal</th>
-                <th
-                  onClick={() => {
-                    setSortField('cargo');
-                    setSortAsc(!sortAsc);
-                  }}
-                  className="py-3 px-3 cursor-pointer hover:text-cyan-400 select-none"
-                >
-                  <div className="flex items-center gap-1">
-                    Cargo Handled
-                    <ArrowUpDown className="h-3 w-3" />
-                  </div>
-                </th>
-                <th
-                  onClick={() => {
-                    setSortField('turnaround');
-                    setSortAsc(!sortAsc);
-                  }}
-                  className="py-3 px-3 cursor-pointer hover:text-cyan-400 select-none"
-                >
-                  <div className="flex items-center gap-1">
-                    Turnaround (hrs)
-                    <ArrowUpDown className="h-3 w-3" />
-                  </div>
-                </th>
-                <th className="py-3 px-3">Anchorage Wait</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-800/60 text-slate-200">
-              {filteredVisits.length === 0 ? (
+        <div className="piw-table-card">
+          <div className="piw-table-wrapper">
+            <table className="piw-table">
+              <thead>
                 <tr>
-                  <td colSpan={7} className="py-8 text-center text-slate-400">
-                    No historical port visits found matching the criteria.
-                  </td>
+                  <th
+                    onClick={() => {
+                      setSortField('date');
+                      setSortAsc(!sortAsc);
+                    }}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <button type="button">
+                      <span>Call Dates</span>
+                      <ArrowUpDown size={12} />
+                    </button>
+                  </th>
+                  <th>Vessel & IMO</th>
+                  <th>Class / DWT</th>
+                  <th>Terminal</th>
+                  <th
+                    onClick={() => {
+                      setSortField('cargo');
+                      setSortAsc(!sortAsc);
+                    }}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <button type="button">
+                      <span>Cargo Handled</span>
+                      <ArrowUpDown size={12} />
+                    </button>
+                  </th>
+                  <th
+                    onClick={() => {
+                      setSortField('turnaround');
+                      setSortAsc(!sortAsc);
+                    }}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <button type="button">
+                      <span>Turnaround (hrs)</span>
+                      <ArrowUpDown size={12} />
+                    </button>
+                  </th>
+                  <th>Anchorage Wait</th>
                 </tr>
-              ) : (
-                filteredVisits.map((v) => (
-                  <tr key={v.id} className="hover:bg-slate-800/40 transition-colors">
-                    <td className="py-3 px-4 font-mono text-[11px]">
-                      <div>Arr: {new Date(v.arrival_date).toLocaleDateString()}</div>
-                      <div className="text-slate-400">
-                        Dep: {new Date(v.departure_date).toLocaleDateString()}
-                      </div>
-                    </td>
-                    <td className="py-3 px-4 font-semibold text-slate-100">
-                      {v.vessel_name}
-                      <span className="block text-[10px] text-slate-400 font-mono font-normal">
-                        IMO {v.imo}
-                      </span>
-                    </td>
-                    <td className="py-3 px-3">
-                      <div>{v.vessel_type}</div>
-                      <span className="text-[10px] text-slate-400 font-mono">
-                        {(v.dwt ?? 55000).toLocaleString()} DWT
-                      </span>
-                    </td>
-                    <td className="py-3 px-3 text-slate-200">{v.terminal_name}</td>
-                    <td className="py-3 px-3">
-                      <div>{v.cargo_type || v.cargo_handled}</div>
-                      <span className="text-[10px] text-emerald-400 font-mono">
-                        {(v.cargo_volume_mt ?? v.quantity_mt ?? 0).toLocaleString()} MT
-                      </span>
-                    </td>
-                    <td className="py-3 px-3 font-mono font-semibold text-cyan-300">
-                      {(v.turnaround_hours ?? (v.turnaround_days ? v.turnaround_days * 24 : 0)).toFixed(1)} hrs
-                    </td>
-                    <td className="py-3 px-3 font-mono text-amber-300">
-                      {v.waiting_hours ? `${v.waiting_hours.toFixed(1)} hrs` : 'Direct Berth'}
+              </thead>
+              <tbody>
+                {filteredVisits.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} style={{ padding: '32px', textAlign: 'center', color: '#64748b' }}>
+                      No historical port visits found matching the criteria.
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : (
+                  filteredVisits.map((v) => (
+                    <tr key={v.id}>
+                      <td style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '11px' }}>
+                        <div style={{ color: '#ffffff' }}>Arr: {new Date(v.arrival_date).toLocaleDateString()}</div>
+                        <div style={{ color: '#64748b' }}>
+                          Dep: {new Date(v.departure_date).toLocaleDateString()}
+                        </div>
+                      </td>
+                      <td>
+                        <div style={{ fontWeight: 600, color: '#f1f5f9' }}>{v.vessel_name}</div>
+                        <span style={{ fontSize: '10px', color: '#64748b', fontFamily: 'var(--font-mono, monospace)', display: 'block' }}>
+                          IMO {v.imo}
+                        </span>
+                      </td>
+                      <td>
+                        <div style={{ color: '#cbd5e1' }}>{v.vessel_type}</div>
+                        <span style={{ fontSize: '10px', color: '#64748b', fontFamily: 'var(--font-mono, monospace)' }}>
+                          {(v.dwt ?? 55000).toLocaleString()} DWT
+                        </span>
+                      </td>
+                      <td style={{ color: '#cbd5e1' }}>{v.terminal_name}</td>
+                      <td>
+                        <div style={{ color: '#e2e8f0' }}>{v.cargo_type || v.cargo_handled}</div>
+                        <span style={{ fontSize: '10px', color: '#34d399', fontFamily: 'var(--font-mono, monospace)' }}>
+                          {(v.cargo_volume_mt ?? v.quantity_mt ?? 0).toLocaleString()} MT
+                        </span>
+                      </td>
+                      <td style={{ fontFamily: 'var(--font-mono, monospace)', fontWeight: 700, color: '#00d8ff' }}>
+                        {(v.turnaround_hours ?? (v.turnaround_days ? v.turnaround_days * 24 : 0)).toFixed(1)} hrs
+                      </td>
+                      <td style={{ fontFamily: 'var(--font-mono, monospace)', color: '#fbbf24' }}>
+                        {v.waiting_hours ? `${v.waiting_hours.toFixed(1)} hrs` : 'Direct Berth'}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>

@@ -42,7 +42,6 @@ export const PortCommercialTab: React.FC<PortCommercialTabProps> = ({
       const cat = c.category.toLowerCase();
       const amount = c.standard_amount_usd ?? c.rate_usd;
       if (cat.includes('due') || cat.includes('channel')) {
-        // usually proportional to GRT
         portDues += Math.round(amount * (vesselGrt / 40000));
       } else if (cat.includes('pilot')) {
         pilotage += Math.round(amount * (vesselGrt / 40000));
@@ -67,17 +66,15 @@ export const PortCommercialTab: React.FC<PortCommercialTabProps> = ({
   }, [portCosts, vesselGrt, stayDays, tugMoves]);
 
   return (
-    <div className="space-y-6">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       {/* 1. Top Section: Live Bunker Fuel Pricing */}
-      <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-5 backdrop-blur-md">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-          <div className="flex items-center gap-2">
-            <Fuel className="h-5 w-5 text-emerald-400" />
+      <div className="piw-card">
+        <div className="piw-section-header-row" style={{ flexWrap: 'wrap', gap: '10px' }}>
+          <div className="piw-section-heading">
+            <Fuel size={18} color="#34d399" />
             <div>
-              <h3 className="font-semibold text-slate-100">
-                Marine Bunker Prices & Fuel Availability
-              </h3>
-              <p className="text-xs text-slate-400">
+              <span>Marine Bunker Prices & Fuel Availability</span>
+              <p style={{ fontSize: '11.5px', color: '#94a3b8', margin: '2px 0 0 0', fontWeight: 400 }}>
                 Indicative delivered bunker quotations (USD / MT) at {portName}
               </p>
             </div>
@@ -85,14 +82,27 @@ export const PortCommercialTab: React.FC<PortCommercialTabProps> = ({
 
           <Link
             to={`/voyage-calculator?originPort=${encodeURIComponent(portName)}`}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600/80 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-500 transition-colors shadow-sm"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              borderRadius: '6px',
+              background: 'rgba(16, 185, 129, 0.2)',
+              border: '1px solid rgba(16, 185, 129, 0.4)',
+              padding: '6px 12px',
+              fontSize: '12px',
+              fontWeight: 600,
+              color: '#34d399',
+              textDecoration: 'none',
+              transition: 'all 0.15s ease',
+            }}
           >
-            <Calculator className="h-3.5 w-3.5" />
-            Apply to Voyage Calculator
+            <Calculator size={14} />
+            <span>Apply to Voyage Calculator</span>
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="piw-bunkers-grid">
           {bunkerPrices.map((bunker) => {
             const grade = bunker.fuel_grade || bunker.fuel_type;
             const avail = bunker.availability || (bunker.is_live ? 'AVAILABLE' : 'LIMITED');
@@ -100,52 +110,46 @@ export const PortCommercialTab: React.FC<PortCommercialTabProps> = ({
             const changePct = bunker.change_pct ?? (bunker.delta_usd || 0);
 
             return (
-              <div
-                key={bunker.id || bunker.fuel_type}
-                className="rounded-lg border border-slate-800 bg-slate-950/60 p-4 hover:border-slate-700 transition-all"
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <span className="font-semibold text-sm text-slate-200">
-                    {grade}
-                  </span>
-                  <span
-                    className={`px-1.5 py-0.5 rounded text-[10px] font-bold uppercase ${
-                      avail === 'AVAILABLE'
-                        ? 'bg-emerald-950/80 text-emerald-400 border border-emerald-800/60'
-                        : avail === 'LIMITED'
-                        ? 'bg-amber-950/80 text-amber-400 border border-amber-800/60'
-                        : 'bg-rose-950/80 text-rose-400 border border-rose-800/60'
-                    }`}
-                  >
-                    {avail}
-                  </span>
-                </div>
-
-                <div className="flex items-baseline gap-1 mt-1">
-                  <span className="text-2xl font-bold font-mono text-slate-100">
-                    ${price.toFixed(0)}
-                  </span>
-                  <span className="text-xs text-slate-400">/ MT</span>
-                </div>
-
-                <div className="flex items-center justify-between text-xs text-slate-400 mt-3 pt-2.5 border-t border-slate-800/60">
-                  <span>Supplier: {bunker.supplier || bunker.source}</span>
-                  {changePct !== 0 ? (
+              <div key={bunker.id || bunker.fuel_type} className="piw-bunker-card">
+                <div>
+                  <div className="piw-bunker-header">
+                    <span className="piw-bunker-grade-title">{grade}</span>
                     <span
-                      className={`flex items-center font-mono font-medium ${
-                        changePct < 0 ? 'text-emerald-400' : 'text-rose-400'
+                      className={`piw-bunker-avail-badge ${
+                        avail === 'AVAILABLE' ? 'avail' : 'limited'
                       }`}
                     >
+                      {avail}
+                    </span>
+                  </div>
+
+                  <div className="piw-bunker-price-row">
+                    <span className="piw-bunker-price-val">${price.toFixed(0)}</span>
+                    <span className="piw-bunker-price-unit">/ MT</span>
+                  </div>
+                </div>
+
+                <div>
+                  {changePct !== 0 ? (
+                    <span
+                      className="piw-bunker-delta-tag"
+                      style={{ color: changePct < 0 ? '#34d399' : '#f87171' }}
+                    >
                       {changePct < 0 ? (
-                        <TrendingDown className="h-3 w-3 mr-0.5" />
+                        <TrendingDown size={14} />
                       ) : (
-                        <TrendingUp className="h-3 w-3 mr-0.5" />
+                        <TrendingUp size={14} />
                       )}
-                      {Math.abs(changePct)}%
+                      <span>{Math.abs(changePct)}% vs 7d Mean</span>
                     </span>
                   ) : (
-                    <span className="text-slate-500 font-mono">0.0%</span>
+                    <span style={{ fontSize: '11px', color: '#64748b', fontFamily: 'var(--font-mono, monospace)' }}>
+                      0.0% vs Mean
+                    </span>
                   )}
+                  <div className="piw-bunker-supplier-name">
+                    Supplier: {bunker.supplier || bunker.source || 'Platts Benchmark'}
+                  </div>
                 </div>
               </div>
             );
@@ -154,162 +158,197 @@ export const PortCommercialTab: React.FC<PortCommercialTabProps> = ({
       </div>
 
       {/* 2. Bottom Grid: Port Tariffs Table + Interactive DA Calculator */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Port Tariff Schedule (7 cols) */}
-        <div className="lg:col-span-7 rounded-xl border border-slate-800 bg-slate-900/60 p-5 backdrop-blur-md">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <Receipt className="h-5 w-5 text-cyan-400" />
-              <h3 className="font-semibold text-slate-100">
-                Official Port Tariff & Dues Schedule
-              </h3>
+      <div className="piw-commercial-columns">
+        {/* Left: Port Tariff Schedule */}
+        <div className="piw-card">
+          <div className="piw-section-header-row">
+            <div className="piw-section-heading">
+              <Receipt size={18} color="var(--ol-accent-light)" />
+              <span>Official Port Tariff & Dues Schedule</span>
             </div>
-            <span className="text-xs text-slate-400">Standard Port Authority Tariff</span>
+            <span style={{ fontSize: '11px', color: '#94a3b8' }}>Standard Port Authority Tariff</span>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-950/60 text-slate-400 border-b border-slate-800 font-semibold uppercase tracking-wider">
-                <tr>
-                  <th className="py-2.5 px-3">Charge Item</th>
-                  <th className="py-2.5 px-3">Tariff Basis / Rule</th>
-                  <th className="py-2.5 px-3">Applicability</th>
-                  <th className="py-2.5 px-3 text-right">Standard Rate (USD)</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800/60 text-slate-200">
-                {portCosts.map((cost) => {
-                  const mandatory = cost.mandatory ?? true;
-                  const standardAmount = cost.standard_amount_usd ?? cost.rate_usd;
+          <div className="piw-table-card">
+            <div className="piw-table-wrapper">
+              <table className="piw-table">
+                <thead>
+                  <tr>
+                    <th>Charge Item</th>
+                    <th>Tariff Basis / Rule</th>
+                    <th>Applicability</th>
+                    <th style={{ textAlign: 'right' }}>Standard Rate (USD)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {portCosts.map((cost) => {
+                    const mandatory = cost.mandatory ?? true;
+                    const standardAmount = cost.standard_amount_usd ?? cost.rate_usd;
 
-                  return (
-                    <tr key={cost.id || cost.item_name} className="hover:bg-slate-800/40">
-                      <td className="py-2.5 px-3 font-medium text-slate-100">
-                        {cost.item_name}
-                        <span className="block text-[10px] text-slate-400 font-normal">
-                          {cost.category}
-                        </span>
-                      </td>
-                      <td className="py-2.5 px-3 text-slate-400">{cost.basis}</td>
-                      <td className="py-2.5 px-3">
-                        <span
-                          className={`inline-block px-1.5 py-0.2 rounded text-[10px] font-semibold ${
-                            mandatory
-                              ? 'bg-slate-800 text-slate-300'
-                              : 'bg-slate-800/50 text-slate-400'
-                          }`}
-                        >
-                          {mandatory ? 'Mandatory' : 'Conditional'}
-                        </span>
-                      </td>
-                      <td className="py-2.5 px-3 text-right font-mono font-semibold text-slate-100">
-                        ${standardAmount.toLocaleString()}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                    return (
+                      <tr key={cost.id || cost.item_name}>
+                        <td>
+                          <div style={{ fontWeight: 600, color: '#f1f5f9' }}>{cost.item_name}</div>
+                          <span style={{ fontSize: '10px', color: '#64748b', display: 'block' }}>
+                            {cost.category}
+                          </span>
+                        </td>
+                        <td style={{ color: '#cbd5e1' }}>{cost.basis}</td>
+                        <td>
+                          <span
+                            style={{
+                              fontSize: '10px',
+                              fontWeight: 700,
+                              textTransform: 'uppercase',
+                              padding: '2px 7px',
+                              borderRadius: '4px',
+                              background: mandatory ? 'rgba(56, 189, 248, 0.12)' : 'rgba(255, 255, 255, 0.05)',
+                              color: mandatory ? '#38bdf8' : '#94a3b8',
+                              border: mandatory ? '1px solid rgba(56, 189, 248, 0.25)' : '1px solid rgba(255, 255, 255, 0.1)',
+                            }}
+                          >
+                            {mandatory ? 'Mandatory' : 'Conditional'}
+                          </span>
+                        </td>
+                        <td style={{ textAlign: 'right', fontFamily: 'var(--font-mono, monospace)', fontWeight: 700, color: '#ffffff' }}>
+                          ${standardAmount.toLocaleString()}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
 
-        {/* Interactive DA Simulator (5 cols) */}
-        <div className="lg:col-span-5 rounded-xl border border-slate-800 bg-slate-900/60 p-5 backdrop-blur-md flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between mb-3 border-b border-slate-800/80 pb-3">
-              <div className="flex items-center gap-2">
-                <Calculator className="h-5 w-5 text-indigo-400" />
-                <h3 className="font-semibold text-slate-100">Disbursement Account (DA) Estimator</h3>
-              </div>
-              <span className="text-[10px] text-indigo-400 font-semibold bg-indigo-950/60 border border-indigo-800/60 px-2 py-0.5 rounded">
-                SIMULATOR
+        {/* Right: Interactive DA Simulator */}
+        <div className="piw-da-card">
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', paddingBottom: '10px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Calculator size={18} color="#818cf8" />
+              <h3 style={{ fontSize: '14px', fontWeight: 700, color: '#ffffff', margin: 0 }}>
+                Disbursement Account (DA) Estimator
+              </h3>
+            </div>
+            <span
+              style={{
+                fontSize: '10px',
+                fontWeight: 700,
+                background: 'rgba(129, 140, 248, 0.15)',
+                border: '1px solid rgba(129, 140, 248, 0.35)',
+                color: '#818cf8',
+                padding: '2px 6px',
+                borderRadius: '4px',
+              }}
+            >
+              SIMULATOR
+            </span>
+          </div>
+
+          <p style={{ fontSize: '11.5px', color: '#94a3b8', marginBottom: '16px' }}>
+            Estimate proforma port call disbursement expenses based on vessel dimensions and stay duration.
+          </p>
+
+          {/* Inputs */}
+          <div className="piw-da-input-group">
+            <div className="piw-da-input-label">
+              <span>Vessel Gross Tonnage (GRT)</span>
+              <span style={{ fontFamily: 'var(--font-mono, monospace)', fontWeight: 700, color: '#00d8ff' }}>
+                {vesselGrt.toLocaleString()} GRT
               </span>
             </div>
+            <input
+              type="range"
+              min={5000}
+              max={160000}
+              step={5000}
+              value={vesselGrt}
+              onChange={(e) => setVesselGrt(Number(e.target.value))}
+              className="piw-da-range-slider"
+            />
+          </div>
 
-            <p className="text-xs text-slate-400 mb-4">
-              Estimate proforma port call disbursement expenses based on vessel dimensions and stay duration.
-            </p>
-
-            {/* Inputs */}
-            <div className="space-y-3 mb-4">
-              <div>
-                <div className="flex justify-between text-xs text-slate-300 mb-1">
-                  <span>Vessel Gross Tonnage (GRT)</span>
-                  <span className="font-mono font-semibold text-cyan-400">
-                    {vesselGrt.toLocaleString()} GRT
-                  </span>
-                </div>
-                <input
-                  type="range"
-                  min={5000}
-                  max={160000}
-                  step={5000}
-                  value={vesselGrt}
-                  onChange={(e) => setVesselGrt(Number(e.target.value))}
-                  className="w-full accent-cyan-500 cursor-pointer"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs text-slate-400 block mb-1">Port Stay (Days)</label>
-                  <input
-                    type="number"
-                    min={1}
-                    max={20}
-                    value={stayDays}
-                    onChange={(e) => setStayDays(Math.max(1, Number(e.target.value)))}
-                    className="w-full px-2.5 py-1.5 bg-slate-950/80 border border-slate-700 rounded text-xs text-slate-200 font-mono focus:outline-none focus:border-cyan-500"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-slate-400 block mb-1">Tug Assist Movements</label>
-                  <input
-                    type="number"
-                    min={1}
-                    max={12}
-                    value={tugMoves}
-                    onChange={(e) => setTugMoves(Math.max(1, Number(e.target.value)))}
-                    className="w-full px-2.5 py-1.5 bg-slate-950/80 border border-slate-700 rounded text-xs text-slate-200 font-mono focus:outline-none focus:border-cyan-500"
-                  />
-                </div>
-              </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '16px' }}>
+            <div>
+              <label style={{ fontSize: '11px', color: '#94a3b8', display: 'block', marginBottom: '4px' }}>
+                Port Stay (Days)
+              </label>
+              <input
+                type="number"
+                min={1}
+                max={20}
+                value={stayDays}
+                onChange={(e) => setStayDays(Math.max(1, Number(e.target.value)))}
+                style={{
+                  width: '100%',
+                  height: '34px',
+                  background: '#050e1a',
+                  border: '1px solid rgba(80, 180, 255, 0.2)',
+                  borderRadius: '6px',
+                  color: '#ffffff',
+                  fontFamily: 'var(--font-mono, monospace)',
+                  padding: '0 8px',
+                  boxSizing: 'border-box',
+                }}
+              />
             </div>
-
-            {/* Cost Breakdown */}
-            <div className="rounded-lg bg-slate-950/60 p-3.5 border border-slate-800 space-y-2 text-xs">
-              <div className="flex justify-between text-slate-400">
-                <span>Port & Channel Dues:</span>
-                <span className="font-mono text-slate-200">${daEstimate.portDues.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between text-slate-400">
-                <span>Pilotage (In/Out):</span>
-                <span className="font-mono text-slate-200">${daEstimate.pilotage.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between text-slate-400">
-                <span>Towage Assistance ({tugMoves} tugs):</span>
-                <span className="font-mono text-slate-200">${daEstimate.towage.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between text-slate-400">
-                <span>Berth Hire ({stayDays} days):</span>
-                <span className="font-mono text-slate-200">${daEstimate.berthHire.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between text-slate-400">
-                <span>Agency, Security & Sundries:</span>
-                <span className="font-mono text-slate-200">${daEstimate.sundries.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between text-slate-100 font-bold border-t border-slate-800 pt-2 text-sm">
-                <span>Estimated Total DA:</span>
-                <span className="font-mono text-emerald-400 text-base">
-                  ${daEstimate.total.toLocaleString()}
-                </span>
-              </div>
+            <div>
+              <label style={{ fontSize: '11px', color: '#94a3b8', display: 'block', marginBottom: '4px' }}>
+                Tug Assist Moves
+              </label>
+              <input
+                type="number"
+                min={1}
+                max={12}
+                value={tugMoves}
+                onChange={(e) => setTugMoves(Math.max(1, Number(e.target.value)))}
+                style={{
+                  width: '100%',
+                  height: '34px',
+                  background: '#050e1a',
+                  border: '1px solid rgba(80, 180, 255, 0.2)',
+                  borderRadius: '6px',
+                  color: '#ffffff',
+                  fontFamily: 'var(--font-mono, monospace)',
+                  padding: '0 8px',
+                  boxSizing: 'border-box',
+                }}
+              />
             </div>
           </div>
 
-          <div className="mt-4 pt-3 border-t border-slate-800/80 text-[11px] text-slate-400 flex items-center justify-between">
-            <span>Subject to final port authority invoice</span>
-            <span className="text-slate-500 font-mono">USD currency</span>
+          {/* Cost Breakdown */}
+          <div style={{ background: '#050e1a', border: '1px solid rgba(80, 180, 255, 0.12)', borderRadius: '8px', padding: '12px' }}>
+            <div className="piw-da-breakdown-row">
+              <span>Port & Channel Dues:</span>
+              <span style={{ fontFamily: 'var(--font-mono, monospace)', fontWeight: 600 }}>${daEstimate.portDues.toLocaleString()}</span>
+            </div>
+            <div className="piw-da-breakdown-row">
+              <span>Pilotage (In / Out):</span>
+              <span style={{ fontFamily: 'var(--font-mono, monospace)', fontWeight: 600 }}>${daEstimate.pilotage.toLocaleString()}</span>
+            </div>
+            <div className="piw-da-breakdown-row">
+              <span>Towage Assistance ({tugMoves} tugs):</span>
+              <span style={{ fontFamily: 'var(--font-mono, monospace)', fontWeight: 600 }}>${daEstimate.towage.toLocaleString()}</span>
+            </div>
+            <div className="piw-da-breakdown-row">
+              <span>Berth Hire ({stayDays} days):</span>
+              <span style={{ fontFamily: 'var(--font-mono, monospace)', fontWeight: 600 }}>${daEstimate.berthHire.toLocaleString()}</span>
+            </div>
+            <div className="piw-da-breakdown-row" style={{ borderBottom: 'none' }}>
+              <span>Agency, Security & Sundries:</span>
+              <span style={{ fontFamily: 'var(--font-mono, monospace)', fontWeight: 600 }}>${daEstimate.sundries.toLocaleString()}</span>
+            </div>
+          </div>
+
+          <div className="piw-da-total-box">
+            <span style={{ fontSize: '11px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              Estimated Total DA Proforma
+            </span>
+            <div className="piw-da-total-val">
+              ${daEstimate.total.toLocaleString()} USD
+            </div>
           </div>
         </div>
       </div>

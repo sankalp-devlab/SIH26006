@@ -9183,6 +9183,12 @@
   margin-bottom: 20px;
   padding-bottom: 6px;
   overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.piw-tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .piw-tab-btn {
