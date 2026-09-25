@@ -22,6 +22,28 @@ export function DataAnnotation({
   className = '',
   style,
 }: DataAnnotationProps) {
+  const renderValue = () => {
+    if (value.includes('/')) {
+      const parts = value.split('/');
+      return (
+        <span className="annotation-value-text">
+          {parts[0].trim()}{' '}
+          <span className="annotation-value-unit">/{parts[1].trim()}</span>
+        </span>
+      );
+    }
+    if (value.endsWith(' kn')) {
+      const val = value.replace(' kn', '');
+      return (
+        <span className="annotation-value-text">
+          {val}
+          <span className="annotation-value-unit"> kn</span>
+        </span>
+      );
+    }
+    return <span className="annotation-value-text">{value}</span>;
+  };
+
   return (
     <div className={`maritime-data-annotation ${className}`} style={style} role="region" aria-label={`${label}: ${value}`}>
       <div className="annotation-header">
@@ -37,7 +59,7 @@ export function DataAnnotation({
       </div>
 
       <div className="annotation-body">
-        <div className="annotation-value">{value}</div>
+        <div className="annotation-value">{renderValue()}</div>
         {Icon && (
           <div className="annotation-icon" aria-hidden="true">
             <Icon size={16} />

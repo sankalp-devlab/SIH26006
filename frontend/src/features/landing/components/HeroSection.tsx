@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, Play, Shield, Zap, Radio, Anchor, Navigation2, Activity } from 'lucide-react';
+import { ArrowRight, Play, Shield, Zap, Radio, Anchor, Navigation2, Activity, TrendingUp, Ship } from 'lucide-react';
 import { DataAnnotation } from './DataAnnotation';
 
 interface HeroSectionProps {
@@ -114,10 +114,11 @@ export function HeroSection({ onOpenDemo }: HeroSectionProps) {
           <div className="annotation-node node-crude-spot">
             <DataAnnotation
               label="CRUDE SPOT"
-              value="$82.46/bbl"
+              value="$82.46 / bbl"
               change="+1.8% today"
               changeType="positive"
               subtext="VLCC AG – China (TD3C)"
+              icon={TrendingUp}
             />
             <div className="pointer-system pointer-down-left" aria-hidden="true">
               <svg className="connector-svg" width="85" height="70" viewBox="0 0 85 70" fill="none">
@@ -186,6 +187,7 @@ export function HeroSection({ onOpenDemo }: HeroSectionProps) {
               change="+3.4%"
               changeType="positive"
               subtext="Commercial Tanker Capacity"
+              icon={Ship}
             />
             <div className="pointer-system pointer-up-left" aria-hidden="true">
               <svg className="connector-svg" width="85" height="70" viewBox="0 0 85 70" fill="none">
