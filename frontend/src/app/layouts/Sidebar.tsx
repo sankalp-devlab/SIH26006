@@ -21,12 +21,6 @@ import {
   FolderKanban,
   BarChart2,
   BookmarkCheck,
-  Activity,
-  TrendingUp,
-  LineChart,
-  Waves,
-  Shield,
-  Warehouse,
 } from 'lucide-react';
 import { Tooltip } from '../../components/ui/Tooltip';
 import { useFavourites } from '../../hooks/useFavourites';
@@ -51,40 +45,31 @@ interface NavSectionConfig {
 }
 
 const ROUTE_ALIASES: Record<string, string[]> = {
-  '/analytics': ['/analytics', '/analytics/'],
-  '/analytics/market-prices': [
+  '/analytics': [
+    '/analytics',
+    '/analytics/',
     '/analytics/market-prices',
     '/analytics/prices',
     '/analytics/pricing',
     '/market-prices',
     '/prices',
     '/pricing',
-  ],
-  '/analytics/freight': [
     '/analytics/freight',
     '/analytics/freight-analytics',
     '/freight',
     '/freight-analytics',
-  ],
-  '/analytics/market': [
     '/analytics/market',
     '/analytics/market-insights',
     '/market',
     '/market-insights',
-  ],
-  '/analytics/trade-flows': [
     '/analytics/trade-flows',
     '/analytics/flows',
     '/flows',
     '/trade-flows',
-  ],
-  '/analytics/floating-storage': [
     '/analytics/floating-storage',
     '/floating-storage',
     '/analytics/storage',
     '/storage',
-  ],
-  '/analytics/fleet': [
     '/analytics/fleet',
     '/analytics/fleets',
     '/analytics/fleet-intelligence',
@@ -116,6 +101,7 @@ const ROUTE_ALIASES: Record<string, string[]> = {
 
 function isItemActive(targetPath: string, currentPath: string): boolean {
   if (targetPath === currentPath) return true;
+  if (targetPath !== '/' && currentPath.startsWith(targetPath + '/')) return true;
   const aliases = ROUTE_ALIASES[targetPath];
   if (aliases && aliases.includes(currentPath)) return true;
   return false;
@@ -143,12 +129,6 @@ const NAV_SECTIONS: NavSectionConfig[] = [
     title: 'Analytics & Intelligence',
     items: [
       { to: '/analytics', label: 'Analytics Hub', icon: BarChart2 },
-      { to: '/analytics/market-prices', label: 'Market Prices', icon: Activity, badge: 'M23' },
-      { to: '/analytics/freight', label: 'Freight Analytics', icon: TrendingUp, badge: 'M14' },
-      { to: '/analytics/market', label: 'Market Insights', icon: LineChart, badge: 'M5' },
-      { to: '/analytics/trade-flows', label: 'Trade Flows', icon: Waves, badge: 'M16' },
-      { to: '/analytics/floating-storage', label: 'Floating Storage', icon: Warehouse, badge: 'M20' },
-      { to: '/analytics/fleet', label: 'Fleet Intelligence', icon: Shield, badge: 'M19' },
     ],
   },
   {
