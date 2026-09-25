@@ -19,7 +19,7 @@ import {
   DollarSign,
   Clock,
   BrainCircuit,
-  Sparkles,
+  Target,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../../../components/ui/Button';
@@ -841,7 +841,7 @@ export const CargoDetailDrawer: React.FC<CargoDetailDrawerProps> = ({
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
                       <div>
                         <div style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-text-primary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <Sparkles size={14} color="#0284c7" /> Maritime Recommendation Engine
+                          <Target size={14} color="#0284c7" /> Maritime Recommendation Engine
                           <span className="badge badge-info" style={{ fontSize: '0.675rem' }}>MCDA v1.0.0</span>
                         </div>
                         <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '2px' }}>
@@ -855,7 +855,7 @@ export const CargoDetailDrawer: React.FC<CargoDetailDrawerProps> = ({
                           <Button
                             size="sm"
                             variant="secondary"
-                            icon={<Sparkles size={14} />}
+                            icon={<Target size={14} />}
                             disabled={isLoadingRecommendations}
                             onClick={() => handleTriggerRecommendations()}
                             style={{ borderColor: 'rgba(2, 132, 199, 0.4)', color: '#0284c7' }}
@@ -866,7 +866,7 @@ export const CargoDetailDrawer: React.FC<CargoDetailDrawerProps> = ({
                           <Button
                             size="sm"
                             variant="secondary"
-                            icon={<Sparkles size={14} />}
+                            icon={<Target size={14} />}
                             onClick={() => setActiveTab('vessel')}
                             style={{ borderColor: 'rgba(2, 132, 199, 0.4)', color: '#0284c7' }}
                           >

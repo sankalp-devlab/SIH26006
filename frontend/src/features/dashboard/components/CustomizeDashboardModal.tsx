@@ -9,11 +9,8 @@ export interface DashboardSectionsVisibility {
   tradeFlows: boolean;
   portActivity: boolean;
   vesselActivity: boolean;
-  tradeFreightCorrelation: boolean;
-  globalActivity: boolean;
   alerts: boolean;
   marketEvents: boolean;
-  quickAccess: boolean;
 }
 
 interface CustomizeDashboardModalProps {
@@ -42,11 +39,8 @@ export function CustomizeDashboardModal({
     { key: 'tradeFlows', label: 'Global Trade Flows Table', desc: 'Active shipping corridors by volume and commodity' },
     { key: 'portActivity', label: 'Port Activity Hubs', desc: 'Turnaround waiting times and congestion indices' },
     { key: 'vesselActivity', label: 'Vessel Activity & Segments', desc: 'Operational status breakdown and fleet utilization' },
-    { key: 'tradeFreightCorrelation', label: 'Trade vs Freight Matrix', desc: 'Volume and rate elasticity correlation' },
-    { key: 'globalActivity', label: 'Global Density Heatmap', desc: 'Hotspots across vessels, trade, and freight' },
     { key: 'alerts', label: 'Attention Required Alerts', desc: 'High-priority operational warnings' },
     { key: 'marketEvents', label: 'Market Events Timeline', desc: 'UTC chronological feed of freight and market changes' },
-    { key: 'quickAccess', label: 'Quick Operations Access', desc: 'Shortcuts to specialized workspace modules' },
   ];
 
   return (

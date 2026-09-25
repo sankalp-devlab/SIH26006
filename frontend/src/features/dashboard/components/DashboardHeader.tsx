@@ -1,4 +1,4 @@
-import { Search, SlidersHorizontal, RefreshCw, AlertCircle, Radio, Database } from 'lucide-react';
+import { Search, SlidersHorizontal, RefreshCw, AlertCircle, Radio } from 'lucide-react';
 import { useApiStatus } from '../../api-status/ApiStatusContext';
 
 interface DashboardHeaderProps {
@@ -66,8 +66,8 @@ export function DashboardHeader({
       </div>
 
       <div className="cc-header-right">
-        {/* 1. Distinct Backend API Health Status Pill */}
-        {isActuallyOffline ? (
+        {/* 1. Consolidated System Health Status Pill (FastAPI + Supabase DB) */}
+        {isActuallyOffline || isDatabaseDown ? (
           <div
             className="cc-status-pill cc-status-pill--offline"
             style={{
@@ -76,16 +76,14 @@ export function DashboardHeader({
               cursor: 'pointer',
             }}
             onClick={handleRefreshClick}
-            title="FastAPI service is unreachable. Click to attempt reconnection."
+            title={isActuallyOffline ? "FastAPI service is unreachable. Click to attempt reconnection." : "Database connection failed. Click to re-sync."}
             role="button"
             tabIndex={0}
           >
             <AlertCircle size={12} color="#ef4444" />
             <span style={{ color: '#ef4444', fontWeight: 700, letterSpacing: '0.04em' }}>
-              API OFFLINE
+              {isActuallyOffline ? 'API OFFLINE' : 'DB OFFLINE'}
             </span>
-            <span style={{ color: '#64748b' }}>&middot;</span>
-            <span style={{ color: '#94a3b8' }}>Unreachable</span>
           </div>
         ) : isChecking ? (
           <div
@@ -94,16 +92,16 @@ export function DashboardHeader({
               borderColor: 'rgba(245, 158, 11, 0.4)',
               background: 'rgba(245, 158, 11, 0.08)',
             }}
-            title="Checking OceanLens API connectivity..."
+            title="Checking OceanLens service connectivity..."
           >
             <RefreshCw
               size={11}
               color="#f59e0b"
               style={{ animation: 'spin 1.2s linear infinite' }}
             />
-            <span style={{ color: '#f59e0b', fontWeight: 700 }}>VERIFYING LINK...</span>
+            <span style={{ color: '#f59e0b', fontWeight: 700 }}>VERIFYING...</span>
           </div>
-        ) : backendStatus === 'degraded' ? (
+        ) : isDegraded ? (
           <div
             className="cc-status-pill cc-status-pill--degraded"
             style={{
@@ -112,83 +110,30 @@ export function DashboardHeader({
               cursor: 'pointer',
             }}
             onClick={handleRefreshClick}
-            title="Partial backend telemetry received. Click to re-sync."
+            title="Partial service degradation detected. Click to re-sync."
             role="button"
             tabIndex={0}
           >
             <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#f59e0b' }} />
-            <span style={{ color: '#f59e0b', fontWeight: 700 }}>API DEGRADED</span>
-            <span style={{ color: '#64748b' }}>&middot;</span>
-            <span style={{ color: '#94a3b8' }}>Partial Feed</span>
+            <span style={{ color: '#f59e0b', fontWeight: 700 }}>DEGRADED</span>
           </div>
         ) : (
           <div
             className="cc-status-pill cc-status-pill--online"
             style={{ cursor: 'pointer' }}
             onClick={handleRefreshClick}
-            title="FastAPI microservice connection active and healthy. Click to verify health."
+            title="All systems operational: FastAPI microservice and Supabase PostgreSQL online. Click to verify."
             role="button"
             tabIndex={0}
           >
             <span className="cc-pulse-dot" />
-            <span style={{ color: '#38bdf8', fontWeight: 700 }}>API ONLINE</span>
+            <span style={{ color: '#34d399', fontWeight: 700 }}>SERVICES ONLINE</span>
             <span style={{ color: '#64748b' }}>&middot;</span>
-            <span style={{ color: '#94a3b8' }}>FastAPI</span>
+            <span style={{ color: '#94a3b8' }}>API + DB</span>
           </div>
         )}
 
-        {/* 2. Distinct Supabase Database Connectivity Status Pill */}
-        {!isActuallyOffline && (
-          supabaseStatus === 'offline' ? (
-            <div
-              className="cc-status-pill cc-status-pill--offline"
-              style={{
-                borderColor: 'rgba(239, 68, 68, 0.4)',
-                background: 'rgba(239, 68, 68, 0.08)',
-                cursor: 'pointer',
-              }}
-              onClick={handleRefreshClick}
-              title="Supabase PostgreSQL database unreachable or query failed. Click to re-sync."
-              role="button"
-              tabIndex={0}
-            >
-              <AlertCircle size={11} color="#ef4444" />
-              <span style={{ color: '#ef4444', fontWeight: 700 }}>SUPABASE OFFLINE</span>
-            </div>
-          ) : supabaseStatus === 'checking' ? (
-            <div
-              className="cc-status-pill cc-status-pill--checking"
-              style={{
-                borderColor: 'rgba(245, 158, 11, 0.4)',
-                background: 'rgba(245, 158, 11, 0.08)',
-              }}
-              title="Checking Supabase database connectivity..."
-            >
-              <RefreshCw size={11} color="#f59e0b" style={{ animation: 'spin 1.2s linear infinite' }} />
-              <span style={{ color: '#f59e0b', fontWeight: 700 }}>SUPABASE...</span>
-            </div>
-          ) : (
-            <div
-              className="cc-status-pill"
-              style={{
-                borderColor: 'rgba(52, 211, 153, 0.35)',
-                background: 'rgba(52, 211, 153, 0.07)',
-                cursor: 'pointer',
-              }}
-              onClick={handleRefreshClick}
-              title="Connected to production Supabase PostgreSQL. Master fleet and telemetry logs accessible."
-              role="button"
-              tabIndex={0}
-            >
-              <Database size={11} color="#34d399" />
-              <span style={{ color: '#34d399', fontWeight: 700 }}>SUPABASE</span>
-              <span style={{ color: '#64748b' }}>&middot;</span>
-              <span style={{ color: '#94a3b8' }}>Connected</span>
-            </div>
-          )
-        )}
-
-        {/* 3. Distinct External AIS Telemetry & Freshness Status Pill */}
+        {/* 2. AIS Telemetry Freshness Status Pill */}
         {!isActuallyOffline && (
           isRefreshing ? (
             <div
@@ -228,14 +173,14 @@ export function DashboardHeader({
                 background: 'rgba(56, 189, 248, 0.07)',
                 cursor: 'default',
               }}
-              title="AIS telemetry observations are recent (2 to 24 hours old)."
+              title="AIS telemetry observations are recent."
             >
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#38bdf8' }} />
               <span style={{ color: '#38bdf8', fontWeight: 700 }}>RECENT AIS</span>
               <span style={{ color: '#64748b' }}>&middot;</span>
               <span style={{ color: '#94a3b8' }}>{recentCount} Recent</span>
             </div>
-          ) : staleCount > 0 ? (
+          ) : (
             <div
               className="cc-status-pill"
               style={{
@@ -243,95 +188,15 @@ export function DashboardHeader({
                 background: 'rgba(56, 189, 248, 0.07)',
                 cursor: 'default',
               }}
-              title="AIS telemetry store active with logged positions."
+              title="AIS fleet telemetry store active."
             >
               <Radio size={11} color="#38bdf8" />
               <span style={{ color: '#38bdf8', fontWeight: 700 }}>AIS TELEMETRY</span>
               <span style={{ color: '#64748b' }}>&middot;</span>
-              <span style={{ color: '#94a3b8' }}>{staleCount} Logged</span>
-            </div>
-          ) : (
-            <div
-              className="cc-status-pill"
-              style={{
-                borderColor: 'rgba(52, 211, 153, 0.35)',
-                background: 'rgba(52, 211, 153, 0.07)',
-                cursor: 'default',
-              }}
-              title="AIS telemetry store configured and active against Supabase database."
-            >
-              <Radio size={11} color="#34d399" />
-              <span style={{ color: '#34d399', fontWeight: 700 }}>AIS ACTIVE</span>
-              <span style={{ color: '#64748b' }}>&middot;</span>
-              <span style={{ color: '#94a3b8' }}>Fleet Store</span>
+              <span style={{ color: '#94a3b8' }}>{staleCount > 0 ? `${staleCount} Logged` : 'Active'}</span>
             </div>
           )
         )}
-
-        {/* 4. System Operational Status Pill */}
-        <div
-          className="cc-status-pill"
-          style={{
-            borderColor: isActuallyOffline || isDatabaseDown
-              ? 'rgba(239, 68, 68, 0.3)'
-              : isDegraded
-              ? 'rgba(245, 158, 11, 0.3)'
-              : 'rgba(52, 211, 153, 0.25)',
-            background: isActuallyOffline || isDatabaseDown
-              ? 'rgba(239, 68, 68, 0.05)'
-              : isDegraded
-              ? 'rgba(245, 158, 11, 0.05)'
-              : 'rgba(52, 211, 153, 0.04)',
-          }}
-          title={
-            isActuallyOffline
-              ? 'FastAPI microservice is unreachable.'
-              : isDatabaseDown
-              ? 'Supabase database connection error.'
-              : isDegraded
-              ? 'Partial service degradation in API.'
-              : 'All systems fully operational: FastAPI microservice online, Supabase database connected, fleet telemetry active.'
-          }
-        >
-          <span
-            style={{
-              width: '6px',
-              height: '6px',
-              borderRadius: '50%',
-              background: isActuallyOffline || isDatabaseDown
-                ? '#ef4444'
-                : isDegraded
-                ? '#f59e0b'
-                : '#34d399',
-              boxShadow: isSystemOperational
-                ? '0 0 6px rgba(52, 211, 153, 0.6)'
-                : isActuallyOffline
-                ? '0 0 6px rgba(239, 68, 68, 0.6)'
-                : 'none',
-            }}
-          />
-          <span style={{ color: '#94a3b8', fontSize: '0.625rem' }}>SYSTEM:</span>
-          <span
-            style={{
-              color: isActuallyOffline || isDatabaseDown
-                ? '#ef4444'
-                : isDegraded
-                ? '#f59e0b'
-                : '#34d399',
-              fontWeight: 700,
-            }}
-          >
-            {isActuallyOffline
-              ? 'DISCONNECTED'
-              : isChecking
-              ? 'VERIFYING'
-              : isDatabaseDown
-              ? 'DB OFFLINE'
-              : isDegraded
-              ? 'DEGRADED'
-              : 'OPERATIONAL'}
-          </span>
-        </div>
 
         <button
           type="button"

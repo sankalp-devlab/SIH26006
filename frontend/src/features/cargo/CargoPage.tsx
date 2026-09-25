@@ -1,4 +1,4 @@
-import { CheckCircle, Package, Plus } from 'lucide-react';
+import { CheckCircle, Package, Plus, Globe, Layers } from 'lucide-react';
 import { useCargoWorkspace } from '../../hooks/useCargoWorkspace';
 import { CargoHeader } from './components/CargoHeader';
 import { CargoKPISummary } from './components/CargoKPISummary';
@@ -137,7 +137,7 @@ export function CargoPage() {
           className={`ciw-tab-btn ${viewMode === 'zones' ? 'active' : ''}`}
           onClick={() => setViewMode('zones')}
         >
-          <span style={{ fontSize: '13px' }}>🗺️</span>
+          <Globe size={14} />
           <span>Corridor Zones</span>
         </button>
 
@@ -146,7 +146,7 @@ export function CargoPage() {
           className={`ciw-tab-btn ${viewMode === 'duplicates' ? 'active' : ''}`}
           onClick={() => setViewMode('duplicates')}
         >
-          <span style={{ fontSize: '13px' }}>🔍</span>
+          <Layers size={14} />
           <span>Duplicate Clusters</span>
           {analytics.duplicateClustersCount > 0 && (
             <span

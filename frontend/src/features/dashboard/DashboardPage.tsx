@@ -22,11 +22,8 @@ import { FreightMarketChart } from './components/FreightMarketChart';
 import { GlobalTradeFlowsTable } from './components/GlobalTradeFlowsTable';
 import { PortActivityTable } from './components/PortActivityTable';
 import { VesselActivityBreakdown } from './components/VesselActivityBreakdown';
-import { TradeFreightCorrelation } from './components/TradeFreightCorrelation';
-import { GlobalActivityHeatmap } from './components/GlobalActivityHeatmap';
 import { AttentionAlertsPanel } from './components/AttentionAlertsPanel';
 import { MarketEventsTimeline } from './components/MarketEventsTimeline';
-import { QuickAccessStrip } from './components/QuickAccessStrip';
 import { PortDetailDrawer } from './components/PortDetailDrawer';
 import { VesselMapDetailDrawer } from '../map/components/VesselMapDetailDrawer';
 import {
@@ -50,11 +47,8 @@ const DEFAULT_VISIBILITY: DashboardSectionsVisibility = {
   tradeFlows: true,
   portActivity: true,
   vesselActivity: true,
-  tradeFreightCorrelation: true,
-  globalActivity: true,
   alerts: true,
   marketEvents: true,
-  quickAccess: true,
 };
 
 export function DashboardPage() {
@@ -448,21 +442,13 @@ export function DashboardPage() {
               </div>
             )}
 
-            {/* 6. Lower Intelligence Area (Trade vs Freight, Global Activity, Alerts, Market Events) */}
-            {(visibility.tradeFreightCorrelation ||
-              visibility.globalActivity ||
-              visibility.alerts ||
-              visibility.marketEvents) && (
+            {/* 6. Lower Intelligence Area (Alerts & Market Events Timeline) */}
+            {(visibility.alerts || visibility.marketEvents) && (
               <div className="cc-lower-grid">
-                {visibility.tradeFreightCorrelation && <TradeFreightCorrelation />}
-                {visibility.globalActivity && <GlobalActivityHeatmap />}
                 {visibility.alerts && <AttentionAlertsPanel />}
                 {visibility.marketEvents && <MarketEventsTimeline />}
               </div>
             )}
-
-            {/* 7. Quick Operations Access Strip */}
-            {visibility.quickAccess && <QuickAccessStrip />}
           </>
         )}
       </div>

@@ -6,7 +6,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Sparkles,
+  TrendingUp,
   AlertTriangle,
   Compass,
   Anchor,
@@ -158,7 +158,7 @@ export const MarketDriversForecastTab: React.FC<MarketDriversForecastTabProps> =
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="px-2.5 py-0.5 rounded text-xs font-bold bg-purple-500/10 text-purple-400 border border-purple-500/20 flex items-center gap-1">
-                <Sparkles size={12} /> PREDICTIVE ANALYTICS ENGINE
+                <TrendingUp size={12} /> FORWARD RATE PROJECTION
               </span>
               <span className="text-xs text-slate-400">
                 Statistical Extrapolation & Ton-Mile Demand Projections

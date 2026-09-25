@@ -233,16 +233,6 @@ export function Topbar({ onOpenMobile, onOpenSearch }: TopbarProps) {
           <span className="topbar-pill-label">Skipper AI</span>
         </Link>
 
-        {/* Desktop Quick Launcher: Mobile App */}
-        <Link
-          to="/m"
-          className="topbar-action-pill topbar-pill-mobile"
-          title="Launch Mobile Maritime View"
-        >
-          <Smartphone size={14} />
-          <span className="topbar-pill-label">Mobile App</span>
-        </Link>
-
         {/* Mobile Overflow Menu (⋯) containing secondary items */}
         <div className="topbar-mobile-more">
           <Dropdown

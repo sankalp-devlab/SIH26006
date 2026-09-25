@@ -1,7 +1,7 @@
 import {
   Eye,
   MapPin,
-  Sparkles,
+  TrendingUp,
   Ship,
 } from 'lucide-react';
 import { DataTable, type Column } from '../../../components/data-display/DataTable';
@@ -65,8 +65,8 @@ export function VoyageTable({
                     width: 'fit-content',
                   }}
                 >
-                  <Sparkles size={9} />
-                  {v.confidence_pct}% AI Forecast
+                  <TrendingUp size={9} />
+                  {v.confidence_pct}% Forward Projected
                 </span>
               </Tooltip>
             ) : (

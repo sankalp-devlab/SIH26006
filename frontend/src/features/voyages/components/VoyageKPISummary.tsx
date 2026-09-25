@@ -1,6 +1,6 @@
 import {
   Ship,
-  Sparkles,
+  TrendingUp,
   CheckCircle2,
   PieChart,
   Clock,
@@ -61,11 +61,11 @@ export function VoyageKPISummary({
         className={`cvi-kpi-card ${selectedStatus === 'predicted' ? 'is-active' : ''}`}
         onClick={() => onSelectStatus && onSelectStatus(selectedStatus === 'predicted' ? 'all' : 'predicted')}
         style={{ borderLeft: '3px solid #a855f7' }}
-        title="Filter by AI Predicted Next Voyages"
+        title="Filter by Forward Projected Voyages"
       >
         <div className="cvi-kpi-top">
           <span className="cvi-kpi-label">PREDICTED NEXT</span>
-          <Sparkles size={15} color="#c084fc" />
+          <TrendingUp size={15} color="#c084fc" />
         </div>
         <div className="cvi-kpi-val" style={{ color: '#c084fc' }}>
           {predicted_voyages}
@@ -73,7 +73,7 @@ export function VoyageKPISummary({
         <div className="cvi-kpi-bottom">
           <div className="cvi-kpi-sub" style={{ color: '#c084fc' }}>
             <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: '#c084fc' }} />
-            <span>AI Forecast</span>
+            <span>Forward Projection</span>
           </div>
           <div className="cvi-kpi-desc">Next fixtures & forward laycans</div>
         </div>

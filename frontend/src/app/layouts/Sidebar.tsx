@@ -158,8 +158,8 @@ const NAV_SECTIONS: NavSectionConfig[] = [
       { to: '/voyages', label: 'Voyages', icon: Route },
       { to: '/ports', label: 'Port Insights', icon: Anchor },
       { to: '/cargo', label: 'Cargo', icon: Package },
-      { to: '/bookings', label: 'Commercial Bookings', icon: BookmarkCheck, badge: 'M19' },
-      { to: '/tracking', label: 'Live Vessel Tracking', icon: Radio, badge: 'M20' },
+      { to: '/bookings', label: 'Commercial Bookings', icon: BookmarkCheck },
+      { to: '/tracking', label: 'Live Vessel Tracking', icon: Radio },
       { to: '/routes', label: 'Routes', icon: Navigation },
       { to: '/fixtures', label: 'Fixtures', icon: FileText },
       { to: '/voyage-calculator', label: 'Voyage Calculator', icon: Calculator },
@@ -182,14 +182,14 @@ const NAV_SECTIONS: NavSectionConfig[] = [
   {
     title: 'Maritime AI',
     items: [
-      { to: '/skipper', label: 'Skipper AI Assistant', icon: Bot, badge: 'AI' },
+      { to: '/skipper', label: 'Skipper AI Assistant', icon: Bot },
     ],
   },
   {
     title: 'System',
     items: [
-      { to: '/workspace', label: 'Personal Workspace', icon: FolderKanban, badge: 'M29' },
-      { to: '/notifications', label: 'Notifications & Alerts', icon: Bell, badge: 'M28' },
+      { to: '/workspace', label: 'Personal Workspace', icon: FolderKanban },
+      { to: '/notifications', label: 'Notifications & Alerts', icon: Bell },
       { to: '/settings', label: 'Platform Settings', icon: Settings },
     ],
   },

@@ -10,7 +10,6 @@ import {
   Compass,
   Check,
   Info,
-  Globe,
 } from 'lucide-react';
 import type { MapLayerVisibility } from '../../../types/map';
 
@@ -96,15 +95,6 @@ export function MapControls({
           aria-label="Reset ocean view"
         >
           <Compass size={16} />
-        </button>
-
-        <button
-          className="vmp-glass-btn"
-          onClick={onFitAll || onFitVessels}
-          title="Fit All Maritime Data in View (Globe)"
-          aria-label="Fit all data in view"
-        >
-          <Globe size={16} />
         </button>
 
         <button
