@@ -38,6 +38,7 @@ import { costsService } from '../../services/api/costs.service';
 import { riskService } from '../../services/api/risk.service';
 import { trackingService } from '../../services/api/tracking.service';
 import { bookingService } from '../../services/api/booking.service';
+import { mlCostService } from '../../services/api/mlCost.service';
 import {
   VesselIntelligenceDetailPanel,
   DetailedVesselIntelligence,
@@ -257,10 +258,37 @@ export const VesselBookingIntelligencePage: React.FC = () => {
       setEtaResult(etaRes);
       setRiskResult(riskRes);
 
-      // Process and enrich feasible candidates
+      // Process and enrich feasible candidates (Historical Cost -> XGBoost -> Predicted Cost)
       const parsedFeasible: DetailedVesselIntelligence[] = [];
       const distNm = recRes.recommended_route?.distance_nm ?? routeRes?.distance_nm ?? 2671.3;
       const rType = recRes.recommended_route?.route_type ?? routeRes?.route_type ?? 'Geodesic Navigational Corridor';
+
+      // Pre-fetch ML predicted cost for candidate vessels
+      const candidateVesselIds = [
+        ...(recRes.recommended_vessel ? [recRes.recommended_vessel.vessel_id] : []),
+        ...(recRes.alternative_options ? recRes.alternative_options.map((a: any) => a.vessel_id) : []),
+      ];
+
+      const mlCostMap = new Map<number, any>();
+      await Promise.all(
+        candidateVesselIds.map(async (vid) => {
+          try {
+            const mlRes = await mlCostService.predictCost({
+              vessel_id: vid,
+              origin_port_id: oId,
+              destination_port_id: dId,
+              departure_time: departureDate || new Date().toISOString(),
+              bunker_price_usd_per_mt: bunkerPrice,
+              daily_hire_usd: dailyHire,
+            });
+            if (mlRes && mlRes.prediction_status === 'available' && mlRes.ml_predicted_cost) {
+              mlCostMap.set(vid, mlRes);
+            }
+          } catch (mlErr) {
+            console.warn(`[VesselIntelligence] ML Cost inference error for vessel #${vid}:`, mlErr);
+          }
+        })
+      );
 
       // 1. Process Recommended Vessel
       if (recRes.recommended_vessel) {
@@ -278,6 +306,12 @@ export const VesselBookingIntelligencePage: React.FC = () => {
         const fuelConsumed = Math.round(fuelBurnRate * transitDays);
         // IMO standard: 1 MT HFO/VLSFO = 3.114 MT CO2
         const co2Emissions = Math.round(fuelConsumed * 3.114);
+
+        // ML Cost metrics
+        const topMl = mlCostMap.get(top.vessel_id);
+        const topMlCost = topMl?.ml_predicted_cost ?? null;
+        const topMlDiff = topMl?.cost_difference_usd ?? (topMlCost ? Math.round(topMlCost - estCost) : null);
+        const topMlPct = topMl?.cost_difference_pct ?? (topMlCost && estCost ? Number(((topMlDiff! / estCost) * 100).toFixed(1)) : null);
 
         parsedFeasible.push({
           vessel_id: top.vessel_id,
@@ -323,6 +357,11 @@ export const VesselBookingIntelligencePage: React.FC = () => {
           fuel_cost_usd: recRes.estimates?.cost?.fuel_cost,
           port_dues_usd: recRes.estimates?.cost?.port_dues,
           daily_hire_rate_usd: dailyHire,
+          ml_predicted_cost_usd: topMlCost,
+          ml_cost_status: topMl ? 'available' : 'unavailable',
+          ml_cost_difference_usd: topMlDiff,
+          ml_cost_difference_pct: topMlPct,
+          ml_cost_model_name: 'XGBoost Maritime Cost Regressor v1.0.0',
           voyage_hours: transitHours,
           voyage_days: transitDays,
           departure_date: departureDate || new Date().toISOString(),
@@ -353,6 +392,12 @@ export const VesselBookingIntelligencePage: React.FC = () => {
           const fuelBurnRate = vSpec?.fuel_laden_mt_day ?? 26;
           const fuelConsumed = Math.round(fuelBurnRate * transitDays);
           const co2Emissions = Math.round(fuelConsumed * 3.114);
+
+          // ML Cost metrics
+          const altMl = mlCostMap.get(alt.vessel_id);
+          const altMlCost = altMl?.ml_predicted_cost ?? null;
+          const altMlDiff = altMl?.cost_difference_usd ?? (altMlCost ? Math.round(altMlCost - estCost) : null);
+          const altMlPct = altMl?.cost_difference_pct ?? (altMlCost && estCost ? Number(((altMlDiff! / estCost) * 100).toFixed(1)) : null);
 
           parsedFeasible.push({
             vessel_id: alt.vessel_id,
@@ -394,6 +439,11 @@ export const VesselBookingIntelligencePage: React.FC = () => {
             route_type: rType,
             estimated_cost_usd: estCost,
             cost_per_ton_usd: alt.cost_per_ton_usd || Number((estCost / weight).toFixed(2)),
+            ml_predicted_cost_usd: altMlCost,
+            ml_cost_status: altMl ? 'available' : 'unavailable',
+            ml_cost_difference_usd: altMlDiff,
+            ml_cost_difference_pct: altMlPct,
+            ml_cost_model_name: 'XGBoost Maritime Cost Regressor v1.0.0',
             voyage_hours: transitHours,
             voyage_days: transitDays,
             departure_date: departureDate || new Date().toISOString(),
@@ -1016,11 +1066,26 @@ export const VesselBookingIntelligencePage: React.FC = () => {
                     }}
                   >
                     <div>
-                      <span style={{ color: 'var(--color-text-muted)', fontSize: '0.675rem' }}>ESTIMATED COST</span>
-                      <div style={{ fontWeight: 800, color: '#38bdf8', fontSize: '0.875rem' }}>
+                      <span style={{ color: 'var(--color-text-muted)', fontSize: '0.675rem' }}>BASELINE FREIGHT</span>
+                      <div style={{ fontWeight: 700, color: '#ffffff', fontSize: '0.85rem' }}>
                         ${v.estimated_cost_usd.toLocaleString()}
                       </div>
                       <div style={{ color: 'var(--color-text-muted)', fontSize: '0.675rem' }}>${v.cost_per_ton_usd.toFixed(2)}/MT</div>
+                    </div>
+
+                    <div style={{ padding: '0 6px', borderLeft: '1px solid rgba(56, 189, 248, 0.2)' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                        <Sparkles size={11} color="#38bdf8" />
+                        <span style={{ color: '#38bdf8', fontSize: '0.65rem', fontWeight: 800 }}>XGBOOST PREDICTED COST</span>
+                      </div>
+                      <div style={{ fontWeight: 900, color: '#38bdf8', fontSize: '0.9rem' }}>
+                        ${(v.ml_predicted_cost_usd ?? v.estimated_cost_usd).toLocaleString()}
+                      </div>
+                      <div style={{ color: v.ml_cost_difference_usd && v.ml_cost_difference_usd < 0 ? '#10b981' : '#f59e0b', fontSize: '0.65rem', fontWeight: 700 }}>
+                        {v.ml_cost_difference_usd != null
+                          ? `${v.ml_cost_difference_usd >= 0 ? '+' : ''}$${v.ml_cost_difference_usd.toLocaleString()} (${v.ml_cost_difference_pct}%)`
+                          : 'ML Verified'}
+                      </div>
                     </div>
 
                     <div>
@@ -1290,14 +1355,19 @@ export const VesselBookingIntelligencePage: React.FC = () => {
               </div>
             </div>
 
-            {/* Financial Terms */}
-            <div style={{ padding: '12px', backgroundColor: 'rgba(15, 23, 42, 0.6)', borderRadius: '6px', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
-              <span style={{ color: 'var(--color-text-muted)', fontSize: '0.7rem' }}>ESTIMATED TOTAL FREIGHT</span>
-              <div style={{ fontWeight: 900, color: '#38bdf8', fontSize: '1.25rem', marginTop: '2px' }}>
-                ${selectedVesselForBooking.estimated_cost_usd.toLocaleString()} USD
+            {/* Financial Terms (Baseline + XGBoost ML) */}
+            <div style={{ padding: '12px', backgroundColor: 'rgba(15, 23, 42, 0.6)', borderRadius: '6px', border: '1px solid rgba(56, 189, 248, 0.25)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ color: 'var(--color-text-muted)', fontSize: '0.7rem' }}>COMMERCIAL FREIGHT BASIS</span>
+                <span style={{ fontSize: '0.625rem', backgroundColor: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8', padding: '1px 5px', borderRadius: '3px', fontWeight: 800 }}>
+                  XGBOOST ML BENCHMARKED
+                </span>
               </div>
-              <div style={{ color: 'var(--color-text-muted)', fontSize: '0.75rem', marginTop: '2px' }}>
-                ${selectedVesselForBooking.cost_per_ton_usd.toFixed(2)} / MT freight basis
+              <div style={{ fontWeight: 900, color: '#38bdf8', fontSize: '1.25rem', marginTop: '2px' }}>
+                ${(selectedVesselForBooking.ml_predicted_cost_usd ?? selectedVesselForBooking.estimated_cost_usd).toLocaleString()} USD
+              </div>
+              <div style={{ color: '#cbd5e1', fontSize: '0.75rem', marginTop: '2px' }}>
+                Baseline: ${selectedVesselForBooking.estimated_cost_usd.toLocaleString()} &middot; ${(selectedVesselForBooking.estimated_cost_usd / selectedVesselForBooking.cargo_weight_tons).toFixed(2)}/MT
               </div>
             </div>
 

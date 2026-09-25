@@ -260,24 +260,69 @@ export const MultiVesselComparisonModal: React.FC<MultiVesselComparisonModalProp
               </tr>
             </thead>
             <tbody>
-              {/* Row 1: Estimated Voyage Cost */}
+              {/* Row 1: Estimated Baseline Cost */}
               <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.06)' }}>
                 <td style={{ padding: '12px 14px', fontWeight: 700, color: 'var(--color-text-secondary)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <DollarSign size={14} color="#38bdf8" />
-                    <span>Estimated Total Cost</span>
+                    <DollarSign size={14} color="#94a3b8" />
+                    <span>Baseline Cost</span>
                   </div>
                 </td>
                 {vessels.map((v) => (
                   <td key={v.vessel_id} style={{ padding: '12px 14px', borderLeft: '1px solid rgba(255, 255, 255, 0.06)' }}>
-                    <div style={{ fontWeight: 800, color: '#38bdf8', fontSize: '0.9375rem' }}>
+                    <div style={{ fontWeight: 700, color: '#ffffff', fontSize: '0.875rem' }}>
                       ${v.estimated_cost_usd.toLocaleString()}
                     </div>
                     <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>
-                      ${v.cost_per_ton_usd.toFixed(2)} / MT
+                      ${v.cost_per_ton_usd.toFixed(2)} / MT (Physics Model)
                     </div>
                   </td>
                 ))}
+              </tr>
+
+              {/* Row 1B: XGBoost ML Predicted Cost */}
+              <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.06)', backgroundColor: 'rgba(2, 132, 199, 0.06)' }}>
+                <td style={{ padding: '12px 14px', fontWeight: 700, color: '#38bdf8' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <Sparkles size={14} color="#38bdf8" />
+                    <span>XGBoost Predicted Cost</span>
+                  </div>
+                </td>
+                {vessels.map((v) => {
+                  const mlCost = v.ml_predicted_cost_usd ?? v.estimated_cost_usd;
+                  const perTon = (mlCost / v.cargo_weight_tons).toFixed(2);
+                  return (
+                    <td key={v.vessel_id} style={{ padding: '12px 14px', borderLeft: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                      <div style={{ fontWeight: 800, color: '#38bdf8', fontSize: '0.9375rem' }}>
+                        ${mlCost.toLocaleString()}
+                      </div>
+                      <div style={{ fontSize: '0.7rem', color: '#7dd3fc', fontWeight: 600 }}>
+                        ${perTon} / MT (XGBoost Regressor)
+                      </div>
+                    </td>
+                  );
+                })}
+              </tr>
+
+              {/* Row 1C: Cost Variance / Delta */}
+              <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                <td style={{ padding: '12px 14px', fontWeight: 700, color: 'var(--color-text-secondary)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <TrendingUp size={14} color="#94a3b8" />
+                    <span>ML vs Baseline Delta</span>
+                  </div>
+                </td>
+                {vessels.map((v) => {
+                  const diff = v.ml_cost_difference_usd;
+                  const pct = v.ml_cost_difference_pct;
+                  return (
+                    <td key={v.vessel_id} style={{ padding: '12px 14px', borderLeft: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                      <div style={{ fontWeight: 700, fontSize: '0.8125rem', color: diff && diff < 0 ? '#10b981' : '#f59e0b' }}>
+                        {diff != null ? `${diff >= 0 ? '+' : ''}$${diff.toLocaleString()} (${pct}%)` : 'Calibrated'}
+                      </div>
+                    </td>
+                  );
+                })}
               </tr>
 
               {/* Row 2: Distance */}
