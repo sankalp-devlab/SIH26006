@@ -176,7 +176,7 @@ export const FixturesTable: React.FC<FixturesTableProps> = ({
               <th
                 className="cfw-th cfw-th-sortable"
                 onClick={() => handleSort('fixture_reference')}
-                style={{ width: '13%' }}
+                style={{ width: '12%' }}
               >
                 <div style={{ display: 'inline-flex', alignItems: 'center' }}>
                   FIXTURE {renderSortIndicator('fixture_reference')}
@@ -198,10 +198,10 @@ export const FixturesTable: React.FC<FixturesTableProps> = ({
               <th
                 className="cfw-th cfw-th-sortable"
                 onClick={() => handleSort('vessel_name')}
-                style={{ width: '17%' }}
+                style={{ width: '16%' }}
               >
                 <div style={{ display: 'inline-flex', alignItems: 'center' }}>
-                  VESSEL PARTICULARS {renderSortIndicator('vessel_name')}
+                  VESSEL {renderSortIndicator('vessel_name')}
                 </div>
               </th>
 
@@ -209,10 +209,10 @@ export const FixturesTable: React.FC<FixturesTableProps> = ({
               <th
                 className="cfw-th cfw-th-sortable"
                 onClick={() => handleSort('charterer')}
-                style={{ width: '17%' }}
+                style={{ width: '15%' }}
               >
                 <div style={{ display: 'inline-flex', alignItems: 'center' }}>
-                  CHARTERER & FORM {renderSortIndicator('charterer')}
+                  CHARTERER &amp; FORM {renderSortIndicator('charterer')}
                 </div>
               </th>
 
@@ -220,10 +220,10 @@ export const FixturesTable: React.FC<FixturesTableProps> = ({
               <th
                 className="cfw-th cfw-th-sortable"
                 onClick={() => handleSort('commodity')}
-                style={{ width: '15%' }}
+                style={{ width: '14%' }}
               >
                 <div style={{ display: 'inline-flex', alignItems: 'center' }}>
-                  CARGO & TONNAGE {renderSortIndicator('commodity')}
+                  CARGO &amp; TONNAGE {renderSortIndicator('commodity')}
                 </div>
               </th>
 
@@ -234,23 +234,23 @@ export const FixturesTable: React.FC<FixturesTableProps> = ({
                 style={{ width: '16%' }}
               >
                 <div style={{ display: 'inline-flex', alignItems: 'center' }}>
-                  MULTI-PORT ROTATION {renderSortIndicator('port_count')}
+                  ROTATION {renderSortIndicator('port_count')}
                 </div>
               </th>
 
-              {/* 7. Commercial Rate */}
+              {/* 7. Commercial Rate & Laycan */}
               <th
                 className="cfw-th cfw-th-sortable"
                 onClick={() => handleSort('rate_value')}
-                style={{ width: '15%' }}
+                style={{ width: '16%' }}
               >
                 <div style={{ display: 'inline-flex', alignItems: 'center' }}>
-                  COMMERCIAL RATE {renderSortIndicator('rate_value')}
+                  RATE &amp; LAYCAN {renderSortIndicator('rate_value')}
                 </div>
               </th>
 
               {/* 8. Actions */}
-              <th className="cfw-th" style={{ width: '8%', textAlign: 'right' }}>
+              <th className="cfw-th" style={{ width: '80px', textAlign: 'right' }}>
                 ACTIONS
               </th>
             </tr>

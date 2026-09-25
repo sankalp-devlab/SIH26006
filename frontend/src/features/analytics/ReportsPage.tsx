@@ -143,6 +143,36 @@ export default function ReportsPage() {
         ]}
       />
 
+      {/* 4-Step Analytical Workflow Directive */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          padding: '8px 14px',
+          backgroundColor: 'rgba(0, 212, 255, 0.05)',
+          border: '1px solid rgba(0, 212, 255, 0.2)',
+          borderRadius: 'var(--ol-radius-md, 6px)',
+          marginBottom: '16px',
+          fontSize: '11px',
+          color: 'var(--ol-text-secondary, #94A3B8)',
+          overflowX: 'auto',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        <span style={{ fontWeight: 700, color: 'var(--ol-cyan, #00D4FF)' }}>1. SELECT DATA</span>
+        <span style={{ color: 'var(--ol-text-muted, #7189A3)' }}>Filters & Time Horizon</span>
+        <span>→</span>
+        <span style={{ fontWeight: 700, color: 'var(--ol-cyan, #00D4FF)' }}>2. ANALYZE</span>
+        <span style={{ color: 'var(--ol-text-muted, #7189A3)' }}>Corridors & Macro Trends</span>
+        <span>→</span>
+        <span style={{ fontWeight: 700, color: 'var(--ol-cyan, #00D4FF)' }}>3. VIEW REPORT</span>
+        <span style={{ color: 'var(--ol-text-muted, #7189A3)' }}>Drill-Down & Guidance</span>
+        <span>→</span>
+        <span style={{ fontWeight: 700, color: 'var(--ol-cyan, #00D4FF)' }}>4. EXPORT / USE</span>
+        <span style={{ color: 'var(--ol-text-muted, #7189A3)' }}>Dossier, TSV & JSON</span>
+      </div>
+
       {/* 2. Standardized Intelligence Command Bar */}
       <IntelligenceCommandBar
         filters={commandBarFilters}

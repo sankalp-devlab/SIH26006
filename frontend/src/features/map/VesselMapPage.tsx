@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import L from 'leaflet';
+import { X, RotateCcw, Crosshair, Ship as ShipIcon, ExternalLink, Filter } from 'lucide-react';
 
 import { useMapData } from '../../hooks/useMapData';
 import { MapCanvas } from './components/MapCanvas';
@@ -157,6 +158,17 @@ export function VesselMapPage() {
       return true;
     });
   }, [positionedVessels, filters]);
+
+  const hasActiveFilters = useMemo(() => {
+    return (
+      filters.types.size > 0 ||
+      filters.statuses.size > 0 ||
+      filters.minSpeed > 0 ||
+      filters.maxSpeed < 30 ||
+      filters.flag !== 'all' ||
+      Boolean(filters.areaSearch.trim())
+    );
+  }, [filters]);
 
   // Sync selected vessel from URL or state
   useEffect(() => {
@@ -383,6 +395,141 @@ export function VesselMapPage() {
               <button className="vmp-retry-link" onClick={refetchAll}>
                 Retry
               </button>
+            </div>
+          )}
+
+          {/* ACTIVE FILTER SUMMARY BAR */}
+          {hasActiveFilters && (
+            <div className="vmp-active-filters-bar" role="status" aria-label="Active map filters">
+              <div className="vmp-active-filters-chips">
+                <span className="vmp-active-filter-label">
+                  <Filter size={12} /> Active Filters:
+                </span>
+                {Array.from(filters.types).map((t) => (
+                  <span key={t} className="vmp-active-chip">
+                    Type: {t}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const next = new Set(filters.types);
+                        next.delete(t);
+                        setFilters((prev) => ({ ...prev, types: next }));
+                      }}
+                      title={`Remove ${t} filter`}
+                    >
+                      <X size={10} />
+                    </button>
+                  </span>
+                ))}
+                {Array.from(filters.statuses).map((s) => (
+                  <span key={s} className="vmp-active-chip">
+                    Status: {s}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const next = new Set(filters.statuses);
+                        next.delete(s);
+                        setFilters((prev) => ({ ...prev, statuses: next }));
+                      }}
+                      title={`Remove ${s} filter`}
+                    >
+                      <X size={10} />
+                    </button>
+                  </span>
+                ))}
+                {(filters.minSpeed > 0 || filters.maxSpeed < 30) && (
+                  <span className="vmp-active-chip">
+                    Speed: {filters.minSpeed}–{filters.maxSpeed} kn
+                    <button
+                      type="button"
+                      onClick={() => setFilters((prev) => ({ ...prev, minSpeed: 0, maxSpeed: 30 }))}
+                      title="Reset speed filter"
+                    >
+                      <X size={10} />
+                    </button>
+                  </span>
+                )}
+                {filters.flag !== 'all' && (
+                  <span className="vmp-active-chip">
+                    Flag: {filters.flag}
+                    <button
+                      type="button"
+                      onClick={() => setFilters((prev) => ({ ...prev, flag: 'all' }))}
+                      title="Reset flag filter"
+                    >
+                      <X size={10} />
+                    </button>
+                  </span>
+                )}
+                {filters.areaSearch && (
+                  <span className="vmp-active-chip">
+                    &ldquo;{filters.areaSearch}&rdquo;
+                    <button
+                      type="button"
+                      onClick={() => setFilters((prev) => ({ ...prev, areaSearch: '' }))}
+                      title="Clear search query"
+                    >
+                      <X size={10} />
+                    </button>
+                  </span>
+                )}
+              </div>
+              <div className="vmp-active-filters-right">
+                <span className="vmp-filtered-count-badge">
+                  {filteredPositionedVessels.length} of {positionedVessels.length} vessels
+                </span>
+                <button
+                  type="button"
+                  className="vmp-reset-filters-btn"
+                  onClick={handleResetFilters}
+                  title="Reset all active filters"
+                >
+                  <RotateCcw size={11} />
+                  <span>Reset</span>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* SELECTED VESSEL QUICK BANNER */}
+          {rawSelectedVessel && (
+            <div className="vmp-selected-vessel-banner" role="region" aria-label="Selected vessel status">
+              <div className="vmp-selected-vessel-info">
+                <ShipIcon size={14} className="vmp-selected-icon" />
+                <span className="vmp-selected-name">{rawSelectedVessel.name}</span>
+                <span className="vmp-selected-meta">
+                  IMO {rawSelectedVessel.imo_number || 'N/A'} · {rawSelectedVessel.vessel_type || 'Vessel'} ·{' '}
+                  {selectedVessel?.speed_knots ? `${selectedVessel.speed_knots} kn` : `${rawSelectedVessel.speed_laden_knots || 0} kn`}
+                </span>
+              </div>
+              <div className="vmp-selected-actions">
+                <button
+                  type="button"
+                  className="vmp-selected-btn"
+                  onClick={handleLocateVessel}
+                  title="Center map on vessel"
+                >
+                  <Crosshair size={12} />
+                  <span>Center</span>
+                </button>
+                <button
+                  type="button"
+                  className="vmp-selected-btn primary"
+                  onClick={() => setIsFullIntelOpen(true)}
+                  title="Open full 5-domain vessel dossier"
+                >
+                  <ExternalLink size={12} />
+                  <span>Full Intel</span>
+                </button>
+                <button
+                  type="button"
+                  className="vmp-selected-close"
+                  onClick={handleDeselectVessel}
+                  title="Deselect vessel"
+                >
+                  <X size={13} />
+                </button>
+              </div>
             </div>
           )}
 

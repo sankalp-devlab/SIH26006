@@ -100,38 +100,23 @@ export function VoyageTable({
       ),
     },
 
-    // 3. ORIGIN
+    // 3. ROUTE (ORIGIN -> DESTINATION)
     {
       key: 'origin_port',
-      header: 'ORIGIN',
-      width: '12%',
+      header: 'ROUTE (ORIGIN → DESTINATION)',
+      width: '22%',
       render: (v) => (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-          <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#f1f5f9' }}>
-            {v.origin_port?.name || 'Unavailable'}
-          </span>
-          <span style={{ fontSize: '11px', color: '#64748b' }}>
-            {v.origin_port?.country ? `${v.origin_port.country}` : 'Global Port'}
-            {v.origin_port?.unlocode ? ` (${v.origin_port.unlocode})` : ''}
-          </span>
-        </div>
-      ),
-    },
-
-    // 4. DESTINATION
-    {
-      key: 'destination_port',
-      header: 'DESTINATION',
-      width: '12%',
-      render: (v) => (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-          <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#f1f5f9' }}>
-            {v.destination_port?.name || 'Unavailable'}
-          </span>
-          <span style={{ fontSize: '11px', color: '#64748b' }}>
-            {v.destination_port?.country ? `${v.destination_port.country}` : 'Global Port'}
-            {v.destination_port?.unlocode ? ` (${v.destination_port.unlocode})` : ''}
-          </span>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8125rem', fontWeight: 600, color: '#f1f5f9' }}>
+            <span style={{ color: '#ffffff' }}>{v.origin_port?.name || 'Origin'}</span>
+            <span style={{ color: '#38bdf8', fontWeight: 700 }}>&rarr;</span>
+            <span style={{ color: '#ffffff' }}>{v.destination_port?.name || 'Destination'}</span>
+          </div>
+          <div style={{ fontSize: '11px', color: '#64748b', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span>{v.origin_port?.unlocode ? `${v.origin_port.unlocode}` : v.origin_port?.country || 'Origin Port'}</span>
+            <span style={{ opacity: 0.5 }}>•</span>
+            <span>{v.destination_port?.unlocode ? `${v.destination_port.unlocode}` : v.destination_port?.country || 'Destination Port'}</span>
+          </div>
         </div>
       ),
     },

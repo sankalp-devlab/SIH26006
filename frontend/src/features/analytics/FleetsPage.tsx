@@ -204,6 +204,42 @@ export default function FleetsPage() {
         onExportCsv={exportCsv}
       />
 
+      {/* Fleet vs Vessel Intelligence Directive Banner */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '8px 14px',
+          backgroundColor: 'rgba(0, 212, 255, 0.05)',
+          border: '1px solid rgba(0, 212, 255, 0.2)',
+          borderRadius: 'var(--ol-radius-md, 6px)',
+          marginBottom: '14px',
+          fontSize: '11px',
+          color: 'var(--ol-text-secondary, #94A3B8)',
+          flexWrap: 'wrap',
+          gap: '8px',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span
+            style={{
+              padding: '2px 6px',
+              backgroundColor: 'rgba(0, 212, 255, 0.15)',
+              color: 'var(--ol-cyan, #00D4FF)',
+              borderRadius: '4px',
+              fontWeight: 700,
+            }}
+          >
+            FLEET-LEVEL ANALYSIS
+          </span>
+          <span>Aggregated deadweight capacity, geographic basin deployment & corporate fleet comparisons.</span>
+        </div>
+        <span style={{ color: 'var(--ol-text-muted, #7189A3)' }}>
+          For single-ship certificates, engine telemetry & tracking, see <a href="/vessels" style={{ color: 'var(--ol-cyan, #00D4FF)', textDecoration: 'none' }}>Vessels</a>.
+        </span>
+      </div>
+
       {/* 2. Standardized Intelligence Command Bar */}
       <IntelligenceCommandBar
         searchQuery={filters.search}

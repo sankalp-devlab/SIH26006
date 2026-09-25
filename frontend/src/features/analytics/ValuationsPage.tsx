@@ -162,12 +162,40 @@ export default function ValuationsPage() {
         resultsLabel="vessels in fleet"
       />
 
+      {/* Architectural Flow Guide */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          padding: '8px 14px',
+          backgroundColor: 'rgba(0, 212, 255, 0.05)',
+          border: '1px solid rgba(0, 212, 255, 0.2)',
+          borderRadius: 'var(--ol-radius-md, 6px)',
+          marginBottom: '16px',
+          fontSize: '11px',
+          color: 'var(--ol-text-secondary, #94A3B8)',
+          overflowX: 'auto',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        <span style={{ fontWeight: 700, color: 'var(--ol-cyan, #00D4FF)' }}>1. VESSEL OVERVIEW</span>
+        <span>→</span>
+        <span style={{ fontWeight: 600, color: 'var(--ol-text-primary, #F1F5F9)' }}>2. KEY SPECIFICATIONS</span>
+        <span>→</span>
+        <span style={{ fontWeight: 600, color: 'var(--ol-text-primary, #F1F5F9)' }}>3. AVM VALUATION</span>
+        <span>→</span>
+        <span style={{ fontWeight: 600, color: 'var(--ol-text-primary, #F1F5F9)' }}>4. VALUATION FACTORS</span>
+        <span>→</span>
+        <span style={{ fontWeight: 600, color: 'var(--ol-text-primary, #F1F5F9)' }}>5. HISTORICAL & COMPARATIVE DATA</span>
+      </div>
+
       {/* 3. Vessel Identity Profile Strip */}
       <div style={{ marginBottom: '20px' }}>
         <VesselIdentityCard vessel={selectedVessel} />
       </div>
 
-      {/* 4. Standardized 5-Card Valuation KPI Grid */}
+      {/* 4. Standardized 5-Card Valuation KPI Grid with Explicit Calculation Provenance */}
       <IntelligenceKpiGrid columns={5}>
         <IntelligenceKpiCard
           label="Current Market Value"
@@ -178,6 +206,7 @@ export default function ValuationsPage() {
           deltaLabel="30D"
           badge={`${selectedVessel.valuationConfidence}`}
           badgeColor="cyan"
+          subtext="AVM Algorithmic Estimate"
           isLoading={isLoading}
         />
 
@@ -188,7 +217,7 @@ export default function ValuationsPage() {
           delta={selectedVessel.change1yUsdM !== undefined ? `${selectedVessel.change1yUsdM >= 0 ? '+' : ''}$${selectedVessel.change1yUsdM.toFixed(1)}M` : undefined}
           deltaDirection={selectedVessel.change1yPct >= 0 ? 'up' : 'down'}
           deltaLabel="12M Delta"
-          subtext="Annual market velocity"
+          subtext="Historical S&P Ledger Delta"
           isLoading={isLoading}
         />
 
@@ -199,7 +228,7 @@ export default function ValuationsPage() {
           delta={`$${selectedVessel.scrapRatePerLdtUsd}/LDT`}
           deltaDirection="neutral"
           deltaLabel="Subcontinent rate"
-          subtext="Scrap value floor"
+          subtext="Calculated: LDT × Scrap Rate"
           isLoading={isLoading}
         />
 
@@ -209,7 +238,7 @@ export default function ValuationsPage() {
           icon={Layers}
           delta={selectedVessel.vesselClass}
           deltaDirection="neutral"
-          subtext="Segment asset standing"
+          subtext="Class Sample Distribution Rank"
           isLoading={isLoading}
         />
 
@@ -219,7 +248,7 @@ export default function ValuationsPage() {
           icon={Award}
           delta={`${selectedVessel.ageYears} yrs age`}
           deltaDirection="neutral"
-          subtext="Vs replacement newbuild"
+          subtext="Yard Replacement Benchmark"
           isLoading={isLoading}
         />
       </IntelligenceKpiGrid>

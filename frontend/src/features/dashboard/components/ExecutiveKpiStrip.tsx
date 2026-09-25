@@ -157,18 +157,17 @@ export function ExecutiveKpiStrip({
         <div key={kpi.id} className="cc-kpi-card">
           <div className="cc-kpi-header">
             <span className="cc-kpi-label">{kpi.label}</span>
-            <span style={{ fontSize: '0.65rem', color: '#64748b' }}>{kpi.sub}</span>
+            <span className="cc-kpi-sub-label">{kpi.sub}</span>
           </div>
 
           <div className="cc-kpi-main">
-            <div>
+            <div className="cc-kpi-val-group">
               <div className="cc-kpi-value cc-mono">{kpi.value}</div>
               {kpi.delta && (
                 <div
                   className={`cc-kpi-delta cc-mono ${
                     kpi.isPositive ? 'cc-badge-positive' : 'cc-badge-negative'
                   }`}
-                  style={{ marginTop: '3px' }}
                 >
                   {kpi.isPositive ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
                   <span>{kpi.delta}</span>
@@ -176,7 +175,7 @@ export function ExecutiveKpiStrip({
               )}
             </div>
 
-            {/* Sparkline SVG */}
+            {/* Subtle trend line indicator */}
             <svg
               className="cc-kpi-sparkline"
               viewBox="0 0 48 16"

@@ -406,6 +406,33 @@ export default function DataQueryPage() {
         </div>
       </div>
 
+      {/* 3-Step Operational Pipeline Banner: INPUT -> QUERY -> RESULT */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          padding: '8px 14px',
+          backgroundColor: 'rgba(0, 212, 255, 0.05)',
+          border: '1px solid rgba(0, 212, 255, 0.2)',
+          borderRadius: 'var(--ol-radius-md, 6px)',
+          marginBottom: '16px',
+          fontSize: '11px',
+          color: 'var(--ol-text-secondary, #94A3B8)',
+          overflowX: 'auto',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        <span style={{ fontWeight: 700, color: 'var(--ol-cyan, #00D4FF)' }}>1. INPUT</span>
+        <span style={{ color: 'var(--ol-text-muted, #7189A3)' }}>Select Dataset & Entity Mode</span>
+        <span>→</span>
+        <span style={{ fontWeight: 700, color: 'var(--ol-cyan, #00D4FF)' }}>2. QUERY</span>
+        <span style={{ color: 'var(--ol-text-muted, #7189A3)' }}>Configure Fields, Aggregations & Filters</span>
+        <span>→</span>
+        <span style={{ fontWeight: 700, color: 'var(--ol-cyan, #00D4FF)' }}>3. RESULT</span>
+        <span style={{ color: 'var(--ol-text-muted, #7189A3)' }}>Inspect Multi-Dimensional Table & Export</span>
+      </div>
+
       {/* ============================================================
           2. REDESIGNED QUERY CONFIGURATION PANEL (SECTION 3 AUDIT & UPGRADE)
           Organized into ROW 1 (Query Mode, Dataset, Presets) and ROW 2 (Status, Count, Reset)

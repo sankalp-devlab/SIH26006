@@ -171,6 +171,29 @@ export default function MarketInsightsPage() {
         resultsLabel="corridors tracked"
       />
 
+      {/* Section 1: Market Snapshot */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginTop: '16px',
+          marginBottom: '10px',
+        }}
+      >
+        <span
+          style={{
+            fontSize: '11px',
+            fontWeight: 700,
+            color: 'var(--ol-cyan, #00D4FF)',
+            letterSpacing: '0.06em',
+            textTransform: 'uppercase',
+          }}
+        >
+          1. Market Snapshot • Macro Supply, Demand & Congestion Status
+        </span>
+      </div>
+
       {/* 3. Standardized 5-Pillar Commercial KPI Grid */}
       <div className="mi-kpi-grid">
         <div className="mi-kpi-card">
@@ -270,15 +293,57 @@ export default function MarketInsightsPage() {
         </div>
       </div>
 
-      {/* 4. Market Signals Algorithmic Synthesis */}
+      {/* Section 2: Market Drivers & Catalysts */}
       {workspace?.signals && (
         <div style={{ marginBottom: '24px', width: '100%' }}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: '10px',
+            }}
+          >
+            <span
+              style={{
+                fontSize: '11px',
+                fontWeight: 700,
+                color: 'var(--ol-cyan, #00D4FF)',
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase',
+              }}
+            >
+              2. Market Drivers & Catalysts (Why Rates & Supply Move)
+            </span>
+          </div>
           <MarketSignalsCard
             signals={workspace.signals}
             onNavigateTab={setActiveTab}
           />
         </div>
       )}
+
+      {/* Section 3: Key Movements & Corridor Intelligence */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: '10px',
+        }}
+      >
+        <span
+          style={{
+            fontSize: '11px',
+            fontWeight: 700,
+            color: 'var(--ol-cyan, #00D4FF)',
+            letterSpacing: '0.06em',
+            textTransform: 'uppercase',
+          }}
+        >
+          3. Key Movements & Corridor Workspaces (What To Watch)
+        </span>
+      </div>
 
       {/* 5. Market Analytics Navigation Tabs */}
       <div className="mi-tabs-container">

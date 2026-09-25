@@ -157,7 +157,7 @@ export default function OrderbookPage() {
           delta={summary?.orderbook_vessels ? `${summary.orderbook_vessels} ships` : undefined}
           deltaDirection="neutral"
           deltaLabel="active contracts"
-          subtext="Contracted order volume"
+          subtext="Confirmed Yard Contracts"
           isLoading={isLoading}
         />
 
@@ -167,7 +167,7 @@ export default function OrderbookPage() {
           icon={Percent}
           delta={summary && summary.orderbook_to_fleet_pct > 12 ? 'Elevated' : 'Moderate'}
           deltaDirection={summary && summary.orderbook_to_fleet_pct > 12 ? 'up' : 'neutral'}
-          subtext="Of active sailing fleet"
+          subtext="Orderbook to Active Fleet Ratio"
           isLoading={isLoading}
         />
 
@@ -177,7 +177,7 @@ export default function OrderbookPage() {
           icon={Calendar}
           delta={summary?.scheduled_deliveries_next_12m_dwt ? `${(summary.scheduled_deliveries_next_12m_dwt / 1e6).toFixed(1)}M DWT` : undefined}
           deltaDirection="neutral"
-          subtext="Forward 12-month delivery run"
+          subtext="Forward Projected Deliveries"
           isLoading={isLoading}
         />
 
@@ -187,7 +187,7 @@ export default function OrderbookPage() {
           icon={Trash2}
           delta={summary?.demolitions_past_12m_dwt ? `${(summary.demolitions_past_12m_dwt / 1e6).toFixed(1)}M DWT` : undefined}
           deltaDirection="down"
-          subtext="Recycling & scrapping volume"
+          subtext="Reported Yard Scrapping Volume"
           isLoading={isLoading}
         />
 
@@ -197,7 +197,7 @@ export default function OrderbookPage() {
           icon={Hammer}
           delta={summary?.top_shipyard_market_share ? `${summary.top_shipyard_market_share.toFixed(1)}% share` : undefined}
           deltaDirection="neutral"
-          subtext="Leading builder group"
+          subtext="Contract Market Share Leader"
           isLoading={isLoading}
         />
       </IntelligenceKpiGrid>

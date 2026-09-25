@@ -254,13 +254,81 @@ export default function FlowsPage() {
           />
         )}
 
-        {/* Tab 1: Flow Map & Routes (Hero Visualization) */}
+        {/* Tab 1: Flow Map & Routes (Hero Visualization with 5-Domain Corridor Digest) */}
         {activeTab === 'map' && flows.length > 0 && (
-          <FlowMapCanvas
-            segments={mapSegments}
-            selectedFlowId={selectedFlowId}
-            onSelectFlow={setSelectedFlowId}
-          />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {/* 5-Domain Intelligence Digest: WHERE -> WHAT -> HOW MUCH -> WHICH ROUTE -> WHICH VESSELS */}
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+                gap: '10px',
+                padding: '12px 16px',
+                background: 'rgba(5, 18, 35, 0.85)',
+                border: '1px solid rgba(56, 189, 248, 0.2)',
+                borderRadius: '8px',
+                backdropFilter: 'blur(12px)',
+              }}
+              role="region"
+              aria-label="Trade Corridor Five-Point Digest"
+            >
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                <span style={{ fontSize: '10px', fontWeight: 700, color: '#38bdf8', letterSpacing: '0.04em' }}>1. WHERE (CORRIDOR)</span>
+                <span style={{ fontSize: '13px', fontWeight: 700, color: '#f8fafc', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {selectedFlow ? `${selectedFlow.origin_country} → ${selectedFlow.destination_country}` : 'Global Bilateral Corridors'}
+                </span>
+                <span style={{ fontSize: '11px', color: '#64748b' }}>
+                  {selectedFlow ? `${selectedFlow.origin_port} to ${selectedFlow.destination_port}` : `${summary?.origin_ports_count || 0} origins · ${summary?.destination_ports_count || 0} destinations`}
+                </span>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                <span style={{ fontSize: '10px', fontWeight: 700, color: '#38bdf8', letterSpacing: '0.04em' }}>2. WHAT (CARGO)</span>
+                <span style={{ fontSize: '13px', fontWeight: 700, color: '#f8fafc' }}>
+                  {selectedFlow ? selectedFlow.commodity : (summary?.top_commodity || 'Multi-Commodity')}
+                </span>
+                <span style={{ fontSize: '11px', color: '#64748b' }}>
+                  {selectedFlow ? selectedFlow.cargo_type : 'Tanker & Dry Bulk Segments'}
+                </span>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                <span style={{ fontSize: '10px', fontWeight: 700, color: '#38bdf8', letterSpacing: '0.04em' }}>3. HOW MUCH (VOLUME)</span>
+                <span style={{ fontSize: '13px', fontWeight: 700, color: '#34d399', fontFamily: 'monospace' }}>
+                  {selectedFlow ? `${(selectedFlow.current_volume_mt / 1e3).toFixed(1)}k MT` : (summary?.total_volume_formatted || '0 MT')}
+                </span>
+                <span style={{ fontSize: '11px', color: '#64748b' }}>
+                  {selectedFlow ? `Share: ${selectedFlow.market_share_pct}% of trade lane` : 'Global monthly throughput'}
+                </span>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                <span style={{ fontSize: '10px', fontWeight: 700, color: '#38bdf8', letterSpacing: '0.04em' }}>4. WHICH ROUTE</span>
+                <span style={{ fontSize: '13px', fontWeight: 700, color: '#a78bfa', fontFamily: 'monospace' }}>
+                  {selectedFlow ? selectedFlow.trade_lane_code : (summary?.top_route || 'Major Corridors')}
+                </span>
+                <span style={{ fontSize: '11px', color: '#64748b' }}>
+                  {selectedFlow ? `Transit: ~${selectedFlow.transit_days_avg} days` : `Avg: ${summary?.avg_transit_days?.toFixed(1) || 0} days`}
+                </span>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                <span style={{ fontSize: '10px', fontWeight: 700, color: '#38bdf8', letterSpacing: '0.04em' }}>5. WHICH VESSELS</span>
+                <span style={{ fontSize: '13px', fontWeight: 700, color: '#f8fafc' }}>
+                  {selectedFlow ? `${selectedFlow.active_vessels_count} Active Ships` : `${summary?.active_vessels_sum || 0} Ships Active`}
+                </span>
+                <span style={{ fontSize: '11px', color: '#64748b' }}>
+                  {selectedFlow ? selectedFlow.vessel_classes.join(', ') : 'Capesize, VLCC, Suezmax, LNG'}
+                </span>
+              </div>
+            </div>
+
+            <FlowMapCanvas
+              segments={mapSegments}
+              selectedFlowId={selectedFlowId}
+              onSelectFlow={setSelectedFlowId}
+            />
+          </div>
         )}
 
         {/* Tab 2: Volume Analytics */}

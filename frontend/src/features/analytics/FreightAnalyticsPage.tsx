@@ -98,7 +98,28 @@ export default function FreightAnalyticsPage() {
         lastUpdated={summary?.last_updated}
       />
 
-      {/* 3. 4-Card KPI Intelligence Grid (Full Row on Desktop) */}
+      {/* 3. 4-Card KPI Intelligence Grid with Section Header */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginTop: '16px',
+          marginBottom: '10px',
+        }}
+      >
+        <span
+          style={{
+            fontSize: '11px',
+            fontWeight: 700,
+            color: 'var(--ol-cyan, #00D4FF)',
+            letterSpacing: '0.06em',
+            textTransform: 'uppercase',
+          }}
+        >
+          1. Freight Market Overview & Key Benchmark Metrics
+        </span>
+      </div>
       <FreightKpiGrid
         summary={summary}
         supply={supply}
@@ -187,6 +208,35 @@ export default function FreightAnalyticsPage() {
             </div>
           ) : (
             <>
+              {/* Section 2: Major Route Movements & Freight Rate Trends */}
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginBottom: '12px',
+                  paddingBottom: '8px',
+                  borderBottom: '1px solid var(--ol-border, #183A52)',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span
+                    style={{
+                      fontSize: '11px',
+                      fontWeight: 700,
+                      color: 'var(--ol-cyan, #00D4FF)',
+                      letterSpacing: '0.06em',
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    2. Major Route Movements & Freight Trends
+                  </span>
+                  <span style={{ fontSize: '11px', color: 'var(--ol-text-muted, #7189A3)' }}>
+                    • Spot Rate Velocity & Benchmark Trajectory
+                  </span>
+                </div>
+              </div>
+
               {/* Dual-Column Primary Market Terminal Workspace (~65% Chart + ~35% Snapshot) */}
               <div className="freight-workspace-grid">
                 <FreightRateChart
@@ -203,6 +253,36 @@ export default function FreightAnalyticsPage() {
                   activeBenchmark={activeBenchmark}
                   onOpenComparison={() => openComparison('route', selectedRouteCode, 'C3')}
                 />
+              </div>
+
+              {/* Section 3: Corridor Benchmark Matrix & Detailed Data */}
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginTop: '20px',
+                  marginBottom: '12px',
+                  paddingBottom: '8px',
+                  borderBottom: '1px solid var(--ol-border, #183A52)',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span
+                    style={{
+                      fontSize: '11px',
+                      fontWeight: 700,
+                      color: 'var(--ol-cyan, #00D4FF)',
+                      letterSpacing: '0.06em',
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    3. Corridor Benchmark Matrix & Segment Analysis
+                  </span>
+                  <span style={{ fontSize: '11px', color: 'var(--ol-text-muted, #7189A3)' }}>
+                    • Granular Route Economics & Rate Spreads
+                  </span>
+                </div>
               </div>
 
               {/* Full-Width Corridor Intelligence & Benchmark Matrix Table */}

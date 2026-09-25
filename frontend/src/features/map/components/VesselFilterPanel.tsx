@@ -214,42 +214,54 @@ export function VesselFilterPanel({
           </div>
         )}
 
-        {/* SEARCH INPUT (Requirement 9) */}
-        <div className="vmp-filter-search-box-wrap">
-          <div className="vmp-filter-search-box">
-            <Search size={14} className="vmp-search-icon" />
-            <input
-              type="text"
-              placeholder="Search vessel, IMO, port..."
-              value={filters.areaSearch}
-              onChange={(e) => onUpdateFilters((p) => ({ ...p, areaSearch: e.target.value }))}
-              className="vmp-filter-search-input"
-            />
-            {filters.areaSearch && (
-              <button
-                type="button"
-                className="vmp-search-clear-btn"
-                onClick={() => onUpdateFilters((p) => ({ ...p, areaSearch: '' }))}
-                aria-label="Clear search"
-              >
-                &times;
-              </button>
-            )}
-          </div>
-        </div>
-
         <div className="vmp-filter-content">
-          {/* SECTION 1: VESSEL TYPE */}
+          {/* GROUP 1: SEARCH & IDENTIFICATION */}
           <div className="vmp-filter-section">
             <div className="vmp-section-title">
-              <span>VESSEL TYPE</span>
+              <span><Search size={12} /> SEARCH &amp; IDENTIFICATION</span>
+              {filters.areaSearch && (
+                <button
+                  type="button"
+                  className="vmp-section-clear"
+                  onClick={() => onUpdateFilters((p) => ({ ...p, areaSearch: '' }))}
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+            <div className="vmp-filter-search-box">
+              <Search size={14} className="vmp-search-icon" />
+              <input
+                type="text"
+                placeholder="Vessel name, IMO, port, corridor..."
+                value={filters.areaSearch}
+                onChange={(e) => onUpdateFilters((p) => ({ ...p, areaSearch: e.target.value }))}
+                className="vmp-filter-search-input"
+              />
+              {filters.areaSearch && (
+                <button
+                  type="button"
+                  className="vmp-search-clear-btn"
+                  onClick={() => onUpdateFilters((p) => ({ ...p, areaSearch: '' }))}
+                  aria-label="Clear search"
+                >
+                  &times;
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* GROUP 2: VESSEL TYPE */}
+          <div className="vmp-filter-section">
+            <div className="vmp-section-title">
+              <span><Filter size={12} /> VESSEL TYPE</span>
               {filters.types.size > 0 && (
                 <button
                   type="button"
                   className="vmp-section-clear"
                   onClick={() => onUpdateFilters((p) => ({ ...p, types: new Set() }))}
                 >
-                  Clear
+                  Clear ({filters.types.size})
                 </button>
               )}
             </div>
@@ -278,17 +290,17 @@ export function VesselFilterPanel({
             </div>
           </div>
 
-          {/* SECTION 2: STATUS */}
+          {/* GROUP 3: NAVIGATION STATUS */}
           <div className="vmp-filter-section">
             <div className="vmp-section-title">
-              <span>STATUS</span>
+              <span><SlidersHorizontal size={12} /> NAVIGATION STATUS</span>
               {filters.statuses.size > 0 && (
                 <button
                   type="button"
                   className="vmp-section-clear"
                   onClick={() => onUpdateFilters((p) => ({ ...p, statuses: new Set() }))}
                 >
-                  Clear
+                  Clear ({filters.statuses.size})
                 </button>
               )}
             </div>
@@ -312,17 +324,26 @@ export function VesselFilterPanel({
             </div>
           </div>
 
-          {/* SECTION 3: REGION / FLAG */}
+          {/* GROUP 4: LOCATION & REGISTRY */}
           <div className="vmp-filter-section">
             <div className="vmp-section-title">
-              <span><Flag size={12} /> REGION / FLAG</span>
+              <span><Flag size={12} /> FLAG REGISTRY</span>
+              {filters.flag !== 'all' && (
+                <button
+                  type="button"
+                  className="vmp-section-clear"
+                  onClick={() => onUpdateFilters((p) => ({ ...p, flag: 'all' }))}
+                >
+                  Reset
+                </button>
+              )}
             </div>
             <select
               value={filters.flag}
               onChange={(e) => onUpdateFilters((p) => ({ ...p, flag: e.target.value }))}
               className="vmp-select-input"
             >
-              <option value="all">All Regions</option>
+              <option value="all">All Flags &amp; Jurisdictions</option>
               {uniqueFlags
                 .filter((fl) => fl !== 'all')
                 .map((fl) => (
@@ -333,7 +354,7 @@ export function VesselFilterPanel({
             </select>
           </div>
 
-          {/* SECTION 4: SPEED SLIDER */}
+          {/* GROUP 5: SPEED (SOG) */}
           <div className="vmp-filter-section">
             <div className="vmp-section-title">
               <span><Gauge size={12} /> SPEED (SOG)</span>
@@ -350,13 +371,14 @@ export function VesselFilterPanel({
                   max="25"
                   step="1"
                   value={filters.minSpeed}
-                  onChange={(e) =>
-                    onUpdateFilters((p) => ({
-                      ...p,
-                      minSpeed: Math.min(Number(e.target.value), p.maxSpeed),
-                    }))
-                  }
+                  onChange={(e) => {
+                    const val = Number(e.target.value);
+                    if (val <= filters.maxSpeed) {
+                      onUpdateFilters((p) => ({ ...p, minSpeed: val }));
+                    }
+                  }}
                   className="vmp-range-slider"
+                  aria-label="Minimum speed in knots"
                 />
               </div>
               <div className="vmp-slider-row">
@@ -367,13 +389,14 @@ export function VesselFilterPanel({
                   max={speedMaxLimit}
                   step="1"
                   value={filters.maxSpeed}
-                  onChange={(e) =>
-                    onUpdateFilters((p) => ({
-                      ...p,
-                      maxSpeed: Math.max(Number(e.target.value), p.minSpeed),
-                    }))
-                  }
+                  onChange={(e) => {
+                    const val = Number(e.target.value);
+                    if (val >= filters.minSpeed) {
+                      onUpdateFilters((p) => ({ ...p, maxSpeed: val }));
+                    }
+                  }}
                   className="vmp-range-slider"
+                  aria-label="Maximum speed in knots"
                 />
               </div>
             </div>

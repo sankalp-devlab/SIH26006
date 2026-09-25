@@ -21,6 +21,13 @@ import {
   FolderKanban,
   BarChart2,
   BookmarkCheck,
+  TrendingUp,
+  Globe,
+  Wind,
+  Layers,
+  FileSpreadsheet,
+  Database,
+  Bot,
 } from 'lucide-react';
 import { Tooltip } from '../../components/ui/Tooltip';
 import { useFavourites } from '../../hooks/useFavourites';
@@ -54,28 +61,53 @@ const ROUTE_ALIASES: Record<string, string[]> = {
     '/market-prices',
     '/prices',
     '/pricing',
-    '/analytics/freight',
-    '/analytics/freight-analytics',
+  ],
+  '/freight': [
     '/freight',
     '/freight-analytics',
-    '/analytics/market',
-    '/analytics/market-insights',
+    '/analytics/freight',
+    '/analytics/freight-analytics',
+  ],
+  '/market': [
     '/market',
     '/market-insights',
+    '/analytics/market',
+    '/analytics/market-insights',
+  ],
+  '/trade-flows': [
+    '/trade-flows',
+    '/flows',
     '/analytics/trade-flows',
     '/analytics/flows',
-    '/flows',
-    '/trade-flows',
-    '/analytics/floating-storage',
-    '/floating-storage',
-    '/analytics/storage',
-    '/storage',
-    '/analytics/fleet',
-    '/analytics/fleets',
-    '/analytics/fleet-intelligence',
+  ],
+  '/emissions': [
+    '/emissions',
+    '/cii',
+    '/analytics/emissions',
+    '/analytics/cii',
+  ],
+  '/fleet': [
     '/fleet',
     '/fleets',
     '/fleet-intelligence',
+    '/analytics/fleet',
+    '/analytics/fleets',
+    '/analytics/fleet-intelligence',
+  ],
+  '/reports': [
+    '/reports',
+    '/reporting',
+    '/analytics/reports',
+    '/analytics/reporting',
+  ],
+  '/data-query': [
+    '/data-query',
+    '/analytics/data-query',
+  ],
+  '/skipper': [
+    '/skipper',
+    '/analytics/skipper',
+    '/analytics/skipper-ai',
   ],
   '/bookings': [
     '/bookings',
@@ -97,6 +129,10 @@ const ROUTE_ALIASES: Record<string, string[]> = {
     '/analytics/voyages',
     '/analytics/voyages-analytics',
   ],
+  '/notifications': [
+    '/notifications',
+    '/alerts',
+  ],
 };
 
 function isItemActive(targetPath: string, currentPath: string): boolean {
@@ -109,10 +145,15 @@ function isItemActive(targetPath: string, currentPath: string): boolean {
 
 const NAV_SECTIONS: NavSectionConfig[] = [
   {
-    title: 'Operations',
+    title: 'Control Center',
     items: [
       { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
       { to: '/map', label: 'Live Vessel Map', icon: Compass },
+    ],
+  },
+  {
+    title: 'Operations',
+    items: [
       { to: '/vessels', label: 'Vessels', icon: Ship },
       { to: '/voyages', label: 'Voyages', icon: Route },
       { to: '/ports', label: 'Port Insights', icon: Anchor },
@@ -126,9 +167,22 @@ const NAV_SECTIONS: NavSectionConfig[] = [
     ],
   },
   {
-    title: 'Analytics & Intelligence',
+    title: 'Intelligence & Analytics',
     items: [
       { to: '/analytics', label: 'Analytics Hub', icon: BarChart2 },
+      { to: '/freight', label: 'Freight Analysis', icon: TrendingUp },
+      { to: '/market', label: 'Market Insights', icon: Compass },
+      { to: '/trade-flows', label: 'Trade Flows', icon: Globe },
+      { to: '/emissions', label: 'Emission Intelligence', icon: Wind },
+      { to: '/fleet', label: 'Fleet Intelligence', icon: Layers },
+      { to: '/reports', label: 'Reporting Analytics', icon: FileSpreadsheet },
+      { to: '/data-query', label: 'Data Query Workbench', icon: Database },
+    ],
+  },
+  {
+    title: 'Maritime AI',
+    items: [
+      { to: '/skipper', label: 'Skipper AI Assistant', icon: Bot, badge: 'AI' },
     ],
   },
   {

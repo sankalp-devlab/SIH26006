@@ -124,52 +124,94 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
           ) : (
             <div className="search-grouped-list">
               {/* Vessels Group */}
-              <SearchResultGroup title="Fleet Vessels" count={results.vessels.length}>
-                {results.vessels.map((v) => {
-                  const globalIdx = flattenedResults.findIndex((item) => item.id === v.id);
-                  return (
-                    <SearchResultItem
-                      key={v.id}
-                      item={v}
-                      isSelected={globalIdx === selectedIndex}
-                      onSelect={handleSelectItem}
-                      onMouseEnter={() => setSelectedIndex(globalIdx)}
-                    />
-                  );
-                })}
-              </SearchResultGroup>
+              {results.vessels.length > 0 && (
+                <SearchResultGroup title="Fleet Vessels" count={results.vessels.length}>
+                  {results.vessels.map((v) => {
+                    const globalIdx = flattenedResults.findIndex((item) => item.id === v.id);
+                    return (
+                      <SearchResultItem
+                        key={v.id}
+                        item={v}
+                        isSelected={globalIdx === selectedIndex}
+                        onSelect={handleSelectItem}
+                        onMouseEnter={() => setSelectedIndex(globalIdx)}
+                      />
+                    );
+                  })}
+                </SearchResultGroup>
+              )}
 
               {/* Ports Group */}
-              <SearchResultGroup title="Ports & Terminals" count={results.ports.length}>
-                {results.ports.map((p) => {
-                  const globalIdx = flattenedResults.findIndex((item) => item.id === p.id);
-                  return (
-                    <SearchResultItem
-                      key={p.id}
-                      item={p}
-                      isSelected={globalIdx === selectedIndex}
-                      onSelect={handleSelectItem}
-                      onMouseEnter={() => setSelectedIndex(globalIdx)}
-                    />
-                  );
-                })}
-              </SearchResultGroup>
+              {results.ports.length > 0 && (
+                <SearchResultGroup title="Ports & Terminals" count={results.ports.length}>
+                  {results.ports.map((p) => {
+                    const globalIdx = flattenedResults.findIndex((item) => item.id === p.id);
+                    return (
+                      <SearchResultItem
+                        key={p.id}
+                        item={p}
+                        isSelected={globalIdx === selectedIndex}
+                        onSelect={handleSelectItem}
+                        onMouseEnter={() => setSelectedIndex(globalIdx)}
+                      />
+                    );
+                  })}
+                </SearchResultGroup>
+              )}
+
+              {/* Voyages & Routes Group */}
+              {results.routes && results.routes.length > 0 && (
+                <SearchResultGroup title="Voyages & Trade Routes" count={results.routes.length}>
+                  {results.routes.map((r) => {
+                    const globalIdx = flattenedResults.findIndex((item) => item.id === r.id);
+                    return (
+                      <SearchResultItem
+                        key={r.id}
+                        item={r}
+                        isSelected={globalIdx === selectedIndex}
+                        onSelect={handleSelectItem}
+                        onMouseEnter={() => setSelectedIndex(globalIdx)}
+                      />
+                    );
+                  })}
+                </SearchResultGroup>
+              )}
+
+              {/* Cargo Group */}
+              {results.cargo && results.cargo.length > 0 && (
+                <SearchResultGroup title="Cargo & Commodities" count={results.cargo.length}>
+                  {results.cargo.map((c) => {
+                    const globalIdx = flattenedResults.findIndex((item) => item.id === c.id);
+                    return (
+                      <SearchResultItem
+                        key={c.id}
+                        item={c}
+                        isSelected={globalIdx === selectedIndex}
+                        onSelect={handleSelectItem}
+                        onMouseEnter={() => setSelectedIndex(globalIdx)}
+                      />
+                    );
+                  })}
+                </SearchResultGroup>
+              )}
 
               {/* Navigation Commands Group */}
-              <SearchResultGroup title="Platform Navigation" count={results.navigation.length}>
-                {results.navigation.map((n) => {
-                  const globalIdx = flattenedResults.findIndex((item) => item.id === n.id);
-                  return (
-                    <SearchResultItem
-                      key={n.id}
-                      item={n}
-                      isSelected={globalIdx === selectedIndex}
-                      onSelect={handleSelectItem}
-                      onMouseEnter={() => setSelectedIndex(globalIdx)}
-                    />
-                  );
-                })}
-              </SearchResultGroup>
+              {results.navigation.length > 0 && (
+                <SearchResultGroup title="Platform Navigation & Workspaces" count={results.navigation.length}>
+                  {results.navigation.map((n) => {
+                    const globalIdx = flattenedResults.findIndex((item) => item.id === n.id);
+                    return (
+                      <SearchResultItem
+                        key={n.id}
+                        item={n}
+                        isSelected={globalIdx === selectedIndex}
+                        onSelect={handleSelectItem}
+                        onMouseEnter={() => setSelectedIndex(globalIdx)}
+                      />
+                    );
+                  })}
+                </SearchResultGroup>
+              )}
             </div>
           )}
         </div>

@@ -207,12 +207,12 @@ export default function EmissionsPage() {
       <IntelligenceKpiGrid columns={5}>
         <IntelligenceKpiCard
           label="Gross Fleet CO₂"
-          metric={summary?.totalCo2Mt ? `${Math.round(summary.totalCo2Mt).toLocaleString()} t` : 'Unavailable'}
+          metric={summary?.totalCo2Mt ? `${Math.round(summary.totalCo2Mt).toLocaleString()} t CO₂` : 'Unavailable'}
           icon={Flame}
           delta={summary?.co2DeltaPct !== undefined ? `${summary.co2DeltaPct > 0 ? '+' : ''}${summary.co2DeltaPct.toFixed(1)}%` : undefined}
           deltaDirection={summary && summary.co2DeltaPct <= 0 ? 'up' : 'down'}
           deltaLabel="vs baseline"
-          subtext="Total exhaust carbon"
+          subtext="Exhaust carbon emissions (metric tons)"
           isLoading={isLoading}
         />
 
@@ -222,38 +222,38 @@ export default function EmissionsPage() {
           icon={Award}
           badge={summary?.fleetCiiRating}
           badgeColor={summary?.fleetCiiRating === 'A' || summary?.fleetCiiRating === 'B' ? 'green' : summary?.fleetCiiRating === 'C' ? 'cyan' : 'amber'}
-          subtext="Fleet operational band"
+          subtext="IMO Carbon Intensity Indicator Band"
           isLoading={isLoading}
         />
 
         <IntelligenceKpiCard
           label="Fuel Consumed"
-          metric={summary?.totalFuelConsumedMt ? `${Math.round(summary.totalFuelConsumedMt).toLocaleString()} t` : 'Unavailable'}
+          metric={summary?.totalFuelConsumedMt ? `${Math.round(summary.totalFuelConsumedMt).toLocaleString()} MT` : 'Unavailable'}
           icon={Wind}
           delta={summary?.aerDeltaPct !== undefined ? `${summary.aerDeltaPct > 0 ? '+' : ''}${summary.aerDeltaPct.toFixed(1)}%` : undefined}
           deltaDirection={summary && summary.aerDeltaPct <= 0 ? 'up' : 'down'}
           deltaLabel="vs prior"
-          subtext="HFO / VLSFO / MGO total"
+          subtext="Total fuel consumption (HFO / VLSFO / MGO)"
           isLoading={isLoading}
         />
 
         <IntelligenceKpiCard
-          label="EU ETS Liability"
-          metric={summary?.totalCo2Mt ? `$${((summary.totalCo2Mt * 0.5 * 85) / 1e6).toFixed(2)}M` : 'Unavailable'}
+          label="EU ETS Compliance Liability"
+          metric={summary?.totalCo2Mt ? `$${((summary.totalCo2Mt * 0.5 * 85) / 1e6).toFixed(2)}M USD` : 'Unavailable'}
           icon={DollarSign}
-          delta={summary?.totalCo2Mt ? `${Math.round(summary.totalCo2Mt * 0.5).toLocaleString()} t EUA` : undefined}
+          delta={summary?.totalCo2Mt ? `${Math.round(summary.totalCo2Mt * 0.5).toLocaleString()} EUA` : undefined}
           deltaDirection="neutral"
-          subtext="Surrender obligation"
+          subtext="Surrender obligation estimate @ $85/t"
           isLoading={isLoading}
         />
 
         <IntelligenceKpiCard
           label="Average AER Intensity"
-          metric={summary?.avgAer ? `${summary.avgAer.toFixed(2)}` : 'Unavailable'}
+          metric={summary?.avgAer ? `${summary.avgAer.toFixed(2)} g/dwt·nm` : 'Unavailable'}
           icon={Gauge}
-          delta="gCO₂/dwt-nm"
+          delta="gCO₂/dwt·nm"
           deltaDirection="neutral"
-          subtext="Annual Efficiency Ratio"
+          subtext="Annual Efficiency Ratio (IMO formula)"
           isLoading={isLoading}
         />
       </IntelligenceKpiGrid>
