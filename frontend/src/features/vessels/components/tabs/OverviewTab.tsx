@@ -60,23 +60,24 @@ export function OverviewTab({ data, mode = 'drawer', onNavigateTab }: OverviewTa
                 <MapPin size={16} className="vdb-cyan" />
                 <h3 className="card-title">LIVE POSITION &amp; TELEMETRY</h3>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div className="vdb-card-header-actions">
                 <span className="vdb-live-pill">
                   <span className="vdb-live-dot" /> LIVE AIS
                 </span>
                 <ProvenanceBadge
                   provenance={provenanceService.createTelemetryProvenance({
                     origin: DataSourceOrigin.AIS_SATELLITE,
-                    sourceName: 'Spire / exactEarth Satellite AIS',
+                    sourceName: 'Spire Satellite AIS',
                     timestamp: (vessel as any).updated_at || (vessel as any).last_position_update || new Date().toISOString(),
                     entityId: `vessel-${vessel.imo_number || vessel.id}`,
                   })}
+                  compact
                   showInspector
                 />
               </div>
             </div>
-            <div className="card-body" style={{ padding: '0.75rem' }}>
-              <VesselMiniMap vessel={vessel} height={200} />
+            <div className="card-body">
+              <VesselMiniMap vessel={vessel} height={200} showOverlayTelemetry={false} showOverlayExpandButton={false} />
               
               {/* Telemetry Metrics & View Full Map Button */}
               <div className="vdb-map-card-footer">
@@ -151,7 +152,7 @@ export function OverviewTab({ data, mode = 'drawer', onNavigateTab }: OverviewTa
                   <span className="vdb-kv-val text-emerald font-mono font-semibold">{commercial.current_voyage.fixture_rate}</span>
                 </div>
                 <div className="vdb-kv-row">
-                  <span className="vdb-kv-label">Cargo Carried</span>
+                  <span className="vdb-kv-label"><Layers size={13} /> Cargo Carried</span>
                   <span className="vdb-kv-val text-cyan font-mono">
                     {cargo.current_cargo.commodity} ({cargo.current_cargo.quantity_mt.toLocaleString()} MT)
                   </span>
@@ -162,22 +163,23 @@ export function OverviewTab({ data, mode = 'drawer', onNavigateTab }: OverviewTa
         </div>
 
         {/* MIDDLE ROW: PARTICULARS & COMMERCIAL SUMMARY */}
-        <div className="vdb-grid-2col" style={{ marginTop: '1.25rem' }}>
+        <div className="vdb-grid-2col">
           {/* TECHNICAL SUMMARY */}
           <div className="card vdb-section-card">
             <div className="card-header vdb-card-header">
               <div className="vdb-card-title-group">
-                <Ruler size={16} className="text-secondary" />
-                <h3 className="card-title">Vessel Particulars Summary</h3>
+                <Ruler size={16} className="vdb-cyan" />
+                <h3 className="card-title">VESSEL PARTICULARS SUMMARY</h3>
               </div>
               {onNavigateTab && (
                 <button
                   type="button"
-                  className="btn btn-secondary btn-sm"
+                  className="vdb-header-action-btn"
                   onClick={() => onNavigateTab('particulars')}
-                  style={{ fontSize: '11px', padding: '2px 8px' }}
+                  title="Open Full Vessel Specifications"
                 >
-                  Full Specs &rarr;
+                  <span>Full Specs</span>
+                  <ChevronRight size={13} />
                 </button>
               )}
             </div>
@@ -215,17 +217,18 @@ export function OverviewTab({ data, mode = 'drawer', onNavigateTab }: OverviewTa
           <div className="card vdb-section-card">
             <div className="card-header vdb-card-header">
               <div className="vdb-card-title-group">
-                <Briefcase size={16} className="text-secondary" />
-                <h3 className="card-title">Commercial &amp; Management</h3>
+                <Briefcase size={16} className="vdb-cyan" />
+                <h3 className="card-title">COMMERCIAL &amp; MANAGEMENT</h3>
               </div>
               {onNavigateTab && (
                 <button
                   type="button"
-                  className="btn btn-secondary btn-sm"
+                  className="vdb-header-action-btn"
                   onClick={() => onNavigateTab('commercial')}
-                  style={{ fontSize: '11px', padding: '2px 8px' }}
+                  title="Open Full Commercial Workspace"
                 >
-                  Full Commercial &rarr;
+                  <span>Full Commercial</span>
+                  <ChevronRight size={13} />
                 </button>
               )}
             </div>
@@ -257,7 +260,7 @@ export function OverviewTab({ data, mode = 'drawer', onNavigateTab }: OverviewTa
         </div>
 
         {/* BOTTOM ROW: 4 KEY ANALYTICAL CARDS */}
-        <div className="vdb-grid-4col" style={{ marginTop: '1.25rem' }}>
+        <div className="vdb-grid-4col">
           {/* CII Card */}
           <div className="vdb-stat-card">
             <div className="stat-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '4px' }}>

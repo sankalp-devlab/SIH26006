@@ -140,11 +140,24 @@ python test_historical_dataset_e2e.py
    - `SUPABASE_SECRET_KEY`: Supabase service role secret
    - `CORS_ORIGINS`: Comma-separated list of allowed frontend domains (e.g. `https://your-app.vercel.app`)
 
-### Frontend (Vercel / Netlify / Cloudflare Pages)
-1. Configure build command: `npm run build`
-2. Configure output directory: `dist`
-3. Environment variables required:
-   - `VITE_API_BASE_URL`: Deployed backend URL (e.g. `https://your-api.onrender.com`)
+### 24/7 Zero-Sleep Architecture (Render Free-Tier Keep-Alive)
+Render free-tier web services automatically spin down after 15 minutes of inactivity, causing ~50s cold-start delays and disconnected client states. OceanLens resolves this permanently with a 3-layer zero-downtime architecture:
+
+1. **GitHub Actions 24/7 Cron Workflow (`.github/workflows/keep-alive.yml`)**:
+   - Pings `https://oceanlens-backend.onrender.com/health` every 10 minutes (`*/10 * * * *`).
+   - Runs 24/7/365 entirely on GitHub's cloud runners for free. Render's 15-minute inactivity timer never expires, preventing the service from ever sleeping.
+
+2. **FastAPI In-Process Keep-Alive Daemon (`backend/main.py`)**:
+   - Spawns an internal background task on startup (`lifespan`) that self-pings the public endpoint every 9 minutes.
+   - Touches the Supabase connection pool periodically to prevent database connection dropouts or pausing.
+
+3. **Client-Side Cold-Start Resilience (`frontend/src/services/api/client.ts` & `ApiStatusContext.tsx`)**:
+   - Implements automated exponential backoff retries (1.5s, 3s, 5s) for transient 502/503/504 and network errors.
+   - Pings `/keep-alive` every 4 minutes while browser tabs remain open to ensure active sessions never sleep.
+   - Debounces offline triggers to prevent momentary network flickers from causing false disconnect alarms.
+
+4. **External Free Pinger Backup (Optional Double-Redundancy)**:
+   - For an extra external safety net, add a free monitor on [cron-job.org](https://cron-job.org) or [UptimeRobot](https://uptimerobot.com) targeting `https://oceanlens-backend.onrender.com/health` at 10-minute intervals.
 
 ---
 

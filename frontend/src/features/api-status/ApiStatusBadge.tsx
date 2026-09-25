@@ -11,13 +11,18 @@ export const ApiStatusBadge: React.FC<ApiStatusBadgeProps> = ({
   compact = false,
   className = '',
 }) => {
-  const { status, isOnline, isChecking, checkNow } = useApiStatus();
+  const { status, isOnline, isChecking, failureCount, checkNow } = useApiStatus();
 
-  if (isChecking && status === 'checking') {
+  if (isChecking || status === 'checking') {
+    const isWaking = failureCount > 0;
     return (
       <div
         className={`api-status-badge api-status--checking ${className}`}
-        title="Checking OceanLens API connectivity..."
+        title={
+          isWaking
+            ? 'OceanLens API is spinning up from sleep mode (Render free tier). Reconnecting automatically...'
+            : 'Checking OceanLens API connectivity...'
+        }
         style={{
           display: 'inline-flex',
           alignItems: 'center',
@@ -26,17 +31,19 @@ export const ApiStatusBadge: React.FC<ApiStatusBadgeProps> = ({
           borderRadius: '4px',
           fontSize: '0.75rem',
           fontWeight: 600,
-          background: 'rgba(100, 116, 139, 0.15)',
-          border: '1px solid rgba(100, 116, 139, 0.25)',
-          color: '#94a3b8',
+          background: isWaking ? 'rgba(245, 158, 11, 0.15)' : 'rgba(100, 116, 139, 0.15)',
+          border: isWaking
+            ? '1px solid rgba(245, 158, 11, 0.35)'
+            : '1px solid rgba(100, 116, 139, 0.25)',
+          color: isWaking ? '#f59e0b' : '#94a3b8',
           cursor: 'pointer',
           userSelect: 'none',
           whiteSpace: 'nowrap',
         }}
         onClick={() => checkNow()}
       >
-        <RefreshCw size={12} className="animate-spin" style={{ animation: 'spin 1.5s linear infinite' }} />
-        {!compact && <span>Connecting...</span>}
+        <RefreshCw size={12} className="animate-spin" style={{ animation: 'spin 1.2s linear infinite' }} />
+        {!compact && <span>{isWaking ? 'Waking Server...' : 'Connecting...'}</span>}
       </div>
     );
   }
@@ -81,7 +88,7 @@ export const ApiStatusBadge: React.FC<ApiStatusBadgeProps> = ({
   return (
     <div
       className={`api-status-badge api-status--offline ${className}`}
-      title="FastAPI server is unreachable. Automatic reconnection in progress. (Click to retry)"
+      title="FastAPI backend server is waking up or unreachable. Click to retry connection."
       style={{
         display: 'inline-flex',
         alignItems: 'center',
@@ -109,7 +116,7 @@ export const ApiStatusBadge: React.FC<ApiStatusBadgeProps> = ({
         }}
       />
       <WifiOff size={12} />
-      {!compact && <span>API Offline</span>}
+      {!compact && <span>Server Offline (Retry)</span>}
     </div>
   );
 };

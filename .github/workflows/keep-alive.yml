@@ -1,0 +1,43 @@
+name: 24/7 OceanLens Backend Keep-Alive
+
+on:
+  schedule:
+    # Runs every 10 minutes, every hour, every day (24/7/365)
+    # Render Free Tier spins down after 15 minutes of inactivity.
+    # Pinging every 10 minutes ensures Render NEVER sleeps!
+    - cron: '*/10 * * * *'
+  workflow_dispatch: # Allows manual trigger from GitHub Actions UI
+
+jobs:
+  keep-alive:
+    name: Keep-Alive Ping Probe
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Send Keep-Alive HTTP Probe to OceanLens API
+        run: |
+          echo "=========================================================="
+          echo "OceanLens 24/7 Keep-Alive Probe"
+          echo "Timestamp: $(date -u)"
+          echo "Target: https://oceanlens-backend.onrender.com/health"
+          echo "=========================================================="
+
+          # Ping the health endpoint with a 60s timeout (accommodates cold start if ever needed)
+          HTTP_RESPONSE=$(curl -s -S -w "\nHTTP_STATUS:%{http_code}\nTIME_TOTAL:%{time_total}s" -m 60 "https://oceanlens-backend.onrender.com/health" || true)
+          echo "$HTTP_RESPONSE"
+
+          # Verify if response is HTTP 200 OK
+          if echo "$HTTP_RESPONSE" | grep -q "HTTP_STATUS:200"; then
+            echo "✅ [SUCCESS] OceanLens Backend is ONLINE and AWAKE!"
+          else
+            echo "⚠️ [NOTICE] Primary health check returned non-200 or timed out. Sending secondary ping to /keep-alive..."
+            sleep 5
+            SECONDARY_RESP=$(curl -s -S -w "\nHTTP_STATUS:%{http_code}\nTIME_TOTAL:%{time_total}s" -m 60 "https://oceanlens-backend.onrender.com/keep-alive" || true)
+            echo "$SECONDARY_RESP"
+            if echo "$SECONDARY_RESP" | grep -q "HTTP_STATUS:200"; then
+              echo "✅ [RECOVERED] Secondary keep-alive confirmed backend is active!"
+            else
+              echo "ℹ️ Backend wake-up signal initiated; next 10m cycle will confirm steady state."
+            fi
+          fi

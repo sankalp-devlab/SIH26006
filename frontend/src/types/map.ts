@@ -3,7 +3,7 @@
  * SIH 26006 Maritime Intelligence Platform
  */
 
-export type MapTheme = 'dark' | 'voyager' | 'light';
+export type MapTheme = 'dark' | 'voyager' | 'light' | 'satellite';
 export type MapMode = 'live' | 'historical';
 
 export interface VesselPosition {

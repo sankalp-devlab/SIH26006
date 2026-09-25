@@ -342,10 +342,10 @@ export function DashboardPage() {
         {/* 3. Distinct Enterprise Status Banners */}
         {backendApiStatus === 'offline' && !isErrorBannerDismissed && (
           <DashboardErrorBanner
-            title="OceanLens Maritime API Offline"
-            badge="API OFFLINE"
+            title="OceanLens Maritime Service Reconnecting"
+            badge="BACKEND SLEEPING"
             variant="error"
-            message={`FastAPI maritime service (${API_CONFIG.BASE_URL}) is currently unreachable. Displaying cached intelligence where available.`}
+            message={`FastAPI maritime service (${API_CONFIG.BASE_URL}) is waking up. Free-tier cloud instances sleep after inactivity (takes ~45s to wake). Click 'Retry Connection' below to reconnect.`}
             onRetry={handleRetryAll}
             isRetrying={isRetrying}
             technicalDetails={connectionErrorDetails}

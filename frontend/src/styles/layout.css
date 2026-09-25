@@ -713,6 +713,13 @@
   margin: 0 auto !important;
 }
 
+/* Vessel Dashboard Workspace container layout override */
+.page-content:has(.vdb-page-container) {
+  padding: 0 !important;
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
 /* Live Vessel Map workspace edge-to-edge layout override (Requirements 2, 4, 24) */
 .page-content:has(.vmp-vessels-workspace) {
   padding: 0 !important;

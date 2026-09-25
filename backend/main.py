@@ -1,12 +1,16 @@
+import asyncio
 import base64
+from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 import json
 import os
+import time
 
 from typing import Optional, Union, Dict, Any
 from dotenv import load_dotenv
 from fastapi import FastAPI, Query, Request, Response, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+import httpx
 from pydantic import BaseModel
 from supabase import create_client
 
@@ -23,15 +27,71 @@ from tracking_engine import TrackingEngine
 
 
 # --------------------------------------------------
-# ENVIRONMENT & FASTAPI APP
+# ENVIRONMENT & FASTAPI APP LIFECYCLE
 # --------------------------------------------------
 
 load_dotenv()
+
+SERVER_START_TIME = time.time()
+
+
+async def keepalive_loop():
+    """
+    Self-ping keepalive loop for cloud hosting (e.g. Render free tier).
+    Pings the public endpoint every 9 minutes to reset Render's 15-minute idle spin-down timer.
+    Also touches Supabase database to keep connection pool active.
+    """
+    # Wait 60 seconds after startup before initiating self-pings
+    await asyncio.sleep(60)
+
+    target_url = (
+        os.getenv("RENDER_EXTERNAL_URL")
+        or os.getenv("KEEP_ALIVE_URL")
+        or "https://oceanlens-backend.onrender.com"
+    ).rstrip("/") + "/keep-alive"
+
+    print(f"[KeepAlive] Background worker active. Target ping URL: {target_url}")
+
+    while True:
+        try:
+            is_deployed = bool(os.getenv("RENDER_EXTERNAL_URL") or os.getenv("KEEP_ALIVE_URL"))
+            if is_deployed:
+                async with httpx.AsyncClient(timeout=25.0) as client:
+                    resp = await client.get(target_url)
+                    print(f"[KeepAlive] Self-ping HTTP {resp.status_code} at {datetime.now(timezone.utc).isoformat()}")
+            else:
+                print(f"[KeepAlive] Heartbeat tick at {datetime.now(timezone.utc).isoformat()}")
+        except Exception as exc:
+            print(f"[KeepAlive] Self-ping notice (will retry in 9m): {exc}")
+
+        # Keep Supabase connection pool warm
+        try:
+            supabase.table("ports").select("id").limit(1).execute()
+        except Exception as db_exc:
+            print(f"[KeepAlive] Supabase pool refresh notice: {db_exc}")
+
+        # Ping every 9 minutes (540s) so 15-minute idle limit is never reached
+        await asyncio.sleep(540)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: Start keepalive task
+    keepalive_task = asyncio.create_task(keepalive_loop())
+    yield
+    # Shutdown: Cancel task cleanly
+    keepalive_task.cancel()
+    try:
+        await keepalive_task
+    except asyncio.CancelledError:
+        pass
+
 
 app = FastAPI(
     title="SIH 26006 API",
     description="Backend API for Maritime Intelligence Platform",
     version="1.0.0",
+    lifespan=lifespan,
 )
 
 # Allow explicit development origins for Vite and local frontend
@@ -95,14 +155,30 @@ def root():
 
 
 # --------------------------------------------------
-# HEALTH CHECK (Lightweight, zero Supabase dependency)
+# HEALTH CHECK & KEEP-ALIVE (Lightweight, zero-downtime)
 # --------------------------------------------------
 
 @app.get("/health")
 def health_check():
+    uptime_sec = int(time.time() - SERVER_START_TIME)
     return {
         "status": "ok",
-        "service": "oceanlens-api"
+        "service": "oceanlens-api",
+        "uptime_seconds": uptime_sec,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "keep_alive_active": True
+    }
+
+
+@app.get("/keep-alive")
+def keep_alive_ping():
+    uptime_sec = int(time.time() - SERVER_START_TIME)
+    return {
+        "status": "awake",
+        "service": "oceanlens-api",
+        "uptime_seconds": uptime_sec,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "keep_alive_active": True
     }
 
 

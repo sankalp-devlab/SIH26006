@@ -23,8 +23,9 @@ export interface ApiStatusContextValue {
 
 const ApiStatusContext = createContext<ApiStatusContextValue | undefined>(undefined);
 
-const RETRY_DELAYS = API_CONFIG.RETRY_DELAYS_MS; // [2000, 5000, 10000, 15000]
-const PERIODIC_INTERVAL_MS = 15000;
+// Progressive fast retries during wake-up (3s, 5s, 8s, 12s)
+const RECOVERY_RETRY_DELAYS = [3000, 5000, 8000, 12000];
+const STEADY_INTERVAL_MS = 25000;
 
 export function ApiStatusProvider({ children }: { children: ReactNode }) {
   const [status, setStatus] = useState<ApiConnectionStatus>('checking');
@@ -59,7 +60,8 @@ export function ApiStatusProvider({ children }: { children: ReactNode }) {
           data &&
           (data.status === 'ok' ||
             data.status === 'healthy' ||
-            data.status === 'success');
+            data.status === 'success' ||
+            data.status === 'awake');
 
         if (isHealthy) {
           failureCountRef.current = 0;
@@ -75,7 +77,13 @@ export function ApiStatusProvider({ children }: { children: ReactNode }) {
       window.clearTimeout(timeoutId);
       failureCountRef.current += 1;
       setFailureCount(failureCountRef.current);
-      setStatus('offline');
+      // Require at least 2 consecutive probe failures before declaring offline
+      // Prevents 1-strike false alarms from temporary cold-start delays
+      if (failureCountRef.current >= 2) {
+        setStatus('offline');
+      } else {
+        setStatus('checking');
+      }
       setLastChecked(new Date());
       isCheckingRef.current = false;
       return false;
@@ -89,10 +97,10 @@ export function ApiStatusProvider({ children }: { children: ReactNode }) {
       timerRef.current = null;
     }
 
-    let delay = PERIODIC_INTERVAL_MS;
-    if (status === 'offline' || failureCountRef.current > 0) {
-      const idx = Math.min(failureCountRef.current - 1, RETRY_DELAYS.length - 1);
-      delay = RETRY_DELAYS[Math.max(0, idx)];
+    let delay = STEADY_INTERVAL_MS;
+    if (status !== 'online' || failureCountRef.current > 0) {
+      const idx = Math.min(failureCountRef.current, RECOVERY_RETRY_DELAYS.length - 1);
+      delay = RECOVERY_RETRY_DELAYS[Math.max(0, idx)];
     }
 
     timerRef.current = window.setTimeout(async () => {
@@ -125,6 +133,41 @@ export function ApiStatusProvider({ children }: { children: ReactNode }) {
       window.removeEventListener('online', handleFocusOrOnline);
     };
   }, [checkHealth, scheduleNextCheck]);
+
+  // Active Tab Keep-Alive Heartbeat: keeps Render awake as long as a browser tab is open
+  useEffect(() => {
+    const HEARTBEAT_INTERVAL_MS = 4 * 60 * 1000; // 4 minutes (well below Render's 15m threshold)
+    const keepAliveUrl = `${API_CONFIG.BASE_URL}/keep-alive`;
+
+    const sendKeepAlivePing = () => {
+      if (document.visibilityState === 'visible') {
+        fetch(keepAliveUrl, {
+          method: 'GET',
+          cache: 'no-store',
+          headers: { Accept: 'application/json' },
+        }).catch(() => {
+          // Heartbeat failures handled silently; regular checkHealth monitors health
+        });
+      }
+    };
+
+    const heartbeatTimer = window.setInterval(sendKeepAlivePing, HEARTBEAT_INTERVAL_MS);
+
+    // Also trigger on tab unminimizing / regaining visibility
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        sendKeepAlivePing();
+        checkHealth();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      window.clearInterval(heartbeatTimer);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [checkHealth]);
 
   const value: ApiStatusContextValue = {
     status,

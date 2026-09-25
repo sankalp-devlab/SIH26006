@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { Search, X } from 'lucide-react';
+import { Search, X, Layers, Ship, Anchor, Box, Compass } from 'lucide-react';
 import type { SearchCategory } from '../../../types/search';
 
 interface SearchInputProps {
@@ -12,12 +12,12 @@ interface SearchInputProps {
   isLoading?: boolean;
 }
 
-const CATEGORIES: { key: SearchCategory; label: string }[] = [
-  { key: 'ALL', label: 'All Entities' },
-  { key: 'VESSELS', label: 'Vessels' },
-  { key: 'PORTS', label: 'Ports' },
-  { key: 'CARGO', label: 'Cargo' },
-  { key: 'NAVIGATION', label: 'Commands' },
+const CATEGORIES: { key: SearchCategory; label: string; icon: React.ReactNode }[] = [
+  { key: 'ALL', label: 'All Entities', icon: <Layers size={11} /> },
+  { key: 'VESSELS', label: 'Vessels', icon: <Ship size={11} /> },
+  { key: 'PORTS', label: 'Ports', icon: <Anchor size={11} /> },
+  { key: 'CARGO', label: 'Cargo', icon: <Box size={11} /> },
+  { key: 'NAVIGATION', label: 'Commands', icon: <Compass size={11} /> },
 ];
 
 export const SearchInput: React.FC<SearchInputProps> = ({
@@ -42,7 +42,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   return (
     <div className="search-input-wrapper">
       <div className="search-input-row">
-        <Search size={18} className="search-icon" />
+        <Search size={19} className="search-icon" />
         <input
           ref={inputRef}
           type="text"
@@ -86,7 +86,8 @@ export const SearchInput: React.FC<SearchInputProps> = ({
               className={`search-tab-pill ${isActive ? 'active' : ''}`}
               onClick={() => onSelectCategory(cat.key)}
             >
-              {cat.label}
+              {cat.icon}
+              <span>{cat.label}</span>
             </button>
           );
         })}

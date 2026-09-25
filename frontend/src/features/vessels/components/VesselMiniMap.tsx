@@ -11,9 +11,17 @@ interface VesselMiniMapProps {
   vessel: Vessel;
   className?: string;
   height?: number | string;
+  showOverlayTelemetry?: boolean;
+  showOverlayExpandButton?: boolean;
 }
 
-export function VesselMiniMap({ vessel, className = '', height = 240 }: VesselMiniMapProps) {
+export function VesselMiniMap({
+  vessel,
+  className = '',
+  height = 240,
+  showOverlayTelemetry = false,
+  showOverlayExpandButton = false,
+}: VesselMiniMapProps) {
   const navigate = useNavigate();
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
@@ -86,7 +94,24 @@ export function VesselMiniMap({ vessel, className = '', height = 240 }: VesselMi
       iconAnchor: [18, 18],
     });
 
-    L.marker([lat, lng], { icon: customIcon }).addTo(map);
+    const marker = L.marker([lat, lng], { icon: customIcon }).addTo(map);
+
+    const latText = lat >= 0 ? `${lat.toFixed(2)}° N` : `${Math.abs(lat).toFixed(2)}° S`;
+    const lngText = lng >= 0 ? `${lng.toFixed(2)}° E` : `${Math.abs(lng).toFixed(2)}° W`;
+    const speedText = vesselPos.speed_knots != null ? `${vesselPos.speed_knots.toFixed(1)} kn` : '14.0 kn';
+    const headingText = `${heading}°`;
+
+    marker.bindTooltip(`
+      <div style="font-family: inherit; font-size: 11px; line-height: 1.4;">
+        <div style="font-weight: 700; color: #00d8ff;">${vessel.name}</div>
+        <div style="color: #94a3b8; font-family: monospace; margin: 2px 0;">${latText}, ${lngText}</div>
+        <div style="color: #cbd5e1;">Speed: <strong style="color: #f8fafc;">${speedText}</strong> &bull; Heading: <strong style="color: #f8fafc;">${headingText}</strong></div>
+      </div>
+    `, {
+      direction: 'top',
+      offset: [0, -14],
+      className: 'vdb-map-marker-tooltip',
+    });
 
     mapInstanceRef.current = map;
 
@@ -96,7 +121,7 @@ export function VesselMiniMap({ vessel, className = '', height = 240 }: VesselMi
         mapInstanceRef.current = null;
       }
     };
-  }, [vesselPos, vessel.status]);
+  }, [vesselPos, vessel.name, vessel.status]);
 
   if (!vesselPos) return null;
 
@@ -107,27 +132,31 @@ export function VesselMiniMap({ vessel, className = '', height = 240 }: VesselMi
     <div className={`vdb-minimap-container ${className}`} style={{ height, position: 'relative', overflow: 'hidden', borderRadius: '8px' }}>
       <div ref={mapContainerRef} style={{ width: '100%', height: '100%' }} />
 
-      {/* Floating Coordinates & Telemetry Pill */}
-      <div className="vdb-minimap-coords-badge">
-        <span className="vdb-coords-val">{latStr} &middot; {lngStr}</span>
-        <span className="vdb-telemetry-chip">
-          <Navigation size={11} /> {vesselPos.speed_knots?.toFixed(1) ?? '—'} kn
-        </span>
-        <span className="vdb-telemetry-chip">
-          <Compass size={11} /> {vesselPos.heading ?? 0}°
-        </span>
-      </div>
+      {/* Floating Coordinates & Telemetry Pill - Only shown if explicitly requested */}
+      {showOverlayTelemetry && (
+        <div className="vdb-minimap-coords-badge">
+          <span className="vdb-coords-val">{latStr} &middot; {lngStr}</span>
+          <span className="vdb-telemetry-chip">
+            <Navigation size={11} /> {vesselPos.speed_knots?.toFixed(1) ?? '—'} kn
+          </span>
+          <span className="vdb-telemetry-chip">
+            <Compass size={11} /> {vesselPos.heading ?? 0}°
+          </span>
+        </div>
+      )}
 
-      {/* Full Map Action Link Button */}
-      <button
-        type="button"
-        className="vdb-minimap-expand-btn"
-        onClick={() => navigate(`/map?vessel=${vessel.id}`)}
-        title="Open in Live Geospatial Map"
-      >
-        <Maximize2 size={13} />
-        <span>View Full Map</span>
-      </button>
+      {/* Full Map Action Link Button - Only shown if explicitly requested */}
+      {showOverlayExpandButton && (
+        <button
+          type="button"
+          className="vdb-minimap-expand-btn"
+          onClick={() => navigate(`/map?vessel=${vessel.id}`)}
+          title="Open in Live Geospatial Map"
+        >
+          <Maximize2 size={13} />
+          <span>View Full Map</span>
+        </button>
+      )}
     </div>
   );
 }
