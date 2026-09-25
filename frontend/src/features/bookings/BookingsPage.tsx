@@ -23,6 +23,7 @@ import {
   BookmarkCheck,
   Radio,
   Sparkles,
+  Trash2,
 } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { bookingService } from '../../services/api/booking.service';
@@ -37,6 +38,9 @@ export const BookingsPage: React.FC = () => {
   const [selectedStatusTab, setSelectedStatusTab] = useState<string>('all');
   const [activeBooking, setActiveBooking] = useState<BookingRecord | null>(null);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState<boolean>(false);
+  const [updatingTargetStatus, setUpdatingTargetStatus] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [actionFeedback, setActionFeedback] = useState<string | null>(null);
   const [copiedRef, setCopiedRef] = useState<string | null>(null);
 
   const fetchBookings = async () => {
@@ -98,17 +102,55 @@ export const BookingsPage: React.FC = () => {
     setTimeout(() => setCopiedRef(null), 2000);
   };
 
+  // Reset action error/feedback when switching or closing active booking
+  useEffect(() => {
+    setActionError(null);
+    setActionFeedback(null);
+  }, [activeBooking?.booking_id]);
+
   const handleStatusTransition = async (bookingId: number, nextStatus: BookingStatus) => {
+    if (isUpdatingStatus) return; // Prevent race conditions / double click
+
+    // If cancelling/deleting, ask for confirmation
+    if (nextStatus === 'cancelled') {
+      const confirmed = window.confirm(
+        `Are you sure you want to cancel / delete Booking #${bookingId}? This will transition the booking to terminal CANCELLED status.`
+      );
+      if (!confirmed) return;
+    }
+
     setIsUpdatingStatus(true);
+    setUpdatingTargetStatus(nextStatus);
+    setActionError(null);
+    setActionFeedback(null);
     try {
       const updated = await bookingService.updateBookingStatus(bookingId, { status: nextStatus });
       setBookings((prev) => prev.map((b) => (b.booking_id === bookingId ? updated : b)));
       setActiveBooking(updated);
+      setActionFeedback(
+        nextStatus === 'cancelled'
+          ? `Booking #${bookingId} has been successfully cancelled.`
+          : `Booking #${bookingId} status updated to ${nextStatus.toUpperCase()}.`
+      );
+      setTimeout(() => setActionFeedback(null), 4000);
     } catch (err: any) {
       console.error('[BookingsPage] Status update error:', err);
-      alert(`Status update failed: ${err?.message || 'Invalid transition'}`);
+      const rawMsg = err?.message || 'Invalid status transition';
+      const isJsSyntaxError =
+        rawMsg.includes('is not a function') ||
+        rawMsg.includes('undefined') ||
+        rawMsg.includes('TypeError');
+      const actionDesc =
+        nextStatus === 'cancelled'
+          ? 'cancel / delete booking'
+          : `update booking status to '${nextStatus}'`;
+      const cleanMsg = isJsSyntaxError
+        ? `Unable to ${actionDesc} due to a client network/service issue. Please refresh and try again.`
+        : `Unable to ${actionDesc}: ${rawMsg}`;
+      setActionError(cleanMsg);
     } finally {
       setIsUpdatingStatus(false);
+      setUpdatingTargetStatus(null);
     }
   };
 
@@ -580,6 +622,46 @@ export const BookingsPage: React.FC = () => {
                   Booking Lifecycle Controls
                 </div>
 
+                {actionError && (
+                  <div
+                    style={{
+                      marginBottom: '10px',
+                      padding: '8px 12px',
+                      borderRadius: '6px',
+                      backgroundColor: '#fef2f2',
+                      border: '1px solid #fecaca',
+                      color: '#991b1b',
+                      fontSize: '0.75rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                    }}
+                  >
+                    <AlertCircle size={14} style={{ flexShrink: 0 }} />
+                    <span>{actionError}</span>
+                  </div>
+                )}
+
+                {actionFeedback && (
+                  <div
+                    style={{
+                      marginBottom: '10px',
+                      padding: '8px 12px',
+                      borderRadius: '6px',
+                      backgroundColor: '#ecfdf5',
+                      border: '1px solid #a7f3d0',
+                      color: '#065f46',
+                      fontSize: '0.75rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                    }}
+                  >
+                    <CheckCircle2 size={14} style={{ flexShrink: 0 }} />
+                    <span>{actionFeedback}</span>
+                  </div>
+                )}
+
                 {activeBooking.allowed_next_statuses.length === 0 ? (
                   <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)' }}>
                     This booking has reached terminal status (<code>{activeBooking.booking_status}</code>). No further state transitions permitted.
@@ -604,10 +686,16 @@ export const BookingsPage: React.FC = () => {
                         btnLabel = 'Complete Voyage Discharge';
                         icon = <CheckCircle2 size={14} />;
                       } else if (nextSt === 'cancelled') {
+                        btnVariant = 'danger';
+                        btnLabel = 'Cancel / Delete Booking';
+                        icon = <Trash2 size={14} />;
+                      } else if (nextSt === 'pending') {
                         btnVariant = 'secondary';
-                        btnLabel = 'Cancel Booking';
-                        icon = <XCircle size={14} color="#ef4444" />;
+                        btnLabel = 'Move to Pending Request';
+                        icon = <ChevronRight size={14} />;
                       }
+
+                      const isThisUpdating = isUpdatingStatus && updatingTargetStatus === nextSt;
 
                       return (
                         <Button
@@ -615,10 +703,11 @@ export const BookingsPage: React.FC = () => {
                           size="sm"
                           variant={btnVariant}
                           icon={icon}
+                          isLoading={isThisUpdating}
                           disabled={isUpdatingStatus}
                           onClick={() => handleStatusTransition(activeBooking.booking_id, nextSt)}
                         >
-                          {btnLabel}
+                          {isThisUpdating ? 'Processing...' : btnLabel}
                         </Button>
                       );
                     })}

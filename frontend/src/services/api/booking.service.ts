@@ -106,4 +106,17 @@ export const bookingService = {
   ): Promise<BookingRecord> => {
     return apiClient.patch<BookingRecord>(`/bookings/${bookingId}/status`, payload);
   },
+
+  /**
+   * Cancels a booking, transitioning it to the terminal cancelled lifecycle state.
+   */
+  cancelBooking: async (
+    bookingId: number,
+    notes?: string
+  ): Promise<BookingRecord> => {
+    return apiClient.patch<BookingRecord>(`/bookings/${bookingId}/status`, {
+      status: 'cancelled',
+      notes,
+    });
+  },
 };
