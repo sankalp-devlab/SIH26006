@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Menu, X, ArrowUpRight, Compass } from 'lucide-react';
+import { Search, Menu, X, ArrowUpRight, Compass, Play } from 'lucide-react';
 
 interface LandingNavbarProps {
   onOpenSearch?: () => void;
   onOpenDemo?: () => void;
 }
 
-export function LandingNavbar({ onOpenSearch, onOpenDemo: _onOpenDemo }: LandingNavbarProps) {
+export function LandingNavbar({ onOpenSearch, onOpenDemo }: LandingNavbarProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('home');
@@ -112,6 +112,19 @@ export function LandingNavbar({ onOpenSearch, onOpenDemo: _onOpenDemo }: Landing
             <Search size={16} aria-hidden="true" />
           </button>
 
+          {onOpenDemo && (
+            <button
+              type="button"
+              className="navbar-demo-btn"
+              onClick={onOpenDemo}
+              aria-label="Watch interactive demo"
+              title="Watch interactive platform demo"
+            >
+              <Play size={13} fill="currentColor" />
+              <span>Watch Demo</span>
+            </button>
+          )}
+
           <Link to="/dashboard" className="navbar-login-btn">
             Log In
           </Link>
@@ -175,6 +188,20 @@ export function LandingNavbar({ onOpenSearch, onOpenDemo: _onOpenDemo }: Landing
         </ul>
 
         <div className="mobile-drawer-footer">
+          {onOpenDemo && (
+            <button
+              type="button"
+              className="navbar-demo-btn mobile-full"
+              style={{ justifyContent: 'center', padding: '0.65rem', marginBottom: '0.5rem' }}
+              onClick={() => {
+                setMobileOpen(false);
+                onOpenDemo();
+              }}
+            >
+              <Play size={14} fill="currentColor" />
+              <span>Watch Demo</span>
+            </button>
+          )}
           <Link
             to="/dashboard"
             className="navbar-get-started-btn mobile-full"
