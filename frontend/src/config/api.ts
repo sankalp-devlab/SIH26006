@@ -57,9 +57,9 @@ export const API_CONFIG = {
   // Base URL normalized without trailing slash
   BASE_URL: rawBaseUrl.replace(/\/+$/, ''),
   HEALTH_ENDPOINT: '/health',
-  // 60s timeout provides full resilience for Render free-tier cold starts (~45-50s)
-  TIMEOUT_MS: 60000,
-  RETRY_DELAYS_MS: [3000, 5000, 10000, 15000],
+  // 10s timeout keeps UI buttons and health checks responsive
+  TIMEOUT_MS: 10000,
+  RETRY_DELAYS_MS: [2000, 4000, 8000],
 } as const;
 
 /**

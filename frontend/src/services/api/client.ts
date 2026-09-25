@@ -18,9 +18,9 @@ interface RequestOptions extends RequestInit {
   retry?: boolean;
 }
 
-const MAX_AUTO_RETRIES = 3;
-const RETRY_BACKOFF_MS = [1500, 3000, 5000];
-const DEFAULT_TIMEOUT_MS = 60000; // 60s accommodates cloud cold-starts
+const MAX_AUTO_RETRIES = 1;
+const RETRY_BACKOFF_MS = [1000];
+const DEFAULT_TIMEOUT_MS = 12000; // 12s timeout ensures buttons never hang for long
 
 function isTransientError(status: number, error?: unknown): boolean {
   // 502/503/504 indicates proxy/server spinning up or gateway timeout

@@ -226,7 +226,7 @@ export function CommandMap({
 
     // Keep markers on top of tile layer
     tileLayerRef.current = newTileLayer;
-    lanesGroupRef.current.bringToBack();
+    newTileLayer.bringToBack();
   }, [activeTheme]);
 
   // 3. Shipping Lanes & Animated Flow Corridors
