@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { CheckCircle, Package, Plus, Globe, Layers } from 'lucide-react';
 import { useCargoWorkspace } from '../../hooks/useCargoWorkspace';
 import { CargoHeader } from './components/CargoHeader';
@@ -13,9 +14,11 @@ import { CargoCompareModal } from './components/CargoCompareModal';
 import { CargoShareModal } from './components/CargoShareModal';
 import { CargoCreateModal } from './components/CargoCreateModal';
 import { CargoIngestModal } from './components/CargoIngestModal';
+import { CargoMaritimeOptionsModal } from './components/CargoMaritimeOptionsModal';
 import { ErrorState } from '../../components/feedback/ErrorState';
 import { EmptyState } from '../../components/feedback/EmptyState';
 import { Button } from '../../components/ui/Button';
+import type { CargoRecord } from '../../types/cargo';
 
 export function CargoPage() {
   const {
@@ -91,6 +94,15 @@ export function CargoPage() {
     toasts,
   } = useCargoWorkspace();
 
+  // Maritime Options & Intelligence Wizard State
+  const [isMaritimeOptionsOpen, setIsMaritimeOptionsOpen] = useState(false);
+  const [maritimeOptionsCargo, setMaritimeOptionsCargo] = useState<CargoRecord | null>(null);
+
+  const handleOpenMaritimeOptions = (cargo?: CargoRecord | null) => {
+    setMaritimeOptionsCargo(cargo || null);
+    setIsMaritimeOptionsOpen(true);
+  };
+
   return (
     <div className="ciw-container">
       {/* 1. Header Toolbar */}
@@ -102,6 +114,7 @@ export function CargoPage() {
         isLoading={isLoading}
         onOpenCreate={() => setIsCreateModalOpen(true)}
         onOpenIngest={() => setIsIngestModalOpen(true)}
+        onOpenMaritimeOptions={() => handleOpenMaritimeOptions()}
         cargos={filteredCargos}
       />
 
@@ -192,7 +205,7 @@ export function CargoPage() {
               onSelectAll={handleSelectAll}
               onClearSelection={handleClearSelection}
               onOpenDetail={handleOpenDetail}
-              onOpenVesselMatch={handleOpenVesselMatch}
+              onOpenVesselMatch={(cargo) => handleOpenMaritimeOptions(cargo)}
               onOpenShare={handleOpenShare}
               onValidateSingle={handleValidateSingle}
               onArchiveSingle={handleArchiveSingle}
@@ -208,7 +221,7 @@ export function CargoPage() {
             <CargoZoneGrouping
               cargos={filteredCargos}
               onOpenDetail={handleOpenDetail}
-              onOpenVesselMatch={handleOpenVesselMatch}
+              onOpenVesselMatch={(cargo) => handleOpenMaritimeOptions(cargo)}
               onOpenShare={handleOpenShare}
             />
           )}
@@ -275,6 +288,10 @@ export function CargoPage() {
         onClose={() => setIsCreateModalOpen(false)}
         ports={ports}
         onCreateCargo={handleIngestNewCargo}
+        onFindOptions={(payload) => {
+          handleIngestNewCargo(payload);
+          handleOpenMaritimeOptions();
+        }}
       />
 
       {/* 11. Multi-Channel Ingest Modal */}
@@ -283,6 +300,16 @@ export function CargoPage() {
         onClose={() => setIsIngestModalOpen(false)}
         ports={ports}
         onIngestCargo={handleIngestNewCargo}
+      />
+
+      {/* 12. Maritime Options & Intelligence Flow (Find Options -> Results -> Compare -> Select -> Commercial Booking -> Confirm) */}
+      <CargoMaritimeOptionsModal
+        isOpen={isMaritimeOptionsOpen}
+        onClose={() => setIsMaritimeOptionsOpen(false)}
+        ports={ports}
+        initialCargo={maritimeOptionsCargo}
+        onCargoCreated={handleIngestNewCargo}
+        onAssignVessel={handleAssignVessel}
       />
 
       {/* Toast Notification Container */}

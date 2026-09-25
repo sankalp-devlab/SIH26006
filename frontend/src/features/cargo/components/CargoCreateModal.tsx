@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, X, Package, AlertCircle } from 'lucide-react';
+import { Plus, X, Package, AlertCircle, Compass } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
 import { Input } from '../../../components/ui/Input';
 import { Select } from '../../../components/ui/Select';
@@ -11,6 +11,7 @@ interface CargoCreateModalProps {
   onClose: () => void;
   ports: Port[];
   onCreateCargo: (cargo: Partial<CargoRecord>) => void;
+  onFindOptions?: (cargo: Partial<CargoRecord>) => void;
 }
 
 export const CargoCreateModal: React.FC<CargoCreateModalProps> = ({
@@ -18,6 +19,7 @@ export const CargoCreateModal: React.FC<CargoCreateModalProps> = ({
   onClose,
   ports,
   onCreateCargo,
+  onFindOptions,
 }) => {
   const [commodity, setCommodity] = useState('');
   const [cargoType, setCargoType] = useState('Dry Bulk');
@@ -35,14 +37,13 @@ export const CargoCreateModal: React.FC<CargoCreateModalProps> = ({
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const buildPayload = (): Partial<CargoRecord> | null => {
     setErrorMsg(null);
 
     const weight = Number(weightTons);
     if (!weight || weight <= 0) {
       setErrorMsg('Please enter a valid deadweight tonnage greater than zero.');
-      return;
+      return null;
     }
 
     const origin = ports.find((p) => p.id === Number(originPortId));
@@ -50,15 +51,15 @@ export const CargoCreateModal: React.FC<CargoCreateModalProps> = ({
 
     if (!origin || !dest) {
       setErrorMsg('Please select valid origin and destination loading seaports.');
-      return;
+      return null;
     }
 
     if (origin.id === dest.id) {
       setErrorMsg('Origin and destination ports cannot be identical.');
-      return;
+      return null;
     }
 
-    onCreateCargo({
+    return {
       commodity: commodity || `${cargoType} Consignment`,
       cargo_type: cargoType,
       shipper: shipper || 'Registered Enterprise Charterer',
@@ -81,13 +82,33 @@ export const CargoCreateModal: React.FC<CargoCreateModalProps> = ({
         latitude: dest.latitude || 0,
         longitude: dest.longitude || 0,
       },
+      origin_port_id: origin.id,
+      destination_port_id: dest.id,
       ready_date: readyDate ? new Date(readyDate).toISOString() : new Date().toISOString(),
       deadline: deadline ? new Date(deadline).toISOString() : new Date(Date.now() + 86400000 * 7).toISOString(),
       priority,
       is_private: isPrivate,
       source: 'manual',
-    });
+    };
+  };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const payload = buildPayload();
+    if (!payload) return;
+
+    if (onFindOptions) {
+      onFindOptions(payload);
+    } else {
+      onCreateCargo(payload);
+    }
+    onClose();
+  };
+
+  const handleSaveOnly = () => {
+    const payload = buildPayload();
+    if (!payload) return;
+    onCreateCargo(payload);
     onClose();
   };
 
@@ -312,12 +333,25 @@ export const CargoCreateModal: React.FC<CargoCreateModalProps> = ({
             </div>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', borderTop: '1px solid var(--color-border-subtle)', paddingTop: '1rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '8px', borderTop: '1px solid var(--color-border-subtle)', paddingTop: '1rem' }}>
             <Button variant="secondary" size="sm" type="button" onClick={onClose}>
               Cancel
             </Button>
-            <Button variant="primary" size="sm" type="submit" icon={<Plus size={14} />}>
-              Save Consignment
+            <Button variant="secondary" size="sm" type="button" onClick={handleSaveOnly} icon={<Plus size={14} />}>
+              Save Only
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              type="submit"
+              icon={<Compass size={14} />}
+              style={{
+                background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+                fontWeight: 800,
+                boxShadow: '0 2px 10px rgba(2, 132, 199, 0.4)',
+              }}
+            >
+              FIND MARITIME OPTIONS
             </Button>
           </div>
         </form>

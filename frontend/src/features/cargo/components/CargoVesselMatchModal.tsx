@@ -9,6 +9,7 @@ import { Button } from '../../../components/ui/Button';
 import { CargoWorkspaceService } from '../../../services/cargo/cargo-workspace.service';
 import { useRecommendations } from '../../../hooks/useRecommendations';
 import { RecommendationEnginePanel } from './RecommendationEnginePanel';
+import { BookingReviewModal } from './BookingReviewModal';
 import type { CargoRecord, VesselMatchInfo } from '../../../types/cargo';
 import type { Vessel } from '../../../types/vessel';
 
@@ -28,6 +29,8 @@ export const CargoVesselMatchModal: React.FC<CargoVesselMatchModalProps> = ({
   onAssignVessel,
 }) => {
   const [matchMode, setMatchMode] = useState<'mcda' | 'heuristic'>('mcda');
+  const [bookingVessel, setBookingVessel] = useState<any | null>(null);
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
 
   const {
     recommendations,
@@ -202,6 +205,10 @@ export const CargoVesselMatchModal: React.FC<CargoVesselMatchModalProps> = ({
               onDailyHireChange={setDailyHire}
               onGenerate={handleTriggerRecommendations}
               onAssignVessel={onAssignVessel}
+              onInitiateBooking={(vessel) => {
+                setBookingVessel(vessel);
+                setIsBookingModalOpen(true);
+              }}
             />
           </div>
         ) : (
@@ -333,6 +340,22 @@ export const CargoVesselMatchModal: React.FC<CargoVesselMatchModalProps> = ({
             Close
           </Button>
         </div>
+
+        {/* Commercial Booking Review Modal */}
+        {isBookingModalOpen && cargo && bookingVessel && (
+          <BookingReviewModal
+            isOpen={isBookingModalOpen}
+            onClose={() => setIsBookingModalOpen(false)}
+            cargo={cargo}
+            selectedVessel={bookingVessel}
+            recommendations={recommendations}
+            onBookingSuccess={(b) => {
+              console.log('[CargoVesselMatchModal] Booking created:', b);
+              setIsBookingModalOpen(false);
+              onClose();
+            }}
+          />
+        )}
       </div>
     </div>
   );

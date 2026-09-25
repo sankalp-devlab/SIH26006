@@ -5,6 +5,7 @@ import {
   Download,
   Radio,
   Boxes,
+  Compass,
 } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
 import type { CargoAnalyticsSummary, CargoRecord } from '../../../types/cargo';
@@ -17,6 +18,7 @@ interface CargoHeaderProps {
   isLoading: boolean;
   onOpenCreate: () => void;
   onOpenIngest: () => void;
+  onOpenMaritimeOptions?: () => void;
   cargos: CargoRecord[];
 }
 
@@ -26,6 +28,7 @@ export const CargoHeader: React.FC<CargoHeaderProps> = ({
   isLoading,
   onOpenCreate,
   onOpenIngest,
+  onOpenMaritimeOptions,
   cargos,
 }) => {
   const handleExportCSV = () => {
@@ -172,7 +175,7 @@ export const CargoHeader: React.FC<CargoHeaderProps> = ({
 
         {/* Register Consignment / New Cargo Inquiry */}
         <Button
-          variant="primary"
+          variant="secondary"
           size="sm"
           icon={<Plus size={14} />}
           onClick={onOpenCreate}
@@ -186,6 +189,35 @@ export const CargoHeader: React.FC<CargoHeaderProps> = ({
         >
           New Cargo Inquiry
         </Button>
+
+        {/* Dedicated Find Maritime Options Action */}
+        {onOpenMaritimeOptions && (
+          <button
+            type="button"
+            onClick={onOpenMaritimeOptions}
+            className="btn btn-sm"
+            style={{
+              height: '36px',
+              padding: '0 15px',
+              borderRadius: '6px',
+              background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+              border: '1px solid #38bdf8',
+              color: '#ffffff',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '7px',
+              fontSize: '12px',
+              fontWeight: 800,
+              boxShadow: '0 2px 10px rgba(2, 132, 199, 0.4)',
+              cursor: 'pointer',
+              letterSpacing: '0.02em',
+            }}
+            title="Calculate Maritime Intelligence, Compare Vessel Options & Confirm Booking"
+          >
+            <Compass size={14} />
+            <span>FIND MARITIME OPTIONS</span>
+          </button>
+        )}
       </div>
     </div>
   );
