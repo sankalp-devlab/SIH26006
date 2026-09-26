@@ -308,7 +308,20 @@ export const VesselBookingIntelligencePage: React.FC = () => {
     const dest = ports.find((p) => p.id === dId);
 
     setStage('analyzing');
-    setExecutionMessage('Screening Fleet Compatibility & Running MCDA Decision Engine...');
+    setExecutionMessage('ANALYZING AVAILABLE VESSELS & FLEET DWT CAPACITY...');
+
+    const progressTimer1 = setTimeout(() => {
+      setExecutionMessage('CALCULATING GEODESIC ROUTE CORRIDORS & TRANSIT ETA...');
+    }, 800);
+    const progressTimer2 = setTimeout(() => {
+      setExecutionMessage('INFERRING VOYAGE COSTS & RUNNING XGBOOST REGRESSION...');
+    }, 1800);
+    const progressTimer3 = setTimeout(() => {
+      setExecutionMessage('ASSESSING MARITIME RISK & REGIONAL CHOKEPOINTS...');
+    }, 2800);
+    const progressTimer4 = setTimeout(() => {
+      setExecutionMessage('GENERATING MULTI-CRITERIA RECOMMENDATION OPTIONS...');
+    }, 3800);
 
     try {
       // 1. Concurrently launch all five backend intelligence engines
@@ -371,6 +384,11 @@ export const VesselBookingIntelligencePage: React.FC = () => {
         etaPromise,
         riskPromise,
       ]);
+
+      clearTimeout(progressTimer1);
+      clearTimeout(progressTimer2);
+      clearTimeout(progressTimer3);
+      clearTimeout(progressTimer4);
 
       setRecommendations(recRes);
       setRouteResult(routeRes);
@@ -670,6 +688,10 @@ export const VesselBookingIntelligencePage: React.FC = () => {
 
       setStage('results');
     } catch (err: any) {
+      clearTimeout(progressTimer1);
+      clearTimeout(progressTimer2);
+      clearTimeout(progressTimer3);
+      clearTimeout(progressTimer4);
       console.error('[VesselIntelligence] Analysis failure:', err);
       setErrorMessage(err?.message || 'Failed to complete maritime intelligence analysis. Please verify connection and retry.');
       setStage('input');
@@ -748,7 +770,7 @@ export const VesselBookingIntelligencePage: React.FC = () => {
   }, [feasibleVessels, comparisonPool]);
 
   return (
-    <div className="ciw-container" style={{ padding: '1.5rem 2rem', maxWidth: '1400px', margin: '0 auto' }}>
+    <div className="ciw-container" style={{ padding: '1.5rem 2rem', maxWidth: '1440px', margin: '0 auto', boxSizing: 'border-box' }}>
 
       {/* MODULE HEADER BAR */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem' }}>
@@ -756,28 +778,28 @@ export const VesselBookingIntelligencePage: React.FC = () => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <div
               style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: '6px',
-                background: 'linear-gradient(135deg, rgba(2, 132, 199, 0.25) 0%, rgba(56, 189, 248, 0.35) 100%)',
+                width: '26px',
+                height: '26px',
+                borderRadius: '5px',
+                background: 'rgba(56, 189, 248, 0.15)',
                 color: '#38bdf8',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                border: '1px solid rgba(56, 189, 248, 0.4)',
+                border: '1px solid rgba(56, 189, 248, 0.3)',
               }}
             >
-              <Compass size={18} />
+              <Compass size={15} />
             </div>
-            <span style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: '#38bdf8', letterSpacing: '0.05em' }}>
+            <span style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', color: '#38bdf8', letterSpacing: '0.08em' }}>
               MARITIME DECISION SUPPORT SYSTEM
             </span>
           </div>
-          <h1 style={{ margin: '4px 0 0', fontSize: '1.75rem', fontWeight: 900, color: '#ffffff' }}>
-            Vessel Booking Intelligence
+          <h1 style={{ margin: '6px 0 0', fontSize: '1.5rem', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.01em', textTransform: 'uppercase' }}>
+            VESSEL BOOKING INTELLIGENCE
           </h1>
-          <p style={{ margin: '4px 0 0', fontSize: '0.8125rem', color: 'var(--color-text-muted)' }}>
-            Empirical multi-criteria evaluation of fleet capacity, corridor navigation, voyage cost, sailing duration, and maritime risk.
+          <p style={{ margin: '4px 0 0', fontSize: '0.8125rem', color: '#94a3b8', lineHeight: 1.4 }}>
+            Cargo-to-vessel decision support using route, cost, ETA, capacity and operational intelligence.
           </p>
         </div>
 
@@ -877,30 +899,123 @@ export const VesselBookingIntelligencePage: React.FC = () => {
       {/* ========================================================================= */}
       {/* 1. USER INPUT SECTION (CLEAN INTELLIGENCE INPUT SECTION)                  */}
       {/* ========================================================================= */}
+      <style>{`
+        .vbi-main-grid {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+          gap: 2rem;
+          margin-bottom: 2rem;
+        }
+        .vbi-nested-2col {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+          gap: 14px;
+        }
+        .vbi-priority-grid {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 12px;
+        }
+        .vbi-priority-card {
+          transition: all 0.15s ease;
+        }
+        .vbi-priority-card:hover {
+          border-color: rgba(56, 189, 248, 0.4) !important;
+          background-color: rgba(15, 23, 42, 0.75) !important;
+        }
+        .vbi-advanced-grid {
+          display: grid;
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+          gap: 14px;
+        }
+        .vbi-cta-button {
+          transition: all 0.15s ease;
+        }
+        .vbi-cta-button:hover:not(:disabled) {
+          transform: translateY(-1px);
+          filter: brightness(1.08);
+        }
+        @media (max-width: 1080px) {
+          .vbi-main-grid {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+          }
+          .vbi-advanced-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+        }
+        @media (max-width: 640px) {
+          .vbi-nested-2col {
+            grid-template-columns: 1fr;
+            gap: 10px;
+          }
+          .vbi-priority-grid {
+            grid-template-columns: 1fr;
+          }
+          .vbi-advanced-grid {
+            grid-template-columns: 1fr;
+          }
+          .vbi-cta-container {
+            justify-content: stretch !important;
+          }
+          .vbi-cta-button {
+            width: 100% !important;
+          }
+        }
+      `}</style>
+
+      {/* ========================================================================= */}
+      {/* 1. USER INPUT SECTION (CLEAN INTELLIGENCE INPUT SECTION)                  */}
+      {/* ========================================================================= */}
       {stage === 'input' && (
         <div
           className="card"
           style={{
-            padding: '1.5rem',
+            padding: '1.75rem 2rem',
             borderRadius: '10px',
             backgroundColor: 'var(--color-bg-surface, #091A2A)',
             border: '1px solid rgba(56, 189, 248, 0.2)',
-            boxShadow: '0 8px 30px rgba(0, 0, 0, 0.4)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.45)',
           }}
         >
           <form onSubmit={handleRunAnalysis}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.75rem', marginBottom: '1.5rem' }}>
 
-              {/* Column 1: Cargo Characteristics */}
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '6px' }}>
-                  <Package size={16} color="#38bdf8" />
-                  <h3 style={{ margin: 0, fontSize: '0.875rem', fontWeight: 800, color: '#38bdf8', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                    1. Cargo Specifications
-                  </h3>
+            {/* BALANCED TWO-COLUMN PRIMARY INPUT GRID */}
+            <div className="vbi-main-grid">
+
+              {/* Column 1: Cargo Specifications */}
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.25rem', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '0.75rem' }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '5px',
+                      padding: '3px 8px',
+                      borderRadius: '5px',
+                      backgroundColor: 'rgba(56, 189, 248, 0.12)',
+                      border: '1px solid rgba(56, 189, 248, 0.3)',
+                      color: '#38bdf8',
+                      fontSize: '0.75rem',
+                      fontWeight: 800,
+                      letterSpacing: '0.04em',
+                    }}
+                  >
+                    <Package size={14} />
+                    <span>01</span>
+                  </div>
+                  <div>
+                    <h3 style={{ margin: 0, fontSize: '0.875rem', fontWeight: 800, color: '#f8fafc', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                      Cargo Specifications
+                    </h3>
+                    <div style={{ fontSize: '0.725rem', color: '#94a3b8' }}>
+                      Shipment commodity, physical tonnage & special handling
+                    </div>
+                  </div>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.125rem' }}>
+                  {/* Commodity Description - Full width */}
                   <Input
                     label="Commodity Description *"
                     placeholder="e.g. Pilbara High-Grade Iron Ore"
@@ -909,6 +1024,7 @@ export const VesselBookingIntelligencePage: React.FC = () => {
                     onChange={(e) => setCommodity(e.target.value)}
                   />
 
+                  {/* Cargo Category - Full width */}
                   <Select
                     label="Cargo Category *"
                     options={[
@@ -924,7 +1040,7 @@ export const VesselBookingIntelligencePage: React.FC = () => {
                   {/* Dynamic Category Dependent Fields */}
                   {cargoType === 'Containerized' ? (
                     <>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                      <div className="vbi-nested-2col">
                         <Input
                           label="Container Count *"
                           type="number"
@@ -944,7 +1060,7 @@ export const VesselBookingIntelligencePage: React.FC = () => {
                           onChange={(e) => setContainerSize(e.target.value)}
                         />
                       </div>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                      <div className="vbi-nested-2col">
                         <Input
                           label="Cargo Weight (Metric Tons) *"
                           type="number"
@@ -963,7 +1079,7 @@ export const VesselBookingIntelligencePage: React.FC = () => {
                       </div>
                     </>
                   ) : (
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                    <div className="vbi-nested-2col">
                       <Input
                         label="Cargo Weight (Metric Tons) *"
                         type="number"
@@ -982,6 +1098,7 @@ export const VesselBookingIntelligencePage: React.FC = () => {
                     </div>
                   )}
 
+                  {/* Special Cargo Handling Requirements - Full width */}
                   <Select
                     label="Special Cargo Handling Requirements"
                     options={[
@@ -999,17 +1116,40 @@ export const VesselBookingIntelligencePage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Column 2: Journey & Corridor */}
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '6px' }}>
-                  <MapPin size={16} color="#38bdf8" />
-                  <h3 style={{ margin: 0, fontSize: '0.875rem', fontWeight: 800, color: '#38bdf8', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                    2. Journey & Route Requirements
-                  </h3>
+              {/* Column 2: Journey & Route Requirements */}
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.25rem', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '0.75rem' }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '5px',
+                      padding: '3px 8px',
+                      borderRadius: '5px',
+                      backgroundColor: 'rgba(56, 189, 248, 0.12)',
+                      border: '1px solid rgba(56, 189, 248, 0.3)',
+                      color: '#38bdf8',
+                      fontSize: '0.75rem',
+                      fontWeight: 800,
+                      letterSpacing: '0.04em',
+                    }}
+                  >
+                    <MapPin size={14} />
+                    <span>02</span>
+                  </div>
+                  <div>
+                    <h3 style={{ margin: 0, fontSize: '0.875rem', fontWeight: 800, color: '#f8fafc', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                      Journey & Route Requirements
+                    </h3>
+                    <div style={{ fontSize: '0.725rem', color: '#94a3b8' }}>
+                      Seaports, navigational corridor & laycan windows
+                    </div>
+                  </div>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.125rem' }}>
+                  {/* Origin Seaport (50%) + Destination Seaport (50%) */}
+                  <div className="vbi-nested-2col">
                     <Select
                       label="Origin Seaport (Loading Port) *"
                       required
@@ -1039,9 +1179,9 @@ export const VesselBookingIntelligencePage: React.FC = () => {
                     />
                   </div>
 
-                  {/* Laycan Window Range */}
+                  {/* Laycan Window Range (50% / 50%) */}
                   <div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                    <div className="vbi-nested-2col">
                       <Input
                         label="Preferred Departure Date (Laycan Start) *"
                         type="date"
@@ -1064,104 +1204,244 @@ export const VesselBookingIntelligencePage: React.FC = () => {
                     )}
                   </div>
 
-                  {/* Optional Delivery Constraint */}
+                  {/* Latest Acceptable Arrival (Full width) */}
                   <div>
                     <Input
                       label="Latest Acceptable Arrival"
                       type="date"
                       value={latestArrivalDate}
                       onChange={(e) => setLatestArrivalDate(e.target.value)}
+                      helperText="Optional delivery constraint. Evaluates vessels as Feasible, Feasible with Risk, or Does not meet requirement."
                     />
-                    <div style={{ fontSize: '0.675rem', color: 'var(--color-text-muted)', marginTop: '2px' }}>
-                      Optional delivery constraint. Evaluates vessels as Feasible, Feasible with Risk, or Does not meet requirement.
-                    </div>
                     {arrivalDateError && (
                       <div style={{ color: '#f87171', fontSize: '0.725rem', marginTop: '4px', fontWeight: 600 }}>
                         {arrivalDateError}
                       </div>
                     )}
                   </div>
-
-                  {/* Delivery Priority Selector */}
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: '6px' }}>
-                      3. Delivery Optimization Priority *
-                    </label>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
-                      {[
-                        { key: 'lowest_cost', label: 'Lowest Cost', desc: 'Minimizes voyage fuel & $/MT' },
-                        { key: 'fastest_eta', label: 'Fastest Delivery', desc: 'Prioritizes maximum speed & prompt ETA' },
-                        { key: 'lowest_risk', label: 'Lowest Risk', desc: 'Avoids critical chokepoints & high risk' },
-                        { key: 'balanced', label: 'Balanced', desc: 'Balances cost, ETA, risk, and operational fit' },
-                      ].map((item) => (
-                        <button
-                          key={item.key}
-                          type="button"
-                          onClick={() => setPriority(item.key as OptimizationPreference)}
-                          style={{
-                            textAlign: 'left',
-                            padding: '8px 10px',
-                            borderRadius: '6px',
-                            backgroundColor: priority === item.key ? 'rgba(56, 189, 248, 0.18)' : 'rgba(15, 23, 42, 0.5)',
-                            border: priority === item.key ? '1px solid #38bdf8' : '1px solid rgba(255, 255, 255, 0.08)',
-                            color: priority === item.key ? '#ffffff' : '#94a3b8',
-                            cursor: 'pointer',
-                          }}
-                        >
-                          <div style={{ fontWeight: 700, fontSize: '0.75rem' }}>{item.label}</div>
-                          <div style={{ fontSize: '0.675rem', opacity: 0.8, marginTop: '2px' }}>{item.desc}</div>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
                 </div>
               </div>
 
             </div>
 
-            {/* Optional Scenario Modeling & Operational Constraints */}
-            <div style={{ marginBottom: '1.5rem', borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '1rem' }}>
+            {/* 03 DELIVERY OPTIMIZATION */}
+            <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '1.5rem', marginBottom: '1.75rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1rem' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                    padding: '3px 8px',
+                    borderRadius: '5px',
+                    backgroundColor: 'rgba(56, 189, 248, 0.12)',
+                    border: '1px solid rgba(56, 189, 248, 0.3)',
+                    color: '#38bdf8',
+                    fontSize: '0.75rem',
+                    fontWeight: 800,
+                    letterSpacing: '0.04em',
+                  }}
+                >
+                  <Sliders size={14} />
+                  <span>03</span>
+                </div>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '0.875rem', fontWeight: 800, color: '#f8fafc', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                    Delivery Optimization Priority *
+                  </h3>
+                  <div style={{ fontSize: '0.725rem', color: '#94a3b8' }}>
+                    Select primary objective criterion for MCDA candidate vessel and route scoring
+                  </div>
+                </div>
+              </div>
+
+              {/* 2 x 2 Grid of Priority Cards */}
+              <div className="vbi-priority-grid">
+                {[
+                  {
+                    key: 'lowest_cost',
+                    label: 'Lowest Cost',
+                    desc: 'Minimizes voyage bunker expenditure and $/MT freight cost.',
+                    icon: <DollarSign size={18} />,
+                  },
+                  {
+                    key: 'fastest_eta',
+                    label: 'Fastest Delivery',
+                    desc: 'Prioritizes maximum service speed and expedited port arrival ETA.',
+                    icon: <Clock size={18} />,
+                  },
+                  {
+                    key: 'lowest_risk',
+                    label: 'Lowest Risk',
+                    desc: 'Avoids critical navigational chokepoints and elevated risk corridors.',
+                    icon: <Shield size={18} />,
+                  },
+                  {
+                    key: 'balanced',
+                    label: 'Balanced',
+                    desc: 'Harmonizes bunker economics, transit duration, and maritime risk.',
+                    icon: <Compass size={18} />,
+                  },
+                ].map((item) => {
+                  const isSelected = priority === item.key;
+                  return (
+                    <button
+                      key={item.key}
+                      type="button"
+                      onClick={() => setPriority(item.key as OptimizationPreference)}
+                      className="vbi-priority-card"
+                      style={{
+                        textAlign: 'left',
+                        padding: '14px 16px',
+                        borderRadius: '8px',
+                        backgroundColor: isSelected ? 'rgba(2, 132, 199, 0.14)' : 'rgba(15, 23, 42, 0.55)',
+                        border: isSelected ? '1.5px solid #38bdf8' : '1px solid rgba(255, 255, 255, 0.08)',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: '12px',
+                        boxShadow: isSelected ? '0 0 16px rgba(56, 189, 248, 0.12)' : 'none',
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: '32px',
+                          height: '32px',
+                          borderRadius: '6px',
+                          backgroundColor: isSelected ? 'rgba(56, 189, 248, 0.2)' : 'rgba(255, 255, 255, 0.05)',
+                          border: `1px solid ${isSelected ? 'rgba(56, 189, 248, 0.4)' : 'rgba(255, 255, 255, 0.1)'}`,
+                          color: isSelected ? '#38bdf8' : '#94a3b8',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          flexShrink: 0,
+                        }}
+                      >
+                        {item.icon}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                          <span style={{ fontWeight: 800, fontSize: '0.85rem', color: isSelected ? '#ffffff' : '#e2e8f0' }}>
+                            {item.label}
+                          </span>
+                          {isSelected && (
+                            <span
+                              style={{
+                                fontSize: '0.65rem',
+                                fontWeight: 800,
+                                letterSpacing: '0.06em',
+                                textTransform: 'uppercase',
+                                color: '#38bdf8',
+                                backgroundColor: 'rgba(56, 189, 248, 0.15)',
+                                padding: '2px 6px',
+                                borderRadius: '4px',
+                                border: '1px solid rgba(56, 189, 248, 0.3)',
+                              }}
+                            >
+                              ACTIVE
+                            </span>
+                          )}
+                        </div>
+                        <p style={{ margin: '4px 0 0', fontSize: '0.75rem', color: isSelected ? '#cbd5e1' : '#94a3b8', lineHeight: 1.4 }}>
+                          {item.desc}
+                        </p>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* 04 ADVANCED SCENARIO PARAMETERS (EXPANDABLE) */}
+            <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '1.25rem', marginBottom: '1.75rem' }}>
               <button
                 type="button"
                 onClick={() => setShowScenarioSettings(!showScenarioSettings)}
                 style={{
                   background: 'none',
                   border: 'none',
-                  color: '#38bdf8',
-                  fontSize: '0.8125rem',
-                  fontWeight: 700,
+                  width: '100%',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '6px',
+                  justifyContent: 'space-between',
                   cursor: 'pointer',
-                  padding: 0,
+                  padding: '6px 0',
+                  textAlign: 'left',
                 }}
               >
-                <Sliders size={14} />
-                <span>4. Advanced Scenario Parameters & Operational Constraints (Optional)</span>
-                {showScenarioSettings ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '5px',
+                      padding: '3px 8px',
+                      borderRadius: '5px',
+                      backgroundColor: showScenarioSettings ? 'rgba(56, 189, 248, 0.15)' : 'rgba(255, 255, 255, 0.05)',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      color: showScenarioSettings ? '#38bdf8' : '#94a3b8',
+                      fontSize: '0.75rem',
+                      fontWeight: 800,
+                      letterSpacing: '0.04em',
+                    }}
+                  >
+                    <Sliders size={14} />
+                    <span>04</span>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#f8fafc', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span>Advanced Scenario Parameters & Constraints</span>
+                      <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 500 }}>(Optional)</span>
+                    </div>
+                    <div style={{ fontSize: '0.725rem', color: '#94a3b8' }}>
+                      Decision constraints, charter rates, bunker costs and counterparty entities
+                    </div>
+                  </div>
+                </div>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    color: '#38bdf8',
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                  }}
+                >
+                  <span>{showScenarioSettings ? 'Collapse' : 'Configure Parameters'}</span>
+                  {showScenarioSettings ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                </div>
               </button>
 
               {showScenarioSettings && (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', marginTop: '1rem', padding: '14px 16px', borderRadius: '8px', backgroundColor: 'rgba(15, 23, 42, 0.6)', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                <div
+                  className="vbi-advanced-grid"
+                  style={{
+                    marginTop: '1rem',
+                    padding: '16px 20px',
+                    borderRadius: '8px',
+                    backgroundColor: 'rgba(15, 23, 42, 0.65)',
+                    border: '1px solid rgba(255, 255, 255, 0.06)',
+                  }}
+                >
                   <Input
                     label="Maximum Budget (USD)"
                     type="number"
-                    placeholder="e.g. 120000 (optional)"
+                    placeholder="e.g. 120000"
                     value={maxBudgetUsd}
                     onChange={(e) => setMaxBudgetUsd(e.target.value)}
                   />
                   <Input
-                    label="Maximum Acceptable Waiting Time (Days)"
+                    label="Maximum Waiting Time (Days)"
                     type="number"
-                    placeholder="e.g. 3 (optional)"
+                    placeholder="e.g. 3"
                     value={maxWaitingTimeDays}
                     onChange={(e) => setMaxWaitingTimeDays(e.target.value)}
                   />
                   <Input
-                    label="Minimum Required Vessel Capacity (DWT MT)"
+                    label="Minimum Vessel Capacity (DWT MT)"
                     type="number"
-                    placeholder="e.g. 50000 (optional)"
+                    placeholder="e.g. 50000"
                     value={minVesselCapacityDwt}
                     onChange={(e) => setMinVesselCapacityDwt(e.target.value)}
                   />
@@ -1191,11 +1471,13 @@ export const VesselBookingIntelligencePage: React.FC = () => {
                   />
                   <Input
                     label="Charterer Corporate Entity"
+                    placeholder="e.g. Enterprise Charterer Ltd"
                     value={shipper}
                     onChange={(e) => setShipper(e.target.value)}
                   />
                   <Input
                     label="Discharge Receiver Entity"
+                    placeholder="e.g. Industrial Receiving Terminal"
                     value={consignee}
                     onChange={(e) => setConsignee(e.target.value)}
                   />
@@ -1203,27 +1485,37 @@ export const VesselBookingIntelligencePage: React.FC = () => {
               )}
             </div>
 
-            {/* Submit Button */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '1.25rem' }}>
+            {/* Primary CTA Row */}
+            <div
+              className="vbi-cta-container"
+              style={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+                alignItems: 'center',
+                borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+                paddingTop: '1.5rem',
+              }}
+            >
               <Button
                 variant="primary"
                 size="md"
                 type="submit"
+                className="vbi-cta-button"
                 disabled={Boolean(laycanDateError || arrivalDateError)}
                 icon={<Compass size={18} />}
                 style={{
+                  padding: '12px 32px',
+                  fontWeight: 800,
+                  fontSize: '0.9375rem',
+                  letterSpacing: '0.04em',
+                  textTransform: 'uppercase',
                   background: (laycanDateError || arrivalDateError)
                     ? 'rgba(71, 85, 105, 0.5)'
                     : 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
-                  padding: '12px 28px',
-                  fontWeight: 900,
-                  fontSize: '0.9375rem',
-                  letterSpacing: '0.02em',
-                  cursor: (laycanDateError || arrivalDateError) ? 'not-allowed' : 'pointer',
-                  opacity: (laycanDateError || arrivalDateError) ? 0.6 : 1,
                   boxShadow: (laycanDateError || arrivalDateError)
                     ? 'none'
-                    : '0 4px 16px rgba(2, 132, 199, 0.45)',
+                    : '0 4px 16px rgba(2, 132, 199, 0.4)',
+                  cursor: (laycanDateError || arrivalDateError) ? 'not-allowed' : 'pointer',
                 }}
               >
                 RUN INTELLIGENCE ANALYSIS
@@ -1240,22 +1532,68 @@ export const VesselBookingIntelligencePage: React.FC = () => {
         <div
           className="card"
           style={{
-            padding: '4rem 2rem',
+            padding: '3.5rem 2rem',
             textAlign: 'center',
             borderRadius: '10px',
-            backgroundColor: 'var(--color-bg-surface, #091A2A)',
+            backgroundColor: '#091A2A',
             border: '1px solid rgba(56, 189, 248, 0.25)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)',
           }}
         >
-          <Sparkles size={48} color="#38bdf8" style={{ animation: 'spin 2s linear infinite', margin: '0 auto 1.25rem' }} />
-          <h2 style={{ margin: '0 0 8px', fontSize: '1.35rem', fontWeight: 800, color: '#ffffff' }}>
-            Maritime Intelligence Suite Active
+          <div
+            style={{
+              width: '56px',
+              height: '56px',
+              borderRadius: '50%',
+              backgroundColor: 'rgba(56, 189, 248, 0.1)',
+              border: '1px solid rgba(56, 189, 248, 0.3)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 1.25rem',
+            }}
+          >
+            <Compass size={28} color="#38bdf8" style={{ animation: 'spin 2.5s linear infinite' }} />
+          </div>
+          <div style={{ fontSize: '0.725rem', fontWeight: 800, color: '#38bdf8', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '6px' }}>
+            MARITIME DECISION SUPPORT ENGINE
+          </div>
+          <h2 style={{ margin: '0 0 10px', fontSize: '1.35rem', fontWeight: 800, color: '#ffffff' }}>
+            {executionMessage || 'Analyzing Maritime Intelligence...'}
           </h2>
-          <p style={{ margin: '0 auto 1.5rem', fontSize: '0.9375rem', color: '#38bdf8', fontWeight: 700 }}>
-            {executionMessage}
-          </p>
-          <div style={{ maxWidth: '520px', margin: '0 auto', fontSize: '0.8125rem', color: 'var(--color-text-muted)', lineHeight: 1.5 }}>
+          <div style={{ maxWidth: '580px', margin: '0 auto', fontSize: '0.8125rem', color: '#94a3b8', lineHeight: 1.6 }}>
             Evaluating real fleet deadweight capacity loadlines, calculating geodesic nautical miles corridor, modeling bunker consumption rates, verifying terminal depth margins, and assessing navigational security risks.
+          </div>
+
+          {/* Operational Progress Stages */}
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '2rem', flexWrap: 'wrap' }}>
+            {[
+              { label: 'Fleet DWT' },
+              { label: 'Corridor Route' },
+              { label: 'Speed & ETA' },
+              { label: 'XGBoost Cost' },
+              { label: 'Chokepoint Risk' },
+              { label: 'MCDA Ranking' },
+            ].map((st, i) => (
+              <div
+                key={i}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '5px 12px',
+                  borderRadius: '12px',
+                  backgroundColor: 'rgba(2, 132, 199, 0.12)',
+                  border: '1px solid rgba(56, 189, 248, 0.25)',
+                  fontSize: '0.725rem',
+                  color: '#38bdf8',
+                  fontWeight: 600,
+                }}
+              >
+                <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#38bdf8' }} />
+                <span>{st.label}</span>
+              </div>
+            ))}
           </div>
         </div>
       )}
