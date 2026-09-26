@@ -14,7 +14,6 @@ import {
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Dropdown } from '../../components/ui/Dropdown';
 import { NotificationCenter } from '../../features/notifications/NotificationCenter';
-import { ApiStatusBadge } from '../../features/api-status/ApiStatusBadge';
 
 interface TopbarProps {
   onOpenMobile: () => void;
@@ -215,14 +214,6 @@ export function Topbar({ onOpenMobile, onOpenSearch }: TopbarProps) {
         >
           <Search size={16} />
         </button>
-
-        {/* API Health Status Badge: Responsive (Full on desktop, compact on mobile) */}
-        <div className="topbar-api-badge-desktop">
-          <ApiStatusBadge compact={false} />
-        </div>
-        <div className="topbar-api-badge-mobile">
-          <ApiStatusBadge compact={true} />
-        </div>
 
         {/* Desktop Quick Launcher: Skipper AI */}
         <Link

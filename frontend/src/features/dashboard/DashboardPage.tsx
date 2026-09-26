@@ -32,7 +32,6 @@ import {
 } from './components/CustomizeDashboardModal';
 import { CommandPalette } from '../search/CommandPalette';
 import { MaritimeDashboardBackground } from './components/MaritimeDashboardBackground';
-import { DashboardErrorBanner } from './components/DashboardErrorBanner';
 import { DashboardSkeleton } from './components/DashboardSkeleton';
 
 // Command Center Stylesheet
@@ -86,7 +85,6 @@ export function DashboardPage() {
 
   // Retry & Status Lifecycle States
   const [isRetrying, setIsRetrying] = useState(false);
-  const [isErrorBannerDismissed, setIsErrorBannerDismissed] = useState(false);
   const [isAisNoticeDismissed, setIsAisNoticeDismissed] = useState(false);
   const [lastSuccessfulRefresh, setLastSuccessfulRefresh] = useState<Date | null>(new Date());
 
@@ -94,7 +92,6 @@ export function DashboardPage() {
   useEffect(() => {
     if (vesselsData || trackingData) {
       setLastSuccessfulRefresh(new Date());
-      setIsErrorBannerDismissed(false);
     }
   }, [vesselsData, trackingData]);
 
@@ -183,12 +180,6 @@ export function DashboardPage() {
     if (staleTrackingCount > 0) return 'stale';
     return 'unavailable';
   }, [liveTrackingCount, recentTrackingCount, staleTrackingCount]);
-
-  // Diagnostic details for engineers and ops
-  const connectionErrorDetails = useMemo(() => {
-    const errorMsg = vesselsError instanceof Error ? vesselsError.message : vesselsError ? String(vesselsError) : 'Failed to reach API endpoint';
-    return `Target API Base URL: ${API_CONFIG.BASE_URL}\nHealth Probe: ${API_CONFIG.BASE_URL}${API_CONFIG.HEALTH_ENDPOINT}\nConnection Status: ${isOffline ? 'OFFLINE (Connection Refused / Network Error)' : 'DEGRADED'}\nError Details: ${errorMsg}\nTimestamp: ${new Date().toISOString()}`;
-  }, [vesselsError, isOffline]);
 
   // Telemetry enrichment: Grounded strictly in authentic observations from public.vessel_positions
   const authenticTrackedPositions: VesselPosition[] = useMemo(() => {
@@ -333,35 +324,7 @@ export function DashboardPage() {
         {/* 2. Live Market Ticker */}
         {visibility.ticker && <LiveMarketTicker />}
 
-        {/* 3. Distinct Enterprise Status Banners */}
-        {backendApiStatus === 'offline' && !isErrorBannerDismissed && (
-          <DashboardErrorBanner
-            title="OceanLens Maritime Service Reconnecting"
-            badge="BACKEND SLEEPING"
-            variant="error"
-            message={`FastAPI maritime service (${API_CONFIG.BASE_URL}) is waking up. Free-tier cloud instances sleep after inactivity (takes ~45s to wake). Click 'Retry Connection' below to reconnect.`}
-            onRetry={handleRetryAll}
-            isRetrying={isRetrying}
-            technicalDetails={connectionErrorDetails}
-            onDismiss={() => setIsErrorBannerDismissed(true)}
-          />
-        )}
-
-        {backendApiStatus === 'degraded' && !isErrorBannerDismissed && (
-          <DashboardErrorBanner
-            title="Maritime Intelligence Feed Degraded"
-            badge="API DEGRADED"
-            variant="warning"
-            message={vesselsError instanceof Error ? vesselsError.message : 'The vessel registry service encountered a partial error. Cached intelligence displayed.'}
-            onRetry={handleRetryAll}
-            isRetrying={isRetrying}
-            technicalDetails={connectionErrorDetails}
-            onDismiss={() => setIsErrorBannerDismissed(true)}
-          />
-        )}
-
-
-        {/* 4. Skeleton Loading State (Preserves layout stability) */}
+        {/* 3. Skeleton Loading State (Preserves layout stability) */}
         {isInitialLoading && <DashboardSkeleton />}
 
         {/* 5. Empty State (Only if online, not loading, and genuinely zero vessels) */}
