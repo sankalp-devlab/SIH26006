@@ -16,6 +16,7 @@ import { FreightRatesTab } from './freight/components/FreightRatesTab';
 import { FFASpotSpreadTab } from './freight/components/FFASpotSpreadTab';
 import { MarketDriversForecastTab } from './freight/components/MarketDriversForecastTab';
 import { FreightComparisonModal } from './freight/components/FreightComparisonModal';
+import { MaritimePageBackground } from '../../components/common/MaritimePageBackground';
 import {
   TrendingUp,
   Ship,
@@ -80,7 +81,8 @@ export default function FreightAnalyticsPage() {
   }, [rates, selectedRouteCode]);
 
   return (
-    <div className="freight-master-container">
+    <div className="freight-master-container oceanlens-operational-page-wrapper" style={{ position: 'relative' }}>
+      <MaritimePageBackground variant="market" />
       {/* 1. Page Header with Breadcrumb, Back Button, Title Hierarchy & Actions */}
       <FreightAnalyticsHeader
         onOpenComparison={() => openComparison('route', selectedRouteCode, 'C3')}

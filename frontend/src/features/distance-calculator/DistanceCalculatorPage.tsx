@@ -13,6 +13,7 @@ import { DistanceRoutingPointsTable } from './components/DistanceRoutingPointsTa
 import { DistanceRouteComparison } from './components/DistanceRouteComparison';
 import { DistanceAlertsPanel } from './components/DistanceAlertsPanel';
 import { DistanceWorkbooksModal } from './components/DistanceWorkbooksModal';
+import { MaritimePageBackground } from '../../components/common/MaritimePageBackground';
 
 export default function DistanceCalculatorPage() {
   const {
@@ -54,14 +55,17 @@ export default function DistanceCalculatorPage() {
 
   return (
     <div
+      className="oceanlens-operational-page-wrapper"
       style={{
         padding: '24px',
         maxWidth: '1680px',
         margin: '0 auto',
         minHeight: '100vh',
         color: '#f8fafc',
+        position: 'relative',
       }}
     >
+      <MaritimePageBackground variant="voyage" />
       {/* 1. Header with Mode Switcher and Actions */}
       <DistanceCalculatorHeader
         record={currentRecord}

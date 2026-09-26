@@ -21,6 +21,7 @@ import { STSEventsPanel } from './components/STSEventsPanel';
 import { VoyageAnalyticsPanel } from './components/VoyageAnalyticsPanel';
 import { VoyageDetailDrawer } from './components/VoyageDetailDrawer';
 import { ErrorState } from '../../components/feedback/ErrorState';
+import { MaritimePageBackground } from '../../components/common/MaritimePageBackground';
 import type { VoyageRecord, VoyageFiltersState } from '../../types/voyage';
 
 export function VoyagesPage() {
@@ -137,7 +138,8 @@ export function VoyagesPage() {
   const totalPortCalls = analytics.port_metrics.reduce((a, b) => a + b.calls_count, 0);
 
   return (
-    <div className="cvi-workspace">
+    <div className="cvi-workspace oceanlens-operational-page-wrapper" style={{ position: 'relative' }}>
+      <MaritimePageBackground variant="voyage" />
       {/* 1. Page Header + Control Bar Toolbar */}
       <VoyagesHeader
         voyages={voyages}

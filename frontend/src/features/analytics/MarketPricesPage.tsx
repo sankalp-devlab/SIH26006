@@ -33,6 +33,7 @@ import {
   IntelligenceKpiCard,
   IntelligenceTabs,
 } from '../../components/intelligence';
+import { MaritimePageBackground } from '../../components/common/MaritimePageBackground';
 
 import { RouteSelector } from './market-prices/components/RouteSelector';
 import { SpotMarketSection } from './market-prices/components/SpotMarketSection';
@@ -187,7 +188,8 @@ export default function MarketPricesPage() {
   const isContango = selectedForwardCurve.curveStructure === 'Contango';
 
   return (
-    <div className="mp-dashboard-container oceanlens-master-container">
+    <div className="mp-dashboard-container oceanlens-master-container oceanlens-operational-page-wrapper" style={{ position: 'relative' }}>
+      <MaritimePageBackground variant="market" />
       {/* 0. Top Navigation & Telemetry Row */}
       <div className="mp-top-breadcrumb-row">
         <a href="/analytics" className="mp-back-btn">

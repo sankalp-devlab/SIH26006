@@ -18,6 +18,7 @@ import {
   IntelligenceKpiGrid,
   IntelligenceKpiCard,
 } from '../../components/intelligence';
+import { MaritimePageBackground } from '../../components/common/MaritimePageBackground';
 import { InteractiveReportingCharts } from './reporting/components/InteractiveReportingCharts';
 import { DrillDownWorkspace } from './reporting/components/DrillDownWorkspace';
 import { DecisionGuidancePanel } from './reporting/components/DecisionGuidancePanel';
@@ -113,7 +114,8 @@ export default function ReportsPage() {
   ], [filters.view, filters.segment, filters.vesselClass, filters.basin, updateFilter]);
 
   return (
-    <div className="oceanlens-master-container">
+    <div className="oceanlens-master-container oceanlens-operational-page-wrapper" style={{ position: 'relative' }}>
+      <MaritimePageBackground variant="market" />
       {/* 1. Standardized Intelligence Page Header */}
       <IntelligencePageHeader
         moduleBadge="M25"

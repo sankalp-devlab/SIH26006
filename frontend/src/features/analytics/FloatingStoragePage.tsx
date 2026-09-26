@@ -27,6 +27,7 @@ import {
   IntelligenceTabs,
   EmptyState,
 } from '../../components/intelligence';
+import { MaritimePageBackground } from '../../components/common/MaritimePageBackground';
 import { FloatingStorageMapCanvas } from './floating-storage/components/FloatingStorageMapCanvas';
 import { FloatingStorageTable } from './floating-storage/components/FloatingStorageTable';
 import { FloatingStorageVolumeTab } from './floating-storage/components/FloatingStorageVolumeTab';
@@ -148,7 +149,8 @@ export default function FloatingStoragePage() {
   };
 
   return (
-    <div className="fs-dashboard-container">
+    <div className="fs-dashboard-container oceanlens-operational-page-wrapper" style={{ position: 'relative' }}>
+      <MaritimePageBackground variant="cargo" />
       {/* 0. Top Breadcrumb & Live AIS Telemetry Row */}
       <div className="fs-top-breadcrumb-row">
         <Link to="/analytics" className="fs-back-btn">

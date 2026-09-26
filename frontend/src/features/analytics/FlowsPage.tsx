@@ -29,6 +29,7 @@ import {
   EmptyState,
   ErrorState,
 } from '../../components/intelligence';
+import { MaritimePageBackground } from '../../components/common/MaritimePageBackground';
 import { FlowMapCanvas } from './flows/components/FlowMapCanvas';
 import { FlowVolumeTab } from './flows/components/FlowVolumeTab';
 import { FlowHistoricalTrendTab } from './flows/components/FlowHistoricalTrendTab';
@@ -138,7 +139,8 @@ export default function FlowsPage() {
     Boolean(filters.searchQuery);
 
   return (
-    <div className="oceanlens-master-container">
+    <div className="oceanlens-master-container oceanlens-operational-page-wrapper" style={{ position: 'relative' }}>
+      <MaritimePageBackground variant="market" />
       {/* 1. Standardized Intelligence Page Header */}
       <IntelligencePageHeader
         moduleBadge="M16"

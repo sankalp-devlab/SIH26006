@@ -23,6 +23,7 @@ import { VoyageEconomicsBreakdown } from './components/VoyageEconomicsBreakdown'
 import { VoyageScenarioComparison } from './components/VoyageScenarioComparison';
 import { VoyageWorkbooksModal } from './components/VoyageWorkbooksModal';
 import { VoyageNotesPanel } from './components/VoyageNotesPanel';
+import { MaritimePageBackground } from '../../components/common/MaritimePageBackground';
 import './styles/voyage-calculator.css';
 
 export default function VoyageCalculatorPage() {
@@ -175,7 +176,8 @@ export default function VoyageCalculatorPage() {
   }
 
   return (
-    <div className="voyage-master-container">
+    <div className="voyage-master-container oceanlens-operational-page-wrapper" style={{ position: 'relative' }}>
+      <MaritimePageBackground variant="voyage" />
       {/* Toast Feedback Notification Stack */}
       {toasts.length > 0 && (
         <div

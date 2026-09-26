@@ -29,6 +29,7 @@ import {
   IntelligenceTabs,
   ErrorState,
 } from '../../components/intelligence';
+import { MaritimePageBackground } from '../../components/common/MaritimePageBackground';
 
 import { WaypointMapCanvas } from './waypoints/components/WaypointMapCanvas';
 import { WaypointActivityTab } from './waypoints/components/WaypointActivityTab';
@@ -153,7 +154,8 @@ export default function WaypointsPage() {
     Boolean(filters.search);
 
   return (
-    <div className="oceanlens-master-container">
+    <div className="oceanlens-master-container oceanlens-operational-page-wrapper" style={{ position: 'relative' }}>
+      <MaritimePageBackground variant="voyage" />
       {/* 1. Standardized Intelligence Page Header */}
       <IntelligencePageHeader
         moduleBadge="M18"

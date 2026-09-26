@@ -27,6 +27,7 @@ import {
   IntelligenceTabs,
   ErrorState,
 } from '../../components/intelligence';
+import { MaritimePageBackground } from '../../components/common/MaritimePageBackground';
 import { FleetGrowthTab } from './orderbook/components/FleetGrowthTab';
 import { OrdersRegistryTab } from './orderbook/components/OrdersRegistryTab';
 import { DeliveriesScheduleTab } from './orderbook/components/DeliveriesScheduleTab';
@@ -114,7 +115,8 @@ export default function OrderbookPage() {
     Boolean(filters.searchQuery);
 
   return (
-    <div className="oceanlens-master-container">
+    <div className="oceanlens-master-container oceanlens-operational-page-wrapper" style={{ position: 'relative' }}>
+      <MaritimePageBackground variant="commercial" />
       {/* 1. Standardized Intelligence Page Header */}
       <IntelligencePageHeader
         moduleBadge="M17"

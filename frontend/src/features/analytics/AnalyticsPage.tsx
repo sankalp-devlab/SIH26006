@@ -24,6 +24,7 @@ import {
   type ModuleCategory,
 } from './components/AnalyticsModuleCard';
 import { AnalyticsCommandCenter } from './components/AnalyticsCommandCenter';
+import { MaritimePageBackground } from '../../components/common/MaritimePageBackground';
 
 // Stylesheet
 import './analytics-hub.css';
@@ -232,7 +233,8 @@ export function AnalyticsPage() {
   }, [selectedCategory, searchQuery]);
 
   return (
-    <div className="hub-root">
+    <div className="hub-root oceanlens-operational-page-wrapper" style={{ position: 'relative' }}>
+      <MaritimePageBackground variant="market" />
       {/* 1. Hero Overview Area with KPIs */}
       <AnalyticsHubHero />
 

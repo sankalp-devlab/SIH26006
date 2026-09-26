@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import { useVessels } from '../../hooks/useVessels';
 import { usePorts } from '../../hooks/usePorts';
+import { MaritimePageBackground } from '../../components/common/MaritimePageBackground';
 import './operations.css';
 
 interface OperationModuleConfig {
@@ -198,7 +199,8 @@ export function OperationsPage() {
   }, [selectedCategory, searchQuery]);
 
   return (
-    <div className="ops-root">
+    <div className="ops-root oceanlens-operational-page-wrapper" style={{ position: 'relative' }}>
+      <MaritimePageBackground variant="operations" />
       {/* ============================================================== */}
       {/* 1. HERO COMMAND CENTER (2-COLUMN BALANCED DESKTOP LAYOUT)      */}
       {/* ============================================================== */}

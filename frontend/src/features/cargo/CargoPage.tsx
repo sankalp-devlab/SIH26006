@@ -18,6 +18,7 @@ import { CargoMaritimeOptionsModal } from './components/CargoMaritimeOptionsModa
 import { ErrorState } from '../../components/feedback/ErrorState';
 import { EmptyState } from '../../components/feedback/EmptyState';
 import { Button } from '../../components/ui/Button';
+import { MaritimePageBackground } from '../../components/common/MaritimePageBackground';
 import type { CargoRecord } from '../../types/cargo';
 
 export function CargoPage() {
@@ -104,7 +105,8 @@ export function CargoPage() {
   };
 
   return (
-    <div className="ciw-container">
+    <div className="ciw-container oceanlens-operational-page-wrapper" style={{ position: 'relative' }}>
+      <MaritimePageBackground variant="cargo" />
       {/* 1. Header Toolbar */}
       <CargoHeader
         analytics={analytics}

@@ -31,6 +31,7 @@ import { FixtureDetailDrawer } from './components/FixtureDetailDrawer';
 import { FixtureModal } from './components/FixtureModal';
 import { FixtureStatusTransitionModal } from './components/FixtureStatusTransitionModal';
 import { FixtureShareModal } from './components/FixtureShareModal';
+import { MaritimePageBackground } from '../../components/common/MaritimePageBackground';
 import type { PortNodeType, FixtureFiltersState } from '../../types/fixture';
 
 export default function FixturesPage() {
@@ -175,7 +176,8 @@ export default function FixturesPage() {
   };
 
   return (
-    <div className="cfw-container">
+    <div className="cfw-container oceanlens-operational-page-wrapper" style={{ position: 'relative' }}>
+      <MaritimePageBackground variant="commercial" />
       {/* Toast Notification Stack */}
       {toasts.length > 0 && (
         <div

@@ -46,6 +46,7 @@ import {
   DetailedVesselIntelligence,
 } from './components/VesselIntelligenceDetailPanel';
 import { MultiVesselComparisonModal } from './components/MultiVesselComparisonModal';
+import { MaritimePageBackground } from '../../components/common/MaritimePageBackground';
 import type { Port } from '../../types/port';
 import type { Vessel } from '../../types/vessel';
 import type {
@@ -770,7 +771,8 @@ export const VesselBookingIntelligencePage: React.FC = () => {
   }, [feasibleVessels, comparisonPool]);
 
   return (
-    <div className="ciw-container" style={{ padding: '1.5rem 2rem', maxWidth: '1440px', margin: '0 auto', boxSizing: 'border-box' }}>
+    <div className="ciw-container oceanlens-operational-page-wrapper" style={{ padding: '1.5rem 2rem', maxWidth: '1440px', margin: '0 auto', boxSizing: 'border-box' }}>
+      <MaritimePageBackground variant="vessel" />
 
       {/* MODULE HEADER BAR */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem' }}>

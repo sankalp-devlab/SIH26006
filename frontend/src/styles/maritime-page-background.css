@@ -1,0 +1,137 @@
+/* ==========================================================================
+   OCEANLENS MARITIME PAGE BACKGROUND SYSTEM
+   Subtle contextual maritime environmental background for operational pages
+   Strictly excluded from Dashboard / Global Control Center
+   ========================================================================== */
+
+.maritime-page-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+  overflow: hidden;
+  contain: strict;
+  /* Default ambient prominence: 14% */
+  --maritime-bg-opacity: 0.15;
+  --maritime-bg-position: center center;
+}
+
+/* 1. Desaturated, Low-Contrast Maritime Context Image Layer */
+.maritime-page-bg__photo {
+  position: absolute;
+  inset: -8px;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: var(--maritime-bg-position);
+  opacity: var(--maritime-bg-opacity);
+  filter: contrast(1.1) saturate(0.85) brightness(0.85);
+  will-change: opacity;
+  transform: translateZ(0);
+}
+
+/* Variant-specific positioning */
+.maritime-page-bg--vessel .maritime-page-bg__photo {
+  background-position: 75% 28%;
+}
+
+.maritime-page-bg--port .maritime-page-bg__photo {
+  background-position: center 38%;
+}
+
+.maritime-page-bg--voyage .maritime-page-bg__photo {
+  background-position: center 32%;
+}
+
+.maritime-page-bg--cargo .maritime-page-bg__photo {
+  background-position: 32% center;
+}
+
+.maritime-page-bg--operations .maritime-page-bg__photo,
+.maritime-page-bg--alert .maritime-page-bg__photo {
+  background-position: right 45%;
+}
+
+.maritime-page-bg--market .maritime-page-bg__photo,
+.maritime-page-bg--commercial .maritime-page-bg__photo {
+  background-position: center 35%;
+}
+
+/* 2. Deep Navy Readability Overlay */
+/* Ensures text, tables, KPIs and forms always maintain enterprise contrast */
+.maritime-page-bg__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    180deg,
+    rgba(2, 10, 18, 0.78) 0%,
+    rgba(2, 10, 18, 0.88) 45%,
+    rgba(2, 10, 18, 0.95) 85%,
+    #020a12 100%
+  );
+}
+
+/* 3. Horizontal Directional Vignette */
+/* Preserves high contrast on left navigation/sidebar edge and outer margins */
+.maritime-page-bg__gradient-h {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: linear-gradient(
+    to right,
+    rgba(2, 10, 18, 0.92) 0%,
+    rgba(2, 10, 18, 0.7) 20%,
+    rgba(2, 10, 18, 0.5) 50%,
+    rgba(2, 10, 18, 0.72) 80%,
+    rgba(2, 10, 18, 0.94) 100%
+  );
+}
+
+/* 4. Peripheral Cinematic Vignette */
+.maritime-page-bg__vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  background: radial-gradient(
+    ellipse 90% 75% at 50% 40%,
+    transparent 45%,
+    rgba(2, 10, 18, 0.55) 75%,
+    rgba(2, 10, 18, 0.92) 100%
+  );
+}
+
+/* 5. Micro Telemetry Mesh Overlay */
+.maritime-page-bg__grid {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  background-image:
+    linear-gradient(to right, rgba(56, 189, 248, 0.015) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(56, 189, 248, 0.015) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse at 50% 40%, rgba(0, 0, 0, 0.4) 20%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse at 50% 40%, rgba(0, 0, 0, 0.4) 20%, transparent 80%);
+}
+
+/* ==========================================================================
+   PAGE WRAPPER INTEGRATION ASSURANCE
+   Ensure pages using the background render content above the background layer
+   ========================================================================== */
+
+.oceanlens-operational-page-wrapper {
+  position: relative;
+  z-index: 1;
+}
+
+/* Mobile Responsiveness: Further darken to guarantee maximum readability */
+@media (max-width: 768px) {
+  .maritime-page-bg {
+    --maritime-bg-opacity: 0.08 !important;
+  }
+}

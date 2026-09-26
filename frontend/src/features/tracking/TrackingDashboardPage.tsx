@@ -28,6 +28,7 @@ import type {
 import { TrackingMap } from './components/TrackingMap';
 import { VesselTrackingDrawer } from './components/VesselTrackingDrawer';
 import { TrackingTelemetryIngestModal } from './components/TrackingTelemetryIngestModal';
+import { MaritimePageBackground } from '../../components/common/MaritimePageBackground';
 
 export const TrackingDashboardPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -147,7 +148,8 @@ export const TrackingDashboardPage: React.FC = () => {
   const selectedHistory: PositionObservation[] = vesselDetail?.position_history || [];
 
   return (
-    <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem', height: 'calc(100vh - 60px)', overflow: 'hidden' }}>
+    <div className="oceanlens-operational-page-wrapper" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem', height: 'calc(100vh - 60px)', overflow: 'hidden', position: 'relative' }}>
+      <MaritimePageBackground variant="operations" />
       {/* Top Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>

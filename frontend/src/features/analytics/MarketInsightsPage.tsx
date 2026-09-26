@@ -23,6 +23,7 @@ import {
   IntelligenceCommandBar,
   ErrorState,
 } from '../../components/intelligence';
+import { MaritimePageBackground } from '../../components/common/MaritimePageBackground';
 import { MarketSignalsCard } from './market/components/MarketSignalsCard';
 import { MarketOverviewTab } from './market/components/MarketOverviewTab';
 import { MarketSupplyTab } from './market/components/MarketSupplyTab';
@@ -133,7 +134,8 @@ export default function MarketInsightsPage() {
   const freightDetail = workspace?.selectedRoute?.freight || workspace?.routes[0]?.freight;
 
   return (
-    <div className="mi-dashboard-container oceanlens-master-container">
+    <div className="mi-dashboard-container oceanlens-master-container oceanlens-operational-page-wrapper" style={{ position: 'relative' }}>
+      <MaritimePageBackground variant="market" />
       {/* 1. Standardized Intelligence Page Header */}
       <IntelligencePageHeader
         moduleBadge="M5"
