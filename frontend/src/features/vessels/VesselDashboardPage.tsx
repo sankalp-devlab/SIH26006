@@ -17,7 +17,6 @@ import { SanctionsTab } from './components/tabs/SanctionsTab';
 import { EmissionsTab } from './components/tabs/EmissionsTab';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { ErrorState } from '../../components/feedback/ErrorState';
-import { MaritimePageBackground } from '../../components/common/MaritimePageBackground';
 
 const VALID_TABS: VesselDashboardTab[] = [
   'overview',
@@ -106,8 +105,7 @@ export function VesselDashboardPage() {
   }
 
   return (
-    <div className="vdb-page-container oceanlens-operational-page-wrapper" style={{ position: 'relative' }}>
-      <MaritimePageBackground variant="vessel" />
+    <div className="vdb-page-container">
       {/* 1. PERSISTENT VESSEL HEADER WITH TELEMETRY & ACTIONS */}
       <VesselHeader data={enriched} />
 

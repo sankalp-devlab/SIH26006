@@ -22,7 +22,6 @@ import { ErrorState } from '../../components/feedback/ErrorState';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { ExportButton } from '../../components/export';
 import { VesselProfileDrawer } from './components/VesselProfileDrawer';
-import { MaritimePageBackground } from '../../components/common/MaritimePageBackground';
 import type { Vessel } from '../../types/vessel';
 import type { VesselFilters, VesselSortField, SortDirection, VesselStatusFilter } from '../../types/vessel-filters';
 import { DEFAULT_VESSEL_FILTERS, DEFAULT_VESSEL_SORT } from '../../types/vessel-filters';
@@ -291,8 +290,7 @@ export function VesselsPage() {
   };
 
   return (
-    <div className="vr-workspace oceanlens-operational-page-wrapper" style={{ position: 'relative' }}>
-      <MaritimePageBackground variant="vessel" />
+    <div className="vr-workspace">
       {/* 2. PAGE HEADER (Requirement 2) */}
       <header className="vr-header">
         <div className="vr-header-left">

@@ -39,7 +39,6 @@ import { ExcelAnalyticsModal } from '../../components/excel';
 import { ProvenanceBadge } from '../../components/provenance';
 import type { ExportColumnDefinition } from '../../types/export-sharing';
 import type { QueryMode, MaritimeDatasetEntity } from '../../types/data-query';
-import { MaritimePageBackground } from '../../components/common/MaritimePageBackground';
 
 export default function DataQueryPage() {
   const navigate = useNavigate();
@@ -119,8 +118,7 @@ export default function DataQueryPage() {
       : response.pivotResult?.rowKeys?.length || 0;
 
   return (
-    <div className="oceanlens-master-container oceanlens-operational-page-wrapper" style={{ position: 'relative' }}>
-      <MaritimePageBackground variant="operations" />
+    <div className="oceanlens-master-container">
       {/* Toast Notification Banner */}
       {toastMessage && (
         <div

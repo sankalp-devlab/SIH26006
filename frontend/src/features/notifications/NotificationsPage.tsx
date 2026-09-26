@@ -28,7 +28,6 @@ import {
 } from 'lucide-react';
 import { useNotifications } from '../../hooks/useNotifications';
 import { NotificationService } from '../../services/notifications/notification.service';
-import { MaritimePageBackground } from '../../components/common/MaritimePageBackground';
 import type { MaritimeNotification, NotificationSeverity } from '../../types/notification';
 
 export const NotificationsPage: React.FC = () => {
@@ -184,8 +183,7 @@ export const NotificationsPage: React.FC = () => {
   };
 
   return (
-    <div className="oceanlens-operational-page-wrapper p-4 sm:p-6 max-w-7xl mx-auto space-y-5 text-slate-200" style={{ position: 'relative' }}>
-      <MaritimePageBackground variant="alert" />
+    <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-5 text-slate-200">
       {/* ============================================================== */}
       {/* 1. OPERATIONAL CONTROL CENTER HEADER                           */}
       {/* ============================================================== */}

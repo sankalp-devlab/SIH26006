@@ -27,7 +27,6 @@ import { Select } from '../../components/ui/Select';
 import { DataTable, type Column } from '../../components/data-display/DataTable';
 import { StatusBadge } from '../../components/data-display/StatusBadge';
 import { ErrorState } from '../../components/feedback/ErrorState';
-import { MaritimePageBackground } from '../../components/common/MaritimePageBackground';
 import { EmptyState } from '../../components/feedback/EmptyState';
 import { Card, CardHeader, CardBody } from '../../components/ui/Card';
 import { RouteMapViewer } from './components/RouteMapViewer';
@@ -293,8 +292,7 @@ export function RoutesPage() {
   ];
 
   return (
-    <div className="oceanlens-operational-page-wrapper" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', position: 'relative' }}>
-      <MaritimePageBackground variant="voyage" />
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       {/* Top Header */}
       <div className="page-header" style={{ marginBottom: 0 }}>
         <div>

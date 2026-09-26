@@ -26,7 +26,6 @@ import {
   IntelligenceTabs,
   ErrorState,
 } from '../../components/intelligence';
-import { MaritimePageBackground } from '../../components/common/MaritimePageBackground';
 import { FleetDeploymentMap } from './fleets/components/FleetDeploymentMap';
 import { FleetCompositionTab } from './fleets/components/FleetCompositionTab';
 import { FleetRegionalTab } from './fleets/components/FleetRegionalTab';
@@ -181,8 +180,7 @@ export default function FleetsPage() {
     Boolean(filters.search);
 
   return (
-    <div className="fi-dashboard-container oceanlens-master-container oceanlens-operational-page-wrapper" style={{ position: 'relative' }}>
-      <MaritimePageBackground variant="vessel" />
+    <div className="fi-dashboard-container oceanlens-master-container">
       {/* 0. Top Navigation & Telemetry Row */}
       <div className="fi-top-breadcrumb-row">
         <a href="/analytics" className="fi-back-btn">

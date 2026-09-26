@@ -32,7 +32,6 @@ import {
   IntelligenceKpiCard,
   IntelligenceTabs,
 } from '../../components/intelligence';
-import { MaritimePageBackground } from '../../components/common/MaritimePageBackground';
 
 import { VesselIdentityCard } from './valuations/components/VesselIdentityCard';
 import { ValuationCenterpiece } from './valuations/components/ValuationCenterpiece';
@@ -122,8 +121,7 @@ export default function ValuationsPage() {
   const isFavorite = favoriteVesselIds.includes(selectedVesselId);
 
   return (
-    <div className="oceanlens-master-container oceanlens-operational-page-wrapper" style={{ position: 'relative' }}>
-      <MaritimePageBackground variant="commercial" />
+    <div className="oceanlens-master-container">
       {/* 1. Standardized Intelligence Page Header */}
       <IntelligencePageHeader
         moduleBadge="M22"

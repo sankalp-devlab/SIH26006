@@ -27,7 +27,6 @@ import { GlobalPortsDirectoryModal } from './components/GlobalPortsDirectoryModa
 import { ErrorState } from '../../components/feedback/ErrorState';
 import { EmptyState } from '../../components/feedback/EmptyState';
 import { Button } from '../../components/ui/Button';
-import { MaritimePageBackground } from '../../components/common/MaritimePageBackground';
 
 export function PortsPage() {
   const {
@@ -99,8 +98,7 @@ export function PortsPage() {
   ];
 
   return (
-    <div className="piw-container oceanlens-operational-page-wrapper" style={{ position: 'relative' }}>
-      <MaritimePageBackground variant="port" />
+    <div className="piw-container">
       {/* 1. Workspace Header (Port Identity, Time Range, Controls, Workflows) */}
       <PortInsightsHeader
         ports={ports}

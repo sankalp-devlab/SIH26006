@@ -26,7 +26,6 @@ import {
   Trash2,
 } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
-import { MaritimePageBackground } from '../../components/common/MaritimePageBackground';
 import { bookingService } from '../../services/api/booking.service';
 import type { BookingRecord, BookingStatus } from '../../types/booking';
 
@@ -172,8 +171,7 @@ export const BookingsPage: React.FC = () => {
   };
 
   return (
-    <div className="oceanlens-operational-page-wrapper" style={{ padding: '1.75rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', position: 'relative' }}>
-      <MaritimePageBackground variant="commercial" />
+    <div style={{ padding: '1.75rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       {/* Top Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
