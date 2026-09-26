@@ -1,6 +1,6 @@
 /**
  * SIH 26006 Maritime Intelligence Platform
- * Module: Fleet Operations & Corridor Navigation (/operations)
+ * Module 29: Fleet Operations & Corridor Navigation (/operations)
  * Premium Maritime Operations Command Center
  */
 
@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import { useVessels } from '../../hooks/useVessels';
 import { usePorts } from '../../hooks/usePorts';
+import './operations.css';
 
 interface OperationModuleConfig {
   id: string;
@@ -53,7 +54,7 @@ const MODULES: OperationModuleConfig[] = [
     route: '/vessels',
     icon: Ship,
     metrics: ['Fleet Registry', 'DWT Specifications', 'AIS Telemetry'],
-    cta: 'Open Vessels Register',
+    cta: 'Open Vessels Register →',
     tier: 'primary',
     category: 'CORE',
     status: 'LIVE',
@@ -66,7 +67,7 @@ const MODULES: OperationModuleConfig[] = [
     route: '/voyages',
     icon: Route,
     metrics: ['Active Voyages', 'Transit Schedules', 'Corridor Waypoints'],
-    cta: 'Track Voyages',
+    cta: 'Track Voyages →',
     tier: 'primary',
     category: 'NAVIGATION',
     status: 'LIVE',
@@ -79,7 +80,7 @@ const MODULES: OperationModuleConfig[] = [
     route: '/ports',
     icon: Anchor,
     metrics: ['UN/LOCODE Ports', 'Draft Clearances', 'Terminal Facilities'],
-    cta: 'Inspect Seaports',
+    cta: 'Inspect Seaports →',
     tier: 'primary',
     category: 'CORE',
     status: 'DATA',
@@ -92,7 +93,7 @@ const MODULES: OperationModuleConfig[] = [
     route: '/routes',
     icon: Navigation,
     metrics: ['Corridor Optimization', 'Suez / Panama', 'Chokepoints'],
-    cta: 'Explore Maritime Routes',
+    cta: 'Explore Maritime Routes →',
     tier: 'secondary',
     category: 'NAVIGATION',
     status: 'READY',
@@ -105,7 +106,7 @@ const MODULES: OperationModuleConfig[] = [
     route: '/fixtures',
     icon: FileText,
     metrics: ['Charter Parties', 'Spot Contracts', 'Rate Archives'],
-    cta: 'Review Fixtures',
+    cta: 'Review Fixtures →',
     tier: 'secondary',
     category: 'CHARTER',
     status: 'DATA',
@@ -118,7 +119,7 @@ const MODULES: OperationModuleConfig[] = [
     route: '/voyage-calculator',
     icon: Calculator,
     metrics: ['Bunker Fuel MT', 'TCE Calculator', 'Operating Margins'],
-    cta: 'Calculate Voyage Economics',
+    cta: 'Calculate Voyage Economics →',
     tier: 'secondary',
     category: 'CHARTER',
     status: 'READY',
@@ -131,7 +132,7 @@ const MODULES: OperationModuleConfig[] = [
     route: '/distance-calculator',
     icon: Ruler,
     metrics: ['Nautical Miles (NM)', 'Canal Waypoints', 'Transit Matrices'],
-    cta: 'Compute Nautical Distance',
+    cta: 'Compute Nautical Distance →',
     tier: 'secondary',
     category: 'NAVIGATION',
     status: 'READY',
@@ -144,7 +145,7 @@ const MODULES: OperationModuleConfig[] = [
     route: '/cargo',
     icon: Package,
     metrics: ['Consignment Manifests', 'Metric Tons', 'Stowage Profiles'],
-    cta: 'Manage Cargo',
+    cta: 'Manage Cargo →',
     tier: 'secondary',
     category: 'CARGO',
     status: 'DATA',
@@ -197,200 +198,155 @@ export function OperationsPage() {
   }, [selectedCategory, searchQuery]);
 
   return (
-    <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-5 text-slate-200">
+    <div className="ops-root">
       {/* ============================================================== */}
-      {/* 1. HERO / COMMAND CENTER HEADER (2-COLUMN BALANCED LAYOUT)     */}
+      {/* 1. HERO COMMAND CENTER (2-COLUMN BALANCED DESKTOP LAYOUT)      */}
       {/* ============================================================== */}
-      <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#061527] via-[#091d36] to-[#040e1b] border border-cyan-500/25 p-5 sm:p-6 shadow-2xl">
-        {/* Subtle Accent Glow Line */}
-        <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-cyan-400 via-blue-500 to-transparent" />
-
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
-          {/* Left Column (~65% width on desktop) */}
-          <div className="lg:col-span-8 space-y-3.5">
-            {/* Eyebrow */}
-            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-cyan-950/60 border border-cyan-500/30 text-cyan-300">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
-              </span>
-              <span className="text-[10px] font-mono font-bold tracking-widest uppercase">
-                Maritime Operations Command Hub
-              </span>
+      <div className="ops-hero">
+        <div className="ops-hero-grid">
+          {/* Left Column (~65% width) */}
+          <div className="ops-hero-left">
+            <div className="ops-hero-eyebrow ops-mono">
+              <span className="ops-live-dot" />
+              <span>MARITIME OPERATIONS COMMAND HUB</span>
             </div>
 
-            {/* Title & Subtitle */}
-            <div>
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-white tracking-tight uppercase font-mono">
-                Fleet Operations &amp; Corridor Navigation
-              </h1>
-              <p className="text-xs sm:text-sm text-slate-300/90 max-w-2xl leading-relaxed mt-1">
-                Unified operational interface for fleet monitoring, voyages, ports, charter fixtures, cargo and navigational routing.
-              </p>
-            </div>
+            <h1 className="ops-hero-title">Fleet Operations &amp; Corridor Navigation</h1>
+            <p className="ops-hero-desc">
+              Unified operational interface for fleet monitoring, voyages, ports, charter fixtures, cargo and navigational routing.
+            </p>
 
-            {/* Primary Action Buttons (Semantic Hierarchy) */}
-            <div className="flex items-center gap-2.5 flex-wrap pt-1">
-              {/* Primary: Booking Intelligence */}
-              <Link
-                to="/vessel-intelligence"
-                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/35 hover:border-cyan-400 text-xs font-semibold font-mono transition-all shadow-sm shadow-cyan-950/50 group"
-              >
-                <Sparkles size={14} className="text-cyan-400 group-hover:scale-110 transition-transform" />
+            {/* Primary Operations Actions (Booking Intelligence, Bookings, Tracking) */}
+            <div className="ops-actions">
+              <Link to="/vessel-intelligence" className="ops-action-btn ops-action-btn-cyan ops-mono">
+                <Sparkles size={14} />
                 <span>Booking Intelligence</span>
-                <ArrowRight size={12} className="text-cyan-400/80 group-hover:translate-x-0.5 transition-transform" />
+                <ArrowRight size={12} />
               </Link>
-
-              {/* Secondary: Commercial Bookings */}
-              <Link
-                to="/bookings"
-                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/35 hover:border-emerald-400 text-xs font-semibold font-mono transition-all shadow-sm shadow-emerald-950/50 group"
-              >
-                <BookmarkCheck size={14} className="text-emerald-400 group-hover:scale-110 transition-transform" />
+              <Link to="/bookings" className="ops-action-btn ops-action-btn-green ops-mono">
+                <BookmarkCheck size={14} />
                 <span>Commercial Bookings</span>
-                <ArrowRight size={12} className="text-emerald-400/80 group-hover:translate-x-0.5 transition-transform" />
+                <ArrowRight size={12} />
               </Link>
-
-              {/* Tertiary: Live Vessel Tracking */}
-              <Link
-                to="/tracking"
-                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/35 hover:border-amber-400 text-xs font-semibold font-mono transition-all shadow-sm shadow-amber-950/50 group"
-              >
-                <Radio size={14} className="text-amber-400 animate-pulse" />
+              <Link to="/tracking" className="ops-action-btn ops-action-btn-amber ops-mono">
+                <Radio size={14} />
                 <span>Live Vessel Tracking</span>
-                <ArrowRight size={12} className="text-amber-400/80 group-hover:translate-x-0.5 transition-transform" />
+                <ArrowRight size={12} />
               </Link>
             </div>
           </div>
 
-          {/* Right Column (~35% width on desktop: Compact Operations Status Panel) */}
-          <div className="lg:col-span-4">
-            <div className="rounded-xl bg-slate-950/75 border border-slate-800/90 p-4 space-y-3.5 shadow-lg">
-              {/* Header Status Row */}
-              <div className="flex items-center justify-between border-b border-slate-800/80 pb-2.5">
-                <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider">
-                  Operations Status
-                </span>
-                <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-[10px] font-mono font-bold flex items-center gap-1.5 shadow-sm">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  ONLINE
-                </span>
-              </div>
+          {/* Right Column (~35% width): Compact Operations Status Panel */}
+          <div className="ops-status-panel">
+            <div className="ops-status-header">
+              <span className="ops-status-label ops-mono">OPERATIONS STATUS</span>
+              <span className="ops-status-badge ops-mono">
+                <span className="ops-status-pulse" />
+                ONLINE
+              </span>
+            </div>
 
-              {/* Sub-Indicator */}
-              <div className="flex items-center justify-between text-xs font-mono">
-                <span className="text-slate-400">AIS &amp; Decision Engine</span>
-                <span className="text-emerald-400 font-bold tracking-wider">SYNCHRONIZED</span>
-              </div>
+            <div className="ops-status-subline ops-mono">
+              <span>AIS &amp; Decision Engine</span>
+              <span className="ops-status-subval">SYNCHRONIZED</span>
+            </div>
 
-              {/* Mini Metrics Row */}
-              <div className="grid grid-cols-3 gap-2 pt-1 border-t border-slate-800/60 text-center font-mono">
-                <div className="bg-slate-900/80 rounded-lg p-2 border border-slate-800/70">
-                  <span className="text-[9px] text-slate-400 block uppercase">Fleet</span>
-                  <span className="text-sm font-bold text-white mt-0.5 block">{registeredFleetCount}</span>
-                </div>
-                <div className="bg-slate-900/80 rounded-lg p-2 border border-slate-800/70">
-                  <span className="text-[9px] text-slate-400 block uppercase">Ports</span>
-                  <span className="text-sm font-bold text-white mt-0.5 block">{deepwaterPortsCount}</span>
-                </div>
-                <div className="bg-slate-900/80 rounded-lg p-2 border border-slate-800/70">
-                  <span className="text-[9px] text-slate-400 block uppercase">Corridors</span>
-                  <span className="text-sm font-bold text-cyan-400 mt-0.5 block">14+</span>
-                </div>
+            <div className="ops-status-mini-row ops-mono">
+              <div className="ops-status-mini-tile">
+                <span className="ops-status-mini-label">FLEET</span>
+                <span className="ops-status-mini-val">{registeredFleetCount}</span>
+              </div>
+              <div className="ops-status-mini-tile">
+                <span className="ops-status-mini-label">PORTS</span>
+                <span className="ops-status-mini-val">{deepwaterPortsCount}</span>
+              </div>
+              <div className="ops-status-mini-tile">
+                <span className="ops-status-mini-label">CORRIDORS</span>
+                <span className="ops-status-mini-val" style={{ color: '#00d8ff' }}>14+</span>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ============================================================== */}
-      {/* 2. OPERATIONAL STATISTICS KPI STRIP (4 HORIZONTAL COLUMNS)     */}
-      {/* ============================================================== */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-        {/* KPI 1: REGISTERED FLEET */}
-        <div className="relative overflow-hidden rounded-xl bg-slate-900/90 border border-slate-800/80 p-3.5 shadow-sm hover:border-cyan-500/40 transition-all">
-          <div className="absolute top-0 left-0 right-0 h-[2px] bg-cyan-500" />
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider font-mono">
-              Registered Fleet
-            </span>
-            <div className="p-1.5 rounded-md bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
-              <Ship size={13} className="text-cyan-400" />
-            </div>
-          </div>
-          <div className="text-2xl font-bold font-mono text-white mt-1.5 tracking-tight">
-            {registeredFleetCount}
-          </div>
-          <div className="text-[11px] text-slate-400 mt-1 font-mono">
-            Active commercial vessels
-          </div>
-        </div>
-
-        {/* KPI 2: DEEPWATER SEAPORTS */}
-        <div className="relative overflow-hidden rounded-xl bg-slate-900/90 border border-slate-800/80 p-3.5 shadow-sm hover:border-cyan-500/40 transition-all">
-          <div className="absolute top-0 left-0 right-0 h-[2px] bg-cyan-500" />
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider font-mono">
-              Deepwater Seaports
-            </span>
-            <div className="p-1.5 rounded-md bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
-              <Anchor size={13} className="text-cyan-400" />
-            </div>
-          </div>
-          <div className="text-2xl font-bold font-mono text-white mt-1.5 tracking-tight">
-            {deepwaterPortsCount}
-          </div>
-          <div className="text-[11px] text-slate-400 mt-1 font-mono">
-            International terminal entries
-          </div>
-        </div>
-
-        {/* KPI 3: NAVIGATIONAL CORRIDORS */}
-        <div className="relative overflow-hidden rounded-xl bg-slate-900/90 border border-slate-800/80 p-3.5 shadow-sm hover:border-amber-500/40 transition-all">
-          <div className="absolute top-0 left-0 right-0 h-[2px] bg-amber-400" />
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider font-mono">
-              Navigational Corridors
-            </span>
-            <div className="p-1.5 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/20">
-              <Navigation size={13} className="text-amber-400" />
-            </div>
-          </div>
-          <div className="text-2xl font-bold font-mono text-amber-400 mt-1.5 tracking-tight">
-            14+
-          </div>
-          <div className="text-[11px] text-slate-400 mt-1 font-mono">
-            Geodesic &amp; chokepoints
-          </div>
-        </div>
-
-        {/* KPI 4: OPERATIONS STATUS */}
-        <div className="relative overflow-hidden rounded-xl bg-slate-900/90 border border-slate-800/80 p-3.5 shadow-sm hover:border-emerald-500/40 transition-all">
-          <div className="absolute top-0 left-0 right-0 h-[2px] bg-emerald-500" />
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider font-mono">
-              Operations Status
-            </span>
-            <div className="p-1.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-              <Activity size={13} className="text-emerald-400" />
-            </div>
-          </div>
-          <div className="text-2xl font-bold font-mono text-emerald-400 mt-1.5 tracking-tight flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span>ONLINE</span>
-          </div>
-          <div className="text-[11px] text-slate-400 mt-1 font-mono">
-            AIS &amp; Decision Engine synced
           </div>
         </div>
       </div>
 
       {/* ============================================================== */}
-      {/* 3. CATEGORY NAVIGATION + SEARCH TOOLBAR (UNIFIED SINGLE ROW)   */}
+      {/* 2. OPERATIONAL STATISTICS KPI STRIP (4-COLUMN HORIZONTAL GRID) */}
       {/* ============================================================== */}
-      <div className="rounded-xl bg-slate-900/80 border border-slate-800/90 p-2.5 flex flex-col md:flex-row md:items-center md:justify-between gap-3 shadow-md">
+      <div className="ops-kpi-strip">
+        {/* KPI 1: REGISTERED FLEET */}
+        <div className="ops-kpi-card ops-kpi-card-cyan">
+          <div className="ops-kpi-header">
+            <span className="ops-kpi-label ops-mono">REGISTERED FLEET</span>
+            <div className="ops-kpi-icon-wrap">
+              <Ship size={14} />
+            </div>
+          </div>
+          <div className="ops-kpi-val ops-mono">{registeredFleetCount}</div>
+          <div className="ops-kpi-sub ops-mono">Active commercial vessels</div>
+        </div>
+
+        {/* KPI 2: DEEPWATER SEAPORTS */}
+        <div className="ops-kpi-card ops-kpi-card-cyan">
+          <div className="ops-kpi-header">
+            <span className="ops-kpi-label ops-mono">DEEPWATER SEAPORTS</span>
+            <div className="ops-kpi-icon-wrap">
+              <Anchor size={14} />
+            </div>
+          </div>
+          <div className="ops-kpi-val ops-mono">{deepwaterPortsCount}</div>
+          <div className="ops-kpi-sub ops-mono">International terminal entries</div>
+        </div>
+
+        {/* KPI 3: NAVIGATIONAL CORRIDORS */}
+        <div className="ops-kpi-card ops-kpi-card-amber">
+          <div className="ops-kpi-header">
+            <span className="ops-kpi-label ops-mono">NAVIGATIONAL CORRIDORS</span>
+            <div
+              className="ops-kpi-icon-wrap"
+              style={{
+                color: '#f59e0b',
+                borderColor: 'rgba(245, 158, 11, 0.3)',
+                background: 'rgba(245, 158, 11, 0.1)',
+              }}
+            >
+              <Navigation size={14} />
+            </div>
+          </div>
+          <div className="ops-kpi-val ops-mono" style={{ color: '#f59e0b' }}>
+            14+
+          </div>
+          <div className="ops-kpi-sub ops-mono">Geodesic &amp; chokepoints</div>
+        </div>
+
+        {/* KPI 4: OPERATIONS STATUS */}
+        <div className="ops-kpi-card ops-kpi-card-green">
+          <div className="ops-kpi-header">
+            <span className="ops-kpi-label ops-mono">OPERATIONS STATUS</span>
+            <div
+              className="ops-kpi-icon-wrap"
+              style={{
+                color: '#10b981',
+                borderColor: 'rgba(16, 185, 129, 0.3)',
+                background: 'rgba(16, 185, 129, 0.1)',
+              }}
+            >
+              <Activity size={14} />
+            </div>
+          </div>
+          <div className="ops-kpi-val ops-kpi-val-green ops-mono">
+            <span className="ops-status-pulse" />
+            <span>ONLINE</span>
+          </div>
+          <div className="ops-kpi-sub ops-mono">AIS &amp; Decision Engine synced</div>
+        </div>
+      </div>
+
+      {/* ============================================================== */}
+      {/* 3. CATEGORY NAVIGATION + SEARCH TOOLBAR (SINGLE UNIFIED ROW)   */}
+      {/* ============================================================== */}
+      <div className="ops-toolbar">
         {/* Segmented Category Tabs */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
+        <div className="ops-tabs">
           {CATEGORY_TABS.map((tab) => {
             const Icon = tab.icon;
             const isActive = selectedCategory === tab.key;
@@ -399,13 +355,9 @@ export function OperationsPage() {
                 key={tab.key}
                 type="button"
                 onClick={() => setSelectedCategory(tab.key)}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono font-semibold transition-all whitespace-nowrap cursor-pointer ${
-                  isActive
-                    ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/45 shadow-sm shadow-cyan-950/60'
-                    : 'bg-slate-950/70 hover:bg-slate-800/80 text-slate-400 hover:text-slate-200 border border-slate-800/80'
-                }`}
+                className={`ops-tab-btn ops-mono ${isActive ? 'active' : ''}`}
               >
-                <Icon size={12} className={isActive ? 'text-cyan-400' : 'text-slate-400'} />
+                <Icon size={12} />
                 <span>{tab.label}</span>
               </button>
             );
@@ -413,22 +365,23 @@ export function OperationsPage() {
         </div>
 
         {/* Compact Search Bar */}
-        <div className="relative w-full md:w-72 flex-shrink-0">
-          <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+        <div className="ops-search-wrap">
+          <Search size={14} className="ops-search-icon" />
           <input
             type="text"
             placeholder="Search operational tools..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-slate-950/90 border border-slate-800 rounded-lg pl-8 pr-7 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/80 focus:ring-1 focus:ring-cyan-500/30 transition-all font-mono"
+            className="ops-search-input ops-mono"
           />
           {searchQuery && (
             <button
               type="button"
               onClick={() => setSearchQuery('')}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 p-0.5"
+              className="ops-search-clear"
+              title="Clear search"
             >
-              <X size={12} />
+              <X size={13} />
             </button>
           )}
         </div>
@@ -437,19 +390,15 @@ export function OperationsPage() {
       {/* ============================================================== */}
       {/* 4. OPERATIONAL MODULES & TOOLS HEADER                          */}
       {/* ============================================================== */}
-      <div className="flex items-center justify-between border-b border-slate-800/80 pb-3 pt-1">
-        <div className="flex items-center gap-2.5">
-          <div className="p-1 rounded-md bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
-            <LayoutGrid size={14} />
-          </div>
-          <h2 className="text-sm font-bold text-white uppercase tracking-wider font-mono flex items-center gap-2">
-            <span>Operational Modules &amp; Tools</span>
-            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-300 border border-cyan-500/25">
-              {filteredModules.length} WORKSPACES
-            </span>
-          </h2>
-        </div>
-        <span className="text-xs text-slate-400 font-mono hidden sm:inline">
+      <div className="ops-section-header">
+        <h2 className="ops-section-title ops-mono">
+          <LayoutGrid size={15} color="#00d8ff" />
+          <span>OPERATIONAL MODULES &amp; TOOLS</span>
+          <span className="ops-section-badge ops-mono">
+            {filteredModules.length} WORKSPACES
+          </span>
+        </h2>
+        <span className="ops-section-sub ops-mono">
           Select an operational workspace to launch tools
         </span>
       </div>
@@ -458,14 +407,12 @@ export function OperationsPage() {
       {/* 5. MODULE CARD GRID (3-COLUMN RESPONSIVE LAYOUT)               */}
       {/* ============================================================== */}
       {filteredModules.length === 0 ? (
-        <div className="rounded-xl bg-slate-900/60 border border-slate-800 p-12 text-center flex flex-col items-center justify-center space-y-3">
-          <div className="p-3.5 rounded-2xl bg-slate-800/50 border border-slate-700/50 text-slate-400">
-            <Search size={24} />
+        <div className="ops-empty-state">
+          <div className="ops-empty-icon">
+            <Search size={22} />
           </div>
-          <h3 className="text-sm font-bold text-slate-200 uppercase tracking-wider font-mono">
-            No Operational Workspaces Found
-          </h3>
-          <p className="text-xs text-slate-400 max-w-sm">
+          <h3 className="ops-empty-title ops-mono">No Operational Workspaces Found</h3>
+          <p className="ops-empty-desc">
             No operational modules match your current filter or search criteria.
           </p>
           <button
@@ -474,74 +421,64 @@ export function OperationsPage() {
               setSelectedCategory('ALL');
               setSearchQuery('');
             }}
-            className="px-3.5 py-1.5 rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/30 text-xs font-semibold font-mono flex items-center gap-1.5 transition-colors"
+            className="ops-empty-reset-btn ops-mono"
           >
             <RotateCcw size={12} />
             <span>Reset Filters</span>
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="ops-card-grid">
           {filteredModules.map((module) => {
             const Icon = module.icon;
+            const statusClass =
+              module.status === 'LIVE'
+                ? 'ops-card-status-live'
+                : module.status === 'READY'
+                ? 'ops-card-status-ready'
+                : 'ops-card-status-data';
+
             return (
               <Link
                 key={module.id}
                 to={module.route}
-                className="group flex flex-col justify-between rounded-xl bg-slate-900/85 hover:bg-[#0c1e36] border border-slate-800/80 hover:border-cyan-500/40 p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-cyan-950/30"
+                className="ops-card"
                 title={`Launch ${module.title}`}
               >
-                <div className="space-y-3">
+                <div>
                   {/* Card Header: Icon, Badge & Status */}
-                  <div className="flex items-center justify-between">
-                    <div className="w-9 h-9 rounded-lg bg-cyan-950/50 border border-cyan-500/25 text-cyan-400 flex items-center justify-center group-hover:scale-105 group-hover:border-cyan-400 transition-all">
+                  <div className="ops-card-top">
+                    <div className="ops-card-icon-wrap">
                       <Icon size={18} />
                     </div>
-                    <div className="flex items-center gap-1.5 font-mono text-[10px]">
-                      <span className="px-1.5 py-0.5 rounded bg-slate-950/80 text-cyan-300 border border-slate-800 font-bold">
-                        {module.badge}
-                      </span>
-                      <span
-                        className={`px-1.5 py-0.5 rounded font-bold border ${
-                          module.status === 'LIVE'
-                            ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
-                            : module.status === 'READY'
-                            ? 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30'
-                            : 'bg-slate-800 text-slate-300 border-slate-700'
-                        }`}
-                      >
+                    <div className="ops-card-badges ops-mono">
+                      <span className="ops-card-badge">{module.badge}</span>
+                      <span className={`ops-card-status ${statusClass}`}>
                         ● {module.status}
                       </span>
                     </div>
                   </div>
 
                   {/* Card Title & Operational Description */}
-                  <div>
-                    <h3 className="text-sm font-bold text-white group-hover:text-cyan-300 transition-colors font-mono">
-                      {module.title}
-                    </h3>
-                    <p className="text-xs text-slate-300/85 leading-relaxed mt-1 line-clamp-2">
-                      {module.desc}
-                    </p>
-                  </div>
+                  <h3 className="ops-card-title ops-mono">{module.title}</h3>
+                  <p className="ops-card-desc">{module.desc}</p>
+                </div>
 
+                <div>
                   {/* Operational Capabilities / Metadata Chips */}
-                  <div className="flex items-center gap-1.5 flex-wrap pt-0.5">
+                  <div className="ops-card-metrics">
                     {module.metrics.map((metric, i) => (
-                      <span
-                        key={i}
-                        className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-950/70 text-slate-300 border border-slate-800/80"
-                      >
+                      <span key={i} className="ops-metric-chip ops-mono">
                         {metric}
                       </span>
                     ))}
                   </div>
-                </div>
 
-                {/* Card Footer CTA */}
-                <div className="mt-4 pt-3 border-t border-slate-800/60 flex items-center justify-between text-xs font-mono font-semibold text-cyan-400 group-hover:text-cyan-300">
-                  <span>{module.cta}</span>
-                  <ArrowRight size={13} className="transition-transform group-hover:translate-x-1" />
+                  {/* Card Footer CTA */}
+                  <div className="ops-card-cta ops-mono">
+                    <span>{module.cta}</span>
+                    <ArrowRight size={13} className="ops-card-arrow" />
+                  </div>
                 </div>
               </Link>
             );
