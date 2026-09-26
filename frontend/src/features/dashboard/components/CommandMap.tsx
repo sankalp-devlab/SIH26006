@@ -105,8 +105,32 @@ const STRATEGIC_CHOKEPOINTS: StrategicChokepoint[] = [
   },
 ];
 
+/**
+ * Explicit default operational viewport configuration for Dashboard Maritime Map
+ * Specifically framed to show:
+ * - Arabian Sea
+ * - Red Sea & Bab el-Mandeb
+ * - Persian Gulf region & Strait of Hormuz
+ * - Indian subcontinent
+ * - Bay of Bengal
+ * - Southeast Asia (Strait of Malacca & Singapore)
+ * - Indian Ocean
+ */
+export const DASHBOARD_MAP_DEFAULT_VIEW = {
+  center: [15.0, 72.0] as [number, number],
+  zoom: 4,
+  mobileZoom: 3,
+  bearing: 0, // 2D Leaflet Mercator
+  pitch: 0,   // 2D Leaflet Mercator
+} as const;
+
+const getResponsiveDefaultZoom = () =>
+  typeof window !== 'undefined' && window.innerWidth < 768
+    ? DASHBOARD_MAP_DEFAULT_VIEW.mobileZoom
+    : DASHBOARD_MAP_DEFAULT_VIEW.zoom;
+
 const REGION_PRESETS = [
-  { id: 'global', label: 'Global', center: [18.0, 72.0] as [number, number], zoom: 3 },
+  { id: 'global', label: 'Global', center: DASHBOARD_MAP_DEFAULT_VIEW.center, zoom: DASHBOARD_MAP_DEFAULT_VIEW.zoom },
   { id: 'asia', label: 'Indo-Pacific', center: [3.5, 103.5] as [number, number], zoom: 5 },
   { id: 'mideast', label: 'Middle East', center: [24.0, 56.0] as [number, number], zoom: 5 },
   { id: 'suez', label: 'Suez / Med', center: [31.5, 30.0] as [number, number], zoom: 5 },
@@ -136,8 +160,8 @@ export function CommandMap({
   // Interactive UI States
   const [activeTheme, setActiveTheme] = useState<MapTheme>('dark');
   const [activeRegion, setActiveRegion] = useState<string>('global');
-  const [cursorCoords, setCursorCoords] = useState<string>('18.00°N, 72.00°E');
-  const [currentZoom, setCurrentZoom] = useState<number>(3);
+  const [cursorCoords, setCursorCoords] = useState<string>('15.00°N, 72.00°E');
+  const [currentZoom, setCurrentZoom] = useState<number>(getResponsiveDefaultZoom);
   const [layersOpen, setLayersOpen] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -157,9 +181,11 @@ export function CommandMap({
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
 
+    const initialZoom = getResponsiveDefaultZoom();
+
     const map = L.map(containerRef.current, {
-      center: [18.0, 72.0],
-      zoom: 3,
+      center: DASHBOARD_MAP_DEFAULT_VIEW.center,
+      zoom: initialZoom,
       zoomControl: false,
       minZoom: 2,
       maxZoom: 16,
@@ -502,7 +528,8 @@ export function CommandMap({
   const handleZoomOut = () => mapRef.current?.zoomOut();
   const handleReset = () => {
     setActiveRegion('global');
-    mapRef.current?.flyTo([18.0, 72.0], 3, { duration: 1 });
+    const targetZoom = getResponsiveDefaultZoom();
+    mapRef.current?.flyTo(DASHBOARD_MAP_DEFAULT_VIEW.center, targetZoom, { duration: 1 });
   };
 
   const handleFocusFleet = () => {
