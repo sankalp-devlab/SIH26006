@@ -84,6 +84,18 @@ export interface DetailedVesselIntelligence {
   departure_date: string;
   estimated_eta: string;
 
+  // Laycan & Delivery Constraint Metrics
+  laycan_start?: string;
+  laycan_end?: string;
+  latest_acceptable_arrival?: string;
+  delivery_compliance?: 'FEASIBLE' | 'FEASIBLE_WITH_RISK' | 'EXCEEDS_REQUIREMENT';
+  delivery_compliance_reason?: string;
+
+  // Budget & Operational Constraint Metrics
+  max_budget_usd?: number | null;
+  budget_compliance?: 'WITHIN_BUDGET' | 'EXCEEDS_BUDGET' | 'NOT_SPECIFIED';
+  budget_difference_usd?: number | null;
+
   // Risk metrics
   risk_score: number;
   risk_level: 'LOW' | 'MODERATE' | 'HIGH';
@@ -453,6 +465,28 @@ export const VesselIntelligenceDetailPanel: React.FC<VesselIntelligenceDetailPan
                   R²: 0.981 &middot; MAE: $40,634
                 </div>
               </div>
+              {vessel.max_budget_usd != null && (
+                <div style={{ gridColumn: 'span 2', marginTop: '4px' }}>
+                  <span style={{ color: 'var(--color-text-muted)', fontSize: '0.7rem' }}>MAXIMUM BUDGET TARGET</span>
+                  <div style={{ fontWeight: 700, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '8px', marginTop: '2px' }}>
+                    <span>${vessel.max_budget_usd.toLocaleString()} USD</span>
+                    <span
+                      style={{
+                        padding: '1px 6px',
+                        borderRadius: '4px',
+                        fontSize: '0.675rem',
+                        fontWeight: 700,
+                        backgroundColor: vessel.budget_compliance === 'WITHIN_BUDGET' ? '#ecfdf5' : '#fef2f2',
+                        color: vessel.budget_compliance === 'WITHIN_BUDGET' ? '#065f46' : '#991b1b',
+                      }}
+                    >
+                      {vessel.budget_compliance === 'WITHIN_BUDGET'
+                        ? `WITHIN BUDGET (+$${vessel.budget_difference_usd?.toLocaleString()})`
+                        : `EXCEEDS BUDGET BY $${vessel.budget_difference_usd?.toLocaleString()}`}
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -476,9 +510,10 @@ export const VesselIntelligenceDetailPanel: React.FC<VesselIntelligenceDetailPan
                 <div style={{ fontWeight: 700, color: '#ffffff' }}>{vessel.speed_knots || 14.0} knots</div>
               </div>
               <div>
-                <span style={{ color: 'var(--color-text-muted)', fontSize: '0.7rem' }}>PREFERRED DEPARTURE</span>
+                <span style={{ color: 'var(--color-text-muted)', fontSize: '0.7rem' }}>LAYCAN LOADING WINDOW</span>
                 <div style={{ fontWeight: 700, color: '#cbd5e1' }}>
                   {new Date(vessel.departure_date).toLocaleDateString()}
+                  {vessel.laycan_end ? ` → ${new Date(vessel.laycan_end).toLocaleDateString()}` : ''}
                 </div>
               </div>
               <div>
@@ -487,6 +522,59 @@ export const VesselIntelligenceDetailPanel: React.FC<VesselIntelligenceDetailPan
                   {new Date(vessel.estimated_eta).toLocaleDateString()}
                 </div>
               </div>
+
+              {vessel.latest_acceptable_arrival && (
+                <div>
+                  <span style={{ color: 'var(--color-text-muted)', fontSize: '0.7rem' }}>LATEST ACCEPTABLE ARRIVAL</span>
+                  <div style={{ fontWeight: 700, color: '#ffffff' }}>
+                    {new Date(vessel.latest_acceptable_arrival).toLocaleDateString()}
+                  </div>
+                </div>
+              )}
+
+              {vessel.delivery_compliance && (
+                <div style={{ gridColumn: 'span 2' }}>
+                  <span style={{ color: 'var(--color-text-muted)', fontSize: '0.7rem' }}>DELIVERY CONSTRAINT EVALUATION</span>
+                  <div style={{ marginTop: '3px', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                    <span
+                      style={{
+                        padding: '2px 8px',
+                        borderRadius: '4px',
+                        fontSize: '0.675rem',
+                        fontWeight: 800,
+                        backgroundColor:
+                          vessel.delivery_compliance === 'FEASIBLE'
+                            ? '#ecfdf5'
+                            : vessel.delivery_compliance === 'FEASIBLE_WITH_RISK'
+                            ? '#fffbeb'
+                            : '#fef2f2',
+                        color:
+                          vessel.delivery_compliance === 'FEASIBLE'
+                            ? '#065f46'
+                            : vessel.delivery_compliance === 'FEASIBLE_WITH_RISK'
+                            ? '#92400e'
+                            : '#991b1b',
+                        border: `1px solid ${
+                          vessel.delivery_compliance === 'FEASIBLE'
+                            ? '#a7f3d0'
+                            : vessel.delivery_compliance === 'FEASIBLE_WITH_RISK'
+                            ? '#fde68a'
+                            : '#fecaca'
+                        }`,
+                      }}
+                    >
+                      {vessel.delivery_compliance === 'FEASIBLE'
+                        ? 'FEASIBLE'
+                        : vessel.delivery_compliance === 'FEASIBLE_WITH_RISK'
+                        ? 'FEASIBLE WITH DELIVERY RISK'
+                        : 'DOES NOT MEET DELIVERY REQUIREMENT'}
+                    </span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
+                      {vessel.delivery_compliance_reason}
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

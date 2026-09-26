@@ -31,6 +31,7 @@ const ROUTE_NAME_MAP: Record<string, string> = {
   fixtures: 'Charter Fixtures',
   'voyage-calculator': 'Voyage Calculator',
   'distance-calculator': 'Distance Calculator',
+  operations: 'Operations Hub',
   analytics: 'Analytics & Intelligence',
   freight: 'Freight Analytics',
   'freight-analytics': 'Freight Analytics',

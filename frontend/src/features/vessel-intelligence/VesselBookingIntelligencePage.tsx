@@ -80,6 +80,7 @@ export const VesselBookingIntelligencePage: React.FC = () => {
   const [weightTons, setWeightTons] = useState<string>('75000');
   const [volumeM3, setVolumeM3] = useState<string>('');
   const [containerCount, setContainerCount] = useState<string>('500');
+  const [containerSize, setContainerSize] = useState<string>('TEU (20ft)');
   const [specialRequirement, setSpecialRequirement] = useState<string>('Standard Ambient');
   const [shipper, setShipper] = useState<string>('Enterprise Charterer Ltd');
   const [consignee, setConsignee] = useState<string>('Industrial Receiving Terminal');
@@ -87,11 +88,17 @@ export const VesselBookingIntelligencePage: React.FC = () => {
   // 2. JOURNEY REQUIREMENTS INPUT
   const [originPortId, setOriginPortId] = useState<string>('');
   const [destPortId, setDestPortId] = useState<string>('');
-  const [departureDate, setDepartureDate] = useState<string>('');
+  const [departureDate, setDepartureDate] = useState<string>(''); // Laycan Start
+  const [laycanEndDate, setLaycanEndDate] = useState<string>(''); // Laycan End
+  const [latestArrivalDate, setLatestArrivalDate] = useState<string>(''); // Latest Acceptable Arrival (Optional)
   const [priority, setPriority] = useState<OptimizationPreference>('balanced');
 
-  // Optional scenario tuning
+  // 3. ADVANCED SCENARIO & OPERATIONAL CONSTRAINTS
   const [showScenarioSettings, setShowScenarioSettings] = useState<boolean>(false);
+  const [maxBudgetUsd, setMaxBudgetUsd] = useState<string>('');
+  const [maxWaitingTimeDays, setMaxWaitingTimeDays] = useState<string>('');
+  const [minVesselCapacityDwt, setMinVesselCapacityDwt] = useState<string>('');
+  const [maxAcceptableRisk, setMaxAcceptableRisk] = useState<string>('ANY');
   const [bunkerPriceOverride, setBunkerPriceOverride] = useState<string>('');
   const [dailyHireOverride, setDailyHireOverride] = useState<string>('');
 
@@ -128,12 +135,16 @@ export const VesselBookingIntelligencePage: React.FC = () => {
   // Initialize defaults and query parameters
   useEffect(() => {
     const today = new Date();
-    setDepartureDate(today.toISOString().slice(0, 10));
+    const laycanStartStr = today.toISOString().slice(0, 10);
+    setDepartureDate(laycanStartStr);
+
+    const sevenDaysLater = new Date(today.getTime() + 7 * 86400000);
+    setLaycanEndDate(sevenDaysLater.toISOString().slice(0, 10));
 
     // Handle incoming URL query params if provided
     const qOrigin = searchParams.get('origin') || searchParams.get('originPortId');
     const qDest = searchParams.get('dest') || searchParams.get('destinationPortId');
-    const qWeight = searchParams.get('weight') || searchParams.get('weightTons');
+    const qWeight = searchParams.get('weight') || searchParams.get('weightTons') || searchParams.get('cargoWeight');
     const qType = searchParams.get('cargoType');
     const qCommodity = searchParams.get('commodity');
 
@@ -143,6 +154,26 @@ export const VesselBookingIntelligencePage: React.FC = () => {
     if (qType) setCargoType(qType);
     if (qCommodity) setCommodity(qCommodity);
   }, [searchParams]);
+
+  // Date range validation messages
+  const laycanDateError = useMemo(() => {
+    if (!departureDate || !laycanEndDate) return '';
+    if (new Date(laycanEndDate).getTime() < new Date(departureDate).getTime()) {
+      return 'Laycan End Date cannot be earlier than Laycan Start Date.';
+    }
+    return '';
+  }, [departureDate, laycanEndDate]);
+
+  const arrivalDateError = useMemo(() => {
+    if (!latestArrivalDate) return '';
+    if (laycanEndDate && new Date(latestArrivalDate).getTime() < new Date(laycanEndDate).getTime()) {
+      return 'Latest Acceptable Arrival cannot be earlier than Laycan End Date.';
+    }
+    if (departureDate && new Date(latestArrivalDate).getTime() < new Date(departureDate).getTime()) {
+      return 'Latest Acceptable Arrival cannot be earlier than Laycan Start Date.';
+    }
+    return '';
+  }, [latestArrivalDate, laycanEndDate, departureDate]);
 
   // Set default ports when loaded if not yet selected
   useEffect(() => {
@@ -168,9 +199,55 @@ export const VesselBookingIntelligencePage: React.FC = () => {
     if (e) e.preventDefault();
     setErrorMessage('');
 
+    // 1. Validate Laycan and Arrival constraints
+    if (laycanDateError) {
+      setErrorMessage(laycanDateError);
+      return;
+    }
+    if (arrivalDateError) {
+      setErrorMessage(arrivalDateError);
+      return;
+    }
+    if (!departureDate) {
+      setErrorMessage('Please specify a valid Preferred Departure Date (Laycan Start).');
+      return;
+    }
+    if (!laycanEndDate) {
+      setErrorMessage('Please specify a valid Laycan End Date.');
+      return;
+    }
+
+    // 2. Validate Cargo Weight
     const weight = Number(weightTons);
     if (!weight || weight <= 0) {
-      setErrorMessage('Please specify a deadweight tonnage greater than zero.');
+      setErrorMessage('Please specify a valid Cargo Weight (Metric Tons) greater than zero.');
+      return;
+    }
+
+    // 3. Category-dependent validations
+    if (cargoType === 'Containerized') {
+      const cCount = Number(containerCount);
+      if (!cCount || cCount <= 0) {
+        setErrorMessage('Please specify a valid Container Count greater than zero for containerized cargo.');
+        return;
+      }
+    }
+    if (volumeM3 && Number(volumeM3) <= 0) {
+      setErrorMessage('If specified, Cargo Volume must be greater than zero.');
+      return;
+    }
+
+    // 4. Optional scenario parameter validations
+    if (maxBudgetUsd && Number(maxBudgetUsd) <= 0) {
+      setErrorMessage('If specified, Maximum Budget must be greater than zero.');
+      return;
+    }
+    if (minVesselCapacityDwt && Number(minVesselCapacityDwt) <= 0) {
+      setErrorMessage('If specified, Minimum Required Vessel Capacity must be greater than zero.');
+      return;
+    }
+    if (maxWaitingTimeDays && Number(maxWaitingTimeDays) <= 0) {
+      setErrorMessage('If specified, Maximum Acceptable Waiting Time must be greater than zero.');
       return;
     }
 
@@ -313,6 +390,37 @@ export const VesselBookingIntelligencePage: React.FC = () => {
         const topMlDiff = topMl?.cost_difference_usd ?? (topMlCost ? Math.round(topMlCost - estCost) : null);
         const topMlPct = topMl?.cost_difference_pct ?? (topMlCost && estCost ? Number(((topMlDiff! / estCost) * 100).toFixed(1)) : null);
 
+        // Evaluate delivery compliance against latest acceptable arrival
+        let topDeliveryCompliance: 'FEASIBLE' | 'FEASIBLE_WITH_RISK' | 'DOES_NOT_MEET_REQUIREMENT' | undefined;
+        let topDeliveryComplianceReason: string | undefined;
+        if (latestArrivalDate) {
+          const arrivalTs = new Date(arrivalDate).getTime();
+          const deadlineTs = new Date(`${latestArrivalDate}T23:59:59.999Z`).getTime();
+          const diffHours = (arrivalTs - deadlineTs) / (1000 * 60 * 60);
+
+          if (arrivalTs <= deadlineTs) {
+            topDeliveryCompliance = 'FEASIBLE';
+            topDeliveryComplianceReason = `Projected arrival (${new Date(arrivalDate).toLocaleDateString()}) fulfills delivery deadline (${new Date(latestArrivalDate).toLocaleDateString()})`;
+          } else if (diffHours <= 36) {
+            topDeliveryCompliance = 'FEASIBLE_WITH_RISK';
+            topDeliveryComplianceReason = `Projected arrival is within marginal buffer (exceeds target by ~${Math.round(diffHours)}h)`;
+          } else {
+            topDeliveryCompliance = 'DOES_NOT_MEET_REQUIREMENT';
+            topDeliveryComplianceReason = `Does not meet delivery requirement: Projected arrival (${new Date(arrivalDate).toLocaleDateString()}) exceeds latest acceptable date by ${Math.ceil(diffHours / 24)} days`;
+          }
+        }
+
+        // Evaluate budget compliance if maximum budget is specified
+        let topBudgetCompliance: 'WITHIN_BUDGET' | 'EXCEEDS_BUDGET' | undefined;
+        let topBudgetDiffUsd: number | undefined;
+        let parsedBudgetUsd: number | undefined;
+        if (maxBudgetUsd && Number(maxBudgetUsd) > 0) {
+          parsedBudgetUsd = Number(maxBudgetUsd);
+          const effectiveCost = topMlCost ?? estCost;
+          topBudgetDiffUsd = Math.round(effectiveCost - parsedBudgetUsd);
+          topBudgetCompliance = effectiveCost <= parsedBudgetUsd ? 'WITHIN_BUDGET' : 'EXCEEDS_BUDGET';
+        }
+
         parsedFeasible.push({
           vessel_id: top.vessel_id,
           name: top.name,
@@ -366,6 +474,14 @@ export const VesselBookingIntelligencePage: React.FC = () => {
           voyage_days: transitDays,
           departure_date: departureDate || new Date().toISOString(),
           estimated_eta: arrivalDate,
+          laycan_start: departureDate,
+          laycan_end: laycanEndDate,
+          latest_acceptable_arrival: latestArrivalDate || undefined,
+          delivery_compliance: topDeliveryCompliance,
+          delivery_compliance_reason: topDeliveryComplianceReason,
+          max_budget_usd: parsedBudgetUsd,
+          budget_compliance: topBudgetCompliance,
+          budget_difference_usd: topBudgetDiffUsd,
           risk_score: recRes.estimates?.risk?.risk_score ?? riskRes?.overall_risk_score ?? 35,
           risk_level: (recRes.estimates?.risk?.risk_level ?? riskRes?.risk_level ?? 'LOW') as 'LOW' | 'MODERATE' | 'HIGH',
           known_risks: riskRes?.factors?.map((f: any) => `${f.factor}: ${f.finding}`) || ['Standard navigational security protocol verified'],
@@ -398,6 +514,37 @@ export const VesselBookingIntelligencePage: React.FC = () => {
           const altMlCost = altMl?.ml_predicted_cost ?? null;
           const altMlDiff = altMl?.cost_difference_usd ?? (altMlCost ? Math.round(altMlCost - estCost) : null);
           const altMlPct = altMl?.cost_difference_pct ?? (altMlCost && estCost ? Number(((altMlDiff! / estCost) * 100).toFixed(1)) : null);
+
+          // Evaluate delivery compliance against latest acceptable arrival
+          let altDeliveryCompliance: 'FEASIBLE' | 'FEASIBLE_WITH_RISK' | 'DOES_NOT_MEET_REQUIREMENT' | undefined;
+          let altDeliveryComplianceReason: string | undefined;
+          if (latestArrivalDate) {
+            const arrivalTs = new Date(arrivalDate).getTime();
+            const deadlineTs = new Date(`${latestArrivalDate}T23:59:59.999Z`).getTime();
+            const diffHours = (arrivalTs - deadlineTs) / (1000 * 60 * 60);
+
+            if (arrivalTs <= deadlineTs) {
+              altDeliveryCompliance = 'FEASIBLE';
+              altDeliveryComplianceReason = `Projected arrival (${new Date(arrivalDate).toLocaleDateString()}) fulfills delivery deadline (${new Date(latestArrivalDate).toLocaleDateString()})`;
+            } else if (diffHours <= 36) {
+              altDeliveryCompliance = 'FEASIBLE_WITH_RISK';
+              altDeliveryComplianceReason = `Projected arrival is within marginal buffer (exceeds target by ~${Math.round(diffHours)}h)`;
+            } else {
+              altDeliveryCompliance = 'DOES_NOT_MEET_REQUIREMENT';
+              altDeliveryComplianceReason = `Does not meet delivery requirement: Projected arrival (${new Date(arrivalDate).toLocaleDateString()}) exceeds latest acceptable date by ${Math.ceil(diffHours / 24)} days`;
+            }
+          }
+
+          // Evaluate budget compliance if maximum budget is specified
+          let altBudgetCompliance: 'WITHIN_BUDGET' | 'EXCEEDS_BUDGET' | undefined;
+          let altBudgetDiffUsd: number | undefined;
+          let parsedBudgetUsd: number | undefined;
+          if (maxBudgetUsd && Number(maxBudgetUsd) > 0) {
+            parsedBudgetUsd = Number(maxBudgetUsd);
+            const effectiveCost = altMlCost ?? estCost;
+            altBudgetDiffUsd = Math.round(effectiveCost - parsedBudgetUsd);
+            altBudgetCompliance = effectiveCost <= parsedBudgetUsd ? 'WITHIN_BUDGET' : 'EXCEEDS_BUDGET';
+          }
 
           parsedFeasible.push({
             vessel_id: alt.vessel_id,
@@ -448,6 +595,14 @@ export const VesselBookingIntelligencePage: React.FC = () => {
             voyage_days: transitDays,
             departure_date: departureDate || new Date().toISOString(),
             estimated_eta: arrivalDate,
+            laycan_start: departureDate,
+            laycan_end: laycanEndDate,
+            latest_acceptable_arrival: latestArrivalDate || undefined,
+            delivery_compliance: altDeliveryCompliance,
+            delivery_compliance_reason: altDeliveryComplianceReason,
+            max_budget_usd: parsedBudgetUsd,
+            budget_compliance: altBudgetCompliance,
+            budget_difference_usd: altBudgetDiffUsd,
             risk_score: alt.risk_score || 40,
             risk_level: (alt.risk_level || 'LOW') as 'LOW' | 'MODERATE' | 'HIGH',
             known_risks: ['Alternative fleet scheduling margin applied'],
@@ -667,50 +822,84 @@ export const VesselBookingIntelligencePage: React.FC = () => {
                     options={[
                       { value: 'Dry Bulk', label: 'Dry Bulk (Ore, Coal, Grain, Fertilizer)' },
                       { value: 'Liquid Bulk', label: 'Liquid Bulk (Crude Oil, Clean Products, Chemicals)' },
-                      { value: 'Containerized', label: 'Containerized Freight (Box / TEU)' },
+                      { value: 'Containerized', label: 'Containerized Freight (Box / TEU / FEU)' },
                       { value: 'Breakbulk', label: 'Breakbulk / Heavy Machinery / Steel Products' },
                     ]}
                     value={cargoType}
                     onChange={(e) => setCargoType(e.target.value)}
                   />
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                    <Input
-                      label="Deadweight (Metric Tons) *"
-                      type="number"
-                      placeholder="e.g. 75000"
-                      required
-                      value={weightTons}
-                      onChange={(e) => setWeightTons(e.target.value)}
-                    />
-
-                    <Input
-                      label="Volume (m³)"
-                      type="number"
-                      placeholder="e.g. 95000 (optional)"
-                      value={volumeM3}
-                      onChange={(e) => setVolumeM3(e.target.value)}
-                    />
-                  </div>
-
-                  {cargoType === 'Containerized' && (
-                    <Input
-                      label="Container Count (TEU)"
-                      type="number"
-                      placeholder="e.g. 500"
-                      value={containerCount}
-                      onChange={(e) => setContainerCount(e.target.value)}
-                    />
+                  {/* Dynamic Category Dependent Fields */}
+                  {cargoType === 'Containerized' ? (
+                    <>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                        <Input
+                          label="Container Count *"
+                          type="number"
+                          placeholder="e.g. 500"
+                          required
+                          value={containerCount}
+                          onChange={(e) => setContainerCount(e.target.value)}
+                        />
+                        <Select
+                          label="Container Type / Size"
+                          options={[
+                            { value: 'TEU (20ft)', label: 'TEU (20ft Standard)' },
+                            { value: 'FEU (40ft)', label: 'FEU (40ft Standard)' },
+                            { value: '40ft High Cube', label: '40ft High Cube (HC)' },
+                          ]}
+                          value={containerSize}
+                          onChange={(e) => setContainerSize(e.target.value)}
+                        />
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                        <Input
+                          label="Cargo Weight (Metric Tons) *"
+                          type="number"
+                          placeholder="e.g. 12500"
+                          required
+                          value={weightTons}
+                          onChange={(e) => setWeightTons(e.target.value)}
+                        />
+                        <Input
+                          label="Volume (m³)"
+                          type="number"
+                          placeholder="e.g. 24000 (optional)"
+                          value={volumeM3}
+                          onChange={(e) => setVolumeM3(e.target.value)}
+                        />
+                      </div>
+                    </>
+                  ) : (
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                      <Input
+                        label="Cargo Weight (Metric Tons) *"
+                        type="number"
+                        placeholder="e.g. 75000"
+                        required
+                        value={weightTons}
+                        onChange={(e) => setWeightTons(e.target.value)}
+                      />
+                      <Input
+                        label="Volume (m³)"
+                        type="number"
+                        placeholder="e.g. 95000 (optional)"
+                        value={volumeM3}
+                        onChange={(e) => setVolumeM3(e.target.value)}
+                      />
+                    </div>
                   )}
 
                   <Select
                     label="Special Cargo Handling Requirements"
                     options={[
-                      { value: 'Standard Ambient', label: 'Standard Ambient Stowage' },
-                      { value: 'Temperature Controlled (Reefer)', label: 'Temperature Controlled (Reefer Containers)' },
-                      { value: 'Dangerous Goods (IMO Class Certified)', label: 'Dangerous Goods (IMO Hazardous Certified)' },
-                      { value: 'Heavy Lift / Out-of-Gauge', label: 'Heavy Lift / Out-of-Gauge Structural Rigging' },
-                      { value: 'None', label: 'None' },
+                      { value: 'Standard Ambient', label: 'Standard Ambient' },
+                      { value: 'Refrigerated', label: 'Refrigerated' },
+                      { value: 'Hazardous', label: 'Hazardous' },
+                      { value: 'Temperature Controlled', label: 'Temperature Controlled' },
+                      { value: 'Oversized', label: 'Oversized' },
+                      { value: 'Heavy Lift', label: 'Heavy Lift' },
+                      { value: 'Other', label: 'Other' },
                     ]}
                     value={specialRequirement}
                     onChange={(e) => setSpecialRequirement(e.target.value)}
@@ -728,53 +917,90 @@ export const VesselBookingIntelligencePage: React.FC = () => {
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  <Select
-                    label="Origin Seaport (Loading Port) *"
-                    required
-                    options={[
-                      { value: '', label: 'Select loading port...' },
-                      ...ports.map((p) => ({
-                        value: p.id,
-                        label: `${p.name} (${p.unlocode || p.country || 'Global'})`,
-                      })),
-                    ]}
-                    value={originPortId}
-                    onChange={(e) => setOriginPortId(e.target.value)}
-                  />
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                    <Select
+                      label="Origin Seaport (Loading Port) *"
+                      required
+                      options={[
+                        { value: '', label: 'Select loading port...' },
+                        ...ports.map((p) => ({
+                          value: p.id,
+                          label: `${p.name} (${p.unlocode || p.country || 'Global'})`,
+                        })),
+                      ]}
+                      value={originPortId}
+                      onChange={(e) => setOriginPortId(e.target.value)}
+                    />
 
-                  <Select
-                    label="Destination Seaport (Discharge Port) *"
-                    required
-                    options={[
-                      { value: '', label: 'Select discharge port...' },
-                      ...ports.map((p) => ({
-                        value: p.id,
-                        label: `${p.name} (${p.unlocode || p.country || 'Global'})`,
-                      })),
-                    ]}
-                    value={destPortId}
-                    onChange={(e) => setDestPortId(e.target.value)}
-                  />
+                    <Select
+                      label="Destination Seaport (Discharge Port) *"
+                      required
+                      options={[
+                        { value: '', label: 'Select discharge port...' },
+                        ...ports.map((p) => ({
+                          value: p.id,
+                          label: `${p.name} (${p.unlocode || p.country || 'Global'})`,
+                        })),
+                      ]}
+                      value={destPortId}
+                      onChange={(e) => setDestPortId(e.target.value)}
+                    />
+                  </div>
 
-                  <Input
-                    label="Preferred Departure Date (Laycan Start) *"
-                    type="date"
-                    required
-                    value={departureDate}
-                    onChange={(e) => setDepartureDate(e.target.value)}
-                  />
+                  {/* Laycan Window Range */}
+                  <div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                      <Input
+                        label="Preferred Departure Date (Laycan Start) *"
+                        type="date"
+                        required
+                        value={departureDate}
+                        onChange={(e) => setDepartureDate(e.target.value)}
+                      />
+                      <Input
+                        label="Laycan End Date *"
+                        type="date"
+                        required
+                        value={laycanEndDate}
+                        onChange={(e) => setLaycanEndDate(e.target.value)}
+                      />
+                    </div>
+                    {laycanDateError && (
+                      <div style={{ color: '#f87171', fontSize: '0.725rem', marginTop: '4px', fontWeight: 600 }}>
+                        {laycanDateError}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Optional Delivery Constraint */}
+                  <div>
+                    <Input
+                      label="Latest Acceptable Arrival"
+                      type="date"
+                      value={latestArrivalDate}
+                      onChange={(e) => setLatestArrivalDate(e.target.value)}
+                    />
+                    <div style={{ fontSize: '0.675rem', color: 'var(--color-text-muted)', marginTop: '2px' }}>
+                      Optional delivery constraint. Evaluates vessels as Feasible, Feasible with Risk, or Does not meet requirement.
+                    </div>
+                    {arrivalDateError && (
+                      <div style={{ color: '#f87171', fontSize: '0.725rem', marginTop: '4px', fontWeight: 600 }}>
+                        {arrivalDateError}
+                      </div>
+                    )}
+                  </div>
 
                   {/* Delivery Priority Selector */}
                   <div>
                     <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: '6px' }}>
-                      Delivery Optimization Priority *
+                      3. Delivery Optimization Priority *
                     </label>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
                       {[
                         { key: 'lowest_cost', label: 'Lowest Cost', desc: 'Minimizes voyage fuel & $/MT' },
-                        { key: 'fastest_eta', label: 'Fastest Delivery', desc: 'Prioritizes maximum speed' },
-                        { key: 'lowest_risk', label: 'Lowest Risk', desc: 'Avoids critical chokepoints' },
-                        { key: 'balanced', label: 'Balanced', desc: '30% Cost, 30% DWT, 20% Speed, 20% Risk' },
+                        { key: 'fastest_eta', label: 'Fastest Delivery', desc: 'Prioritizes maximum speed & prompt ETA' },
+                        { key: 'lowest_risk', label: 'Lowest Risk', desc: 'Avoids critical chokepoints & high risk' },
+                        { key: 'balanced', label: 'Balanced', desc: 'Balances cost, ETA, risk, and operational fit' },
                       ].map((item) => (
                         <button
                           key={item.key}
@@ -801,7 +1027,7 @@ export const VesselBookingIntelligencePage: React.FC = () => {
 
             </div>
 
-            {/* Optional Scenario Modeling Bar */}
+            {/* Optional Scenario Modeling & Operational Constraints */}
             <div style={{ marginBottom: '1.5rem', borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '1rem' }}>
               <button
                 type="button"
@@ -820,12 +1046,43 @@ export const VesselBookingIntelligencePage: React.FC = () => {
                 }}
               >
                 <Sliders size={14} />
-                <span>Advanced Scenario Parameters (Optional Empirical Market Inputs)</span>
+                <span>4. Advanced Scenario Parameters & Operational Constraints (Optional)</span>
                 {showScenarioSettings ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
               </button>
 
               {showScenarioSettings && (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', marginTop: '1rem', padding: '12px 16px', borderRadius: '8px', backgroundColor: 'rgba(15, 23, 42, 0.6)', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', marginTop: '1rem', padding: '14px 16px', borderRadius: '8px', backgroundColor: 'rgba(15, 23, 42, 0.6)', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                  <Input
+                    label="Maximum Budget (USD)"
+                    type="number"
+                    placeholder="e.g. 120000 (optional)"
+                    value={maxBudgetUsd}
+                    onChange={(e) => setMaxBudgetUsd(e.target.value)}
+                  />
+                  <Input
+                    label="Maximum Acceptable Waiting Time (Days)"
+                    type="number"
+                    placeholder="e.g. 3 (optional)"
+                    value={maxWaitingTimeDays}
+                    onChange={(e) => setMaxWaitingTimeDays(e.target.value)}
+                  />
+                  <Input
+                    label="Minimum Required Vessel Capacity (DWT MT)"
+                    type="number"
+                    placeholder="e.g. 50000 (optional)"
+                    value={minVesselCapacityDwt}
+                    onChange={(e) => setMinVesselCapacityDwt(e.target.value)}
+                  />
+                  <Select
+                    label="Maximum Acceptable Risk"
+                    options={[
+                      { value: 'ANY', label: 'Any Risk Tier (Standard Filter)' },
+                      { value: 'LOW', label: 'Low Risk Only (Score <= 40)' },
+                      { value: 'MODERATE', label: 'Low or Moderate Risk (Score <= 65)' },
+                    ]}
+                    value={maxAcceptableRisk}
+                    onChange={(e) => setMaxAcceptableRisk(e.target.value)}
+                  />
                   <Input
                     label="Empirical Bunker Price ($/MT)"
                     type="number"
@@ -860,14 +1117,21 @@ export const VesselBookingIntelligencePage: React.FC = () => {
                 variant="primary"
                 size="md"
                 type="submit"
+                disabled={Boolean(laycanDateError || arrivalDateError)}
                 icon={<Compass size={18} />}
                 style={{
-                  background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+                  background: (laycanDateError || arrivalDateError)
+                    ? 'rgba(71, 85, 105, 0.5)'
+                    : 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
                   padding: '12px 28px',
                   fontWeight: 900,
                   fontSize: '0.9375rem',
                   letterSpacing: '0.02em',
-                  boxShadow: '0 4px 16px rgba(2, 132, 199, 0.45)',
+                  cursor: (laycanDateError || arrivalDateError) ? 'not-allowed' : 'pointer',
+                  opacity: (laycanDateError || arrivalDateError) ? 0.6 : 1,
+                  boxShadow: (laycanDateError || arrivalDateError)
+                    ? 'none'
+                    : '0 4px 16px rgba(2, 132, 199, 0.45)',
                 }}
               >
                 RUN INTELLIGENCE ANALYSIS
@@ -1034,6 +1298,69 @@ export const VesselBookingIntelligencePage: React.FC = () => {
                           >
                             {v.vessel_type}
                           </span>
+
+                          {/* Delivery Compliance Status Badge */}
+                          {v.delivery_compliance && (
+                            <span
+                              style={{
+                                padding: '2px 8px',
+                                borderRadius: '4px',
+                                fontSize: '0.675rem',
+                                fontWeight: 800,
+                                backgroundColor:
+                                  v.delivery_compliance === 'FEASIBLE'
+                                    ? 'rgba(16, 185, 129, 0.15)'
+                                    : v.delivery_compliance === 'FEASIBLE_WITH_RISK'
+                                    ? 'rgba(245, 158, 11, 0.15)'
+                                    : 'rgba(239, 68, 68, 0.15)',
+                                color:
+                                  v.delivery_compliance === 'FEASIBLE'
+                                    ? '#10b981'
+                                    : v.delivery_compliance === 'FEASIBLE_WITH_RISK'
+                                    ? '#f59e0b'
+                                    : '#f87171',
+                                border: `1px solid ${
+                                  v.delivery_compliance === 'FEASIBLE'
+                                    ? 'rgba(16, 185, 129, 0.35)'
+                                    : v.delivery_compliance === 'FEASIBLE_WITH_RISK'
+                                    ? 'rgba(245, 158, 11, 0.35)'
+                                    : 'rgba(239, 68, 68, 0.35)'
+                                }`,
+                              }}
+                            >
+                              {v.delivery_compliance === 'FEASIBLE'
+                                ? 'FEASIBLE'
+                                : v.delivery_compliance === 'FEASIBLE_WITH_RISK'
+                                ? 'FEASIBLE WITH DELIVERY RISK'
+                                : 'DOES NOT MEET DELIVERY REQUIREMENT'}
+                            </span>
+                          )}
+
+                          {/* Budget Compliance Badge */}
+                          {v.budget_compliance && (
+                            <span
+                              style={{
+                                padding: '2px 8px',
+                                borderRadius: '4px',
+                                fontSize: '0.675rem',
+                                fontWeight: 800,
+                                backgroundColor:
+                                  v.budget_compliance === 'WITHIN_BUDGET'
+                                    ? 'rgba(16, 185, 129, 0.12)'
+                                    : 'rgba(239, 68, 68, 0.12)',
+                                color: v.budget_compliance === 'WITHIN_BUDGET' ? '#10b981' : '#f87171',
+                                border: `1px solid ${
+                                  v.budget_compliance === 'WITHIN_BUDGET'
+                                    ? 'rgba(16, 185, 129, 0.3)'
+                                    : 'rgba(239, 68, 68, 0.3)'
+                                }`,
+                              }}
+                            >
+                              {v.budget_compliance === 'WITHIN_BUDGET'
+                                ? 'WITHIN BUDGET'
+                                : `EXCEEDS BUDGET (+${(v.budget_difference_usd || 0).toLocaleString()} USD)`}
+                            </span>
+                          )}
                         </div>
                         <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '3px' }}>
                           IMO: {v.imo_number} &middot; Flag: {v.flag} &middot; DWT: {v.capacity_tons.toLocaleString()} MT &middot; Draft: {v.draft_m || 12}m
@@ -1098,6 +1425,27 @@ export const VesselBookingIntelligencePage: React.FC = () => {
                       <span style={{ color: 'var(--color-text-muted)', fontSize: '0.675rem' }}>VOYAGE TIME & ETA</span>
                       <div style={{ fontWeight: 700, color: '#10b981' }}>{v.voyage_days} Days ({v.voyage_hours}h)</div>
                       <div style={{ color: 'var(--color-text-muted)', fontSize: '0.675rem' }}>ETA: {new Date(v.estimated_eta).toLocaleDateString()}</div>
+                      {v.delivery_compliance && (
+                        <div
+                          style={{
+                            fontSize: '0.65rem',
+                            fontWeight: 700,
+                            marginTop: '2px',
+                            color:
+                              v.delivery_compliance === 'FEASIBLE'
+                                ? '#10b981'
+                                : v.delivery_compliance === 'FEASIBLE_WITH_RISK'
+                                ? '#f59e0b'
+                                : '#f87171',
+                          }}
+                        >
+                          {v.delivery_compliance === 'FEASIBLE'
+                            ? '✓ Delivery Feasible'
+                            : v.delivery_compliance === 'FEASIBLE_WITH_RISK'
+                            ? '⚠ Delivery Risk'
+                            : '✕ Exceeds Arrival Deadline'}
+                        </div>
+                      )}
                     </div>
 
                     <div>

@@ -13,6 +13,7 @@ import { BookingsPage } from '../features/bookings/BookingsPage';
 import { TrackingDashboardPage } from '../features/tracking/TrackingDashboardPage';
 import { AnalyticsPage } from '../features/analytics/AnalyticsPage';
 import { VesselBookingIntelligencePage } from '../features/vessel-intelligence/VesselBookingIntelligencePage';
+import OperationsPage from '../features/operations/OperationsPage';
 import { NotFoundPage } from '../pages/NotFoundPage';
 
 // Stubs & Capability Modules
@@ -150,6 +151,11 @@ export const router = createBrowserRouter([
       {
         path: '/distance-calculator',
         element: <DistanceCalculatorPage />,
+      },
+      // Operations Master Hub Route
+      {
+        path: '/operations',
+        element: <OperationsPage />,
       },
       // Analytics Master & Sub-routes
       {
