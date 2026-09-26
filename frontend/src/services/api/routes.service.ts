@@ -25,7 +25,10 @@ export const routesService = {
   calculateRoute: async (
     payload: RouteCalculationRequest
   ): Promise<RouteCalculationResponse> => {
-    return apiClient.post<RouteCalculationResponse>('/routes/calculate', payload);
+    return apiClient.post<RouteCalculationResponse>('/routes/calculate', payload, {
+      timeoutMs: 35000,
+      retry: true,
+    });
   },
 
   updateRoute: async (

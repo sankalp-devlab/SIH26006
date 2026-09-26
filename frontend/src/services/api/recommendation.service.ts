@@ -13,6 +13,9 @@ export const recommendationService = {
   generateRecommendations: async (
     payload: RecommendationRequest
   ): Promise<RecommendationResponse> => {
-    return apiClient.post<RecommendationResponse>('/recommendations/generate', payload);
+    return apiClient.post<RecommendationResponse>('/recommendations/generate', payload, {
+      timeoutMs: 45000,
+      retry: true,
+    });
   },
 };

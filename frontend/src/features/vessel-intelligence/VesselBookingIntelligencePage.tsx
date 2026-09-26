@@ -25,6 +25,8 @@ import {
   ExternalLink,
   Info,
   Check,
+  X,
+  RefreshCw,
 } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
@@ -177,9 +179,13 @@ export const VesselBookingIntelligencePage: React.FC = () => {
 
   // Set default ports when loaded if not yet selected
   useEffect(() => {
-    if (ports.length >= 2 && !originPortId && !destPortId) {
-      setOriginPortId(String(ports[0].id));
-      setDestPortId(String(ports[1].id));
+    if (ports.length >= 2) {
+      if (!originPortId) {
+        setOriginPortId(String(ports[0].id));
+      }
+      if (!destPortId) {
+        setDestPortId(String(ports[1].id));
+      }
     }
   }, [ports, originPortId, destPortId]);
 
@@ -193,6 +199,40 @@ export const VesselBookingIntelligencePage: React.FC = () => {
       console.warn('[VesselIntelligence] Failed to load tracking telemetry:', e);
     });
   }, []);
+
+  // Auto-retry state when backend cold-start is detected
+  const [retryCountdown, setRetryCountdown] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!errorMessage) {
+      setRetryCountdown(null);
+      return;
+    }
+
+    const isWakingUp =
+      errorMessage.toLowerCase().includes('waking up') ||
+      errorMessage.toLowerCase().includes('unreachable') ||
+      errorMessage.toLowerCase().includes('network') ||
+      errorMessage.toLowerCase().includes('connection') ||
+      errorMessage.toLowerCase().includes('timeout');
+
+    if (isWakingUp && stage === 'input') {
+      setRetryCountdown(4);
+      const interval = setInterval(() => {
+        setRetryCountdown((prev) => {
+          if (prev === null || prev <= 1) {
+            clearInterval(interval);
+            setErrorMessage('');
+            handleRunAnalysis();
+            return null;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      return () => clearInterval(interval);
+    }
+  }, [errorMessage, stage]);
 
   // Execute Analysis
   const handleRunAnalysis = async (e?: React.FormEvent) => {
@@ -291,6 +331,9 @@ export const VesselBookingIntelligencePage: React.FC = () => {
         destination_port_id: dId,
         cargo_type: cargoType,
         cargo_weight: weight,
+      }).catch((err) => {
+        console.warn('[VesselIntelligence] Route calculation fallback:', err);
+        return null;
       });
 
       const costPromise = costsService.calculateCost({
@@ -761,24 +804,73 @@ export const VesselBookingIntelligencePage: React.FC = () => {
         </div>
       </div>
 
-      {/* ERROR BANNER */}
+      {/* ERROR & RECONNECTION BANNER */}
       {errorMessage && (
         <div
           style={{
             padding: '0.875rem 1.25rem',
-            backgroundColor: 'rgba(239, 68, 68, 0.1)',
-            border: '1px solid rgba(239, 68, 68, 0.3)',
-            color: '#f87171',
+            backgroundColor: retryCountdown ? 'rgba(56, 189, 248, 0.08)' : 'rgba(239, 68, 68, 0.1)',
+            border: retryCountdown ? '1px solid rgba(56, 189, 248, 0.35)' : '1px solid rgba(239, 68, 68, 0.3)',
+            color: retryCountdown ? '#38bdf8' : '#f87171',
             borderRadius: '8px',
             fontSize: '0.8125rem',
             display: 'flex',
             alignItems: 'center',
-            gap: '10px',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '12px',
             marginBottom: '1.25rem',
+            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.25)',
           }}
         >
-          <AlertCircle size={18} />
-          <span>{errorMessage}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            {retryCountdown ? (
+              <RefreshCw size={18} style={{ animation: 'spin 1.5s linear infinite' }} />
+            ) : (
+              <AlertCircle size={18} />
+            )}
+            <div>
+              <span style={{ fontWeight: 600 }}>{errorMessage}</span>
+              {retryCountdown !== null && retryCountdown > 0 && (
+                <span style={{ marginLeft: '6px', opacity: 0.85 }}>
+                  (Auto-reconnecting in {retryCountdown}s...)
+                </span>
+              )}
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Button
+              type="button"
+              variant={retryCountdown ? 'primary' : 'secondary'}
+              size="sm"
+              icon={<RotateCcw size={13} />}
+              onClick={() => {
+                setRetryCountdown(null);
+                setErrorMessage('');
+                handleRunAnalysis();
+              }}
+            >
+              Retry Analysis
+            </Button>
+            <button
+              type="button"
+              onClick={() => {
+                setRetryCountdown(null);
+                setErrorMessage('');
+              }}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: retryCountdown ? '#38bdf8' : '#f87171',
+                cursor: 'pointer',
+                padding: '4px',
+                lineHeight: 1,
+              }}
+              title="Dismiss"
+            >
+              <X size={16} />
+            </button>
+          </div>
         </div>
       )}
 

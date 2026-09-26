@@ -5,6 +5,9 @@ export const riskService = {
   assessRisk: async (
     payload: RiskAssessmentRequest
   ): Promise<RiskAssessmentResponse> => {
-    return apiClient.post<RiskAssessmentResponse>('/risk/assess', payload);
+    return apiClient.post<RiskAssessmentResponse>('/risk/assess', payload, {
+      timeoutMs: 35000,
+      retry: true,
+    });
   },
 };

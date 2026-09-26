@@ -18,9 +18,9 @@ interface RequestOptions extends RequestInit {
   retry?: boolean;
 }
 
-const MAX_AUTO_RETRIES = 1;
-const RETRY_BACKOFF_MS = [1000];
-const DEFAULT_TIMEOUT_MS = 12000; // 12s timeout ensures buttons never hang for long
+const MAX_AUTO_RETRIES = 2;
+const RETRY_BACKOFF_MS = [1500, 3000];
+const DEFAULT_TIMEOUT_MS = 35000; // 35s accommodates cloud container cold starts (Render/serverless)
 
 function isTransientError(status: number, error?: unknown): boolean {
   // 502/503/504 indicates proxy/server spinning up or gateway timeout
@@ -63,7 +63,16 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
 
   const method = (customConfig.method || 'GET').toUpperCase();
   const isIdempotent = method === 'GET' || method === 'HEAD' || method === 'OPTIONS';
-  const shouldRetry = explicitRetry ?? isIdempotent;
+  // Analytical / prediction / calculation queries are pure read-only computations
+  const isAnalyticalQuery =
+    endpoint.includes('/generate') ||
+    endpoint.includes('/calculate') ||
+    endpoint.includes('/predict') ||
+    endpoint.includes('/assess') ||
+    endpoint.includes('/recommendations') ||
+    endpoint.includes('/preferences') ||
+    endpoint.includes('/search');
+  const shouldRetry = explicitRetry ?? (isIdempotent || isAnalyticalQuery);
   const maxAttempts = shouldRetry ? MAX_AUTO_RETRIES : 0;
 
   let lastError: unknown;
