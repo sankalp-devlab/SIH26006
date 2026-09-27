@@ -37,12 +37,12 @@ export const MapLegend: React.FC<MapLegendProps> = ({
   }
 
   return (
-    <div className={`vmp-floating-legend ${className}`}>
+    <div className={`vmp-floating-legend ${className}`} role="region" aria-label="Maritime map legend">
       {/* HEADER */}
       <div className="vmp-legend-header">
         <div className="vmp-legend-title-row">
           <span className="vmp-legend-icon">🧭</span>
-          <span className="vmp-legend-title">MAP LEGEND</span>
+          <span className="vmp-legend-title">MARITIME MAP</span>
         </div>
         <button
           className="vmp-legend-close-btn"
@@ -54,18 +54,34 @@ export const MapLegend: React.FC<MapLegendProps> = ({
         </button>
       </div>
 
-      {/* CORE ACTIVE ENTITIES */}
+      {/* CORE ENTITY ITEMS (Section 16 Specification) */}
       <div className="vmp-legend-section">
-        <div className="vmp-legend-subtitle">ACTIVE INTELLIGENCE LAYERS</div>
-
-        {/* PORT */}
+        {/* LIVE VESSEL */}
         <div className="vmp-legend-item">
-          <div className="vmp-legend-symbol vmp-symbol-port">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="5" r="3"></circle>
-              <line x1="12" y1="22" x2="12" y2="8"></line>
-              <path d="M5 12H2a10 10 0 0 0 20 0h-3"></path>
-            </svg>
+          <div className="vmp-legend-symbol">
+            <span className="vmp-legend-live-sym">◉</span>
+          </div>
+          <div className="vmp-legend-item-info">
+            <span className="vmp-legend-name">Live Vessel</span>
+            <span className="vmp-legend-meta">Active Telemetry &middot; Underway</span>
+          </div>
+        </div>
+
+        {/* VESSEL */}
+        <div className="vmp-legend-item">
+          <div className="vmp-legend-symbol">
+            <span className="vmp-legend-vessel-sym">◇</span>
+          </div>
+          <div className="vmp-legend-item-info">
+            <span className="vmp-legend-name">Vessel</span>
+            <span className="vmp-legend-meta">Fleet Vessel &middot; Anchored / Moored</span>
+          </div>
+        </div>
+
+        {/* COMMERCIAL PORT */}
+        <div className="vmp-legend-item">
+          <div className="vmp-legend-symbol">
+            <span className="vmp-legend-port-sym">⚓</span>
           </div>
           <div className="vmp-legend-item-info">
             <span className="vmp-legend-name">Commercial Port</span>
@@ -73,39 +89,37 @@ export const MapLegend: React.FC<MapLegendProps> = ({
           </div>
         </div>
 
-        {/* VESSEL */}
+        {/* MARITIME CHOKEPOINT */}
         <div className="vmp-legend-item">
-          <div className="vmp-legend-symbol vmp-symbol-vessel">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00D9FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polygon points="12 2 19 21 12 17 5 21 12 2"></polygon>
-            </svg>
+          <div className="vmp-legend-symbol">
+            <span className="vmp-legend-choke-sym">●</span>
           </div>
           <div className="vmp-legend-item-info">
-            <span className="vmp-legend-name">Fleet Vessel</span>
-            <span className="vmp-legend-meta">Directional Hull & Speed</span>
+            <span className="vmp-legend-name">Chokepoint</span>
+            <span className="vmp-legend-meta">Strategic Strait &middot; Canal Passage</span>
           </div>
         </div>
 
-        {/* ROUTE */}
+        {/* ACTIVE ROUTE */}
         <div className="vmp-legend-item">
-          <div className="vmp-legend-symbol vmp-symbol-route">
-            <div className="vmp-route-line-preview"></div>
+          <div className="vmp-legend-symbol">
+            <span className="vmp-legend-active-route-line"></span>
           </div>
           <div className="vmp-legend-item-info">
-            <span className="vmp-legend-name">Commercial Route</span>
-            <span className="vmp-legend-meta">Port Corridor Baseline</span>
+            <span className="vmp-legend-name">Active Route</span>
+            <span className="vmp-legend-meta">Selected Voyage Flow &middot; Direction</span>
           </div>
         </div>
-      </div>
 
-      {/* FUTURE-READY CAPABILITIES (Extensibility) */}
-      <div className="vmp-legend-section vmp-legend-section-future">
-        <div className="vmp-legend-subtitle">TELEMETRY EXPANSION</div>
-        <div className="vmp-legend-future-grid">
-          <span className="vmp-future-badge">Live AIS (M8+)</span>
-          <span className="vmp-future-badge">Route Engine (M11)</span>
-          <span className="vmp-future-badge">Weather Overlay</span>
-          <span className="vmp-future-badge">Risk & Chokepoints</span>
+        {/* PLANNED ROUTE */}
+        <div className="vmp-legend-item">
+          <div className="vmp-legend-symbol">
+            <span className="vmp-legend-planned-route-line"></span>
+          </div>
+          <div className="vmp-legend-item-info">
+            <span className="vmp-legend-name">Planned Route</span>
+            <span className="vmp-legend-meta">Commercial Corridor Baseline</span>
+          </div>
         </div>
       </div>
     </div>

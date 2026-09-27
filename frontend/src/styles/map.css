@@ -692,3 +692,714 @@
     width: 180px;
   }
 }
+
+/* ==========================================================================
+   8. ENHANCED MARITIME GEOSPATIAL MAP THEME & DEPTH (Sections 2 & 3 & 22)
+   ========================================================================== */
+.vmp-map-canvas-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #030b14;
+}
+
+/* Subtle Map Depth Vignette (Section 22) */
+.vmp-map-canvas-wrapper::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 400;
+  box-shadow: inset 0 0 75px rgba(3, 11, 20, 0.8), inset 0 0 150px rgba(3, 11, 20, 0.45);
+}
+
+/* Deep Navy Ocean / Dark Charcoal Land Tile Color Grading (Section 3) */
+.vmp-canvas-container .leaflet-tile-pane {
+  filter: brightness(0.72) contrast(1.28) saturate(0.82) hue-rotate(196deg);
+}
+
+/* Leaflet container dark baseline */
+.vmp-canvas-container {
+  background: #030b14 !important;
+}
+
+/* ==========================================================================
+   9. VESSEL MARKERS & TELEMETRY INDICATORS (Sections 4, 5, 6)
+   ========================================================================== */
+.vmp-leaflet-vessel-div-icon {
+  background: transparent !important;
+  border: none !important;
+}
+
+.vmp-vessel-marker {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  width: 34px;
+  height: 34px;
+  transition: transform 0.15s ease;
+}
+
+.vmp-vessel-marker:hover {
+  transform: scale(1.12);
+  z-index: 1000 !important;
+}
+
+.vmp-ship-hull {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.85));
+  will-change: transform;
+}
+
+/* Telemetry Semantic Status Dots (Section 5) */
+.vmp-telemetry-dot {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  border: 1px solid rgba(3, 11, 20, 0.9);
+  z-index: 4;
+  pointer-events: none;
+}
+
+.vmp-telemetry-dot.is-live {
+  background: #10b981;
+  box-shadow: 0 0 6px #10b981;
+  animation: vmpLiveDotPulse 2s ease-in-out infinite;
+}
+
+.vmp-telemetry-dot.is-recent {
+  background: #38bdf8;
+  box-shadow: 0 0 4px #38bdf8;
+}
+
+.vmp-telemetry-dot.is-stale {
+  background: #f59e0b;
+  box-shadow: 0 0 4px #f59e0b;
+}
+
+.vmp-telemetry-dot.is-unavailable {
+  background: #64748b;
+}
+
+@keyframes vmpLiveDotPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.3); opacity: 0.65; }
+}
+
+/* Selected Vessel Focal Point Treatment (Section 6) */
+.vmp-vessel-marker.is-selected {
+  width: 40px;
+  height: 40px;
+  z-index: 1200 !important;
+}
+
+.vmp-vessel-marker.is-selected .vmp-ship-hull {
+  filter: drop-shadow(0 0 10px rgba(0, 240, 255, 0.9));
+}
+
+.vmp-selected-reticle {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 1.5px solid #00f0ff;
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.6);
+  pointer-events: none;
+}
+
+.vmp-selected-radar-pulse {
+  position: absolute;
+  inset: -14px;
+  border-radius: 50%;
+  border: 1.2px solid rgba(0, 240, 255, 0.7);
+  animation: vmpSelectedRadarWave 2.4s cubic-bezier(0.1, 0.3, 0.7, 1) infinite;
+  pointer-events: none;
+}
+
+@keyframes vmpSelectedRadarWave {
+  0% { transform: scale(0.65); opacity: 0.9; }
+  70% { transform: scale(1.6); opacity: 0.25; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+.vmp-heading-vector-ray {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1.8px;
+  height: 32px;
+  background: linear-gradient(to top, rgba(0, 240, 255, 0.95), transparent);
+  transform-origin: top center;
+  pointer-events: none;
+  margin-top: -32px;
+  margin-left: -0.9px;
+  z-index: 2;
+}
+
+.vmp-marker-callout {
+  display: none;
+  position: absolute;
+  top: -26px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(3, 11, 20, 0.92);
+  border: 1px solid rgba(0, 240, 255, 0.45);
+  padding: 2px 7px;
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #f8fafc;
+  gap: 5px;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(8px);
+  z-index: 10;
+}
+
+.vmp-marker-callout.is-visible {
+  display: flex;
+}
+
+.vmp-callout-sog {
+  color: #00f0ff;
+  font-size: 8.5px;
+  font-family: var(--font-mono, monospace);
+}
+
+/* ==========================================================================
+   10. CIRCULAR MARITIME VESSEL CLUSTERS (Section 7)
+   ========================================================================== */
+.vmp-leaflet-cluster-div-icon {
+  background: transparent !important;
+  border: none !important;
+}
+
+.vmp-cluster-node {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.vmp-cluster-pulse {
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 1.2px solid rgba(0, 240, 255, 0.45);
+  animation: vmpClusterWave 2.8s infinite;
+  pointer-events: none;
+}
+
+@keyframes vmpClusterWave {
+  0% { transform: scale(0.85); opacity: 0.8; }
+  60% { transform: scale(1.35); opacity: 0.2; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+.vmp-cluster-badge {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #0c233c, #030b14);
+  border: 1.5px solid rgba(0, 240, 255, 0.75);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.75), 0 0 12px rgba(0, 240, 255, 0.3);
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.vmp-cluster-node:hover .vmp-cluster-badge {
+  transform: scale(1.1);
+  border-color: #00f0ff;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.8), 0 0 18px rgba(0, 240, 255, 0.55);
+}
+
+.vmp-cluster-num {
+  font-size: 11px;
+  font-weight: 800;
+  color: #00f0ff;
+  line-height: 1;
+  font-family: var(--font-mono, monospace);
+}
+
+.vmp-cluster-tag {
+  font-size: 6.5px;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 0.08em;
+  margin-top: 1px;
+}
+
+/* ==========================================================================
+   11. MARITIME CHOKEPOINT STRATEGIC ANNOTATIONS (Section 8)
+   ========================================================================== */
+.vmp-leaflet-waypoint-div-icon {
+  background: transparent !important;
+  border: none !important;
+}
+
+.vmp-chokepoint-node {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(3, 11, 20, 0.88);
+  border: 1px solid rgba(245, 158, 11, 0.55);
+  border-radius: 4px;
+  padding: 2px 7px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.7), 0 0 10px rgba(245, 158, 11, 0.22);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  pointer-events: auto;
+}
+
+.vmp-chokepoint-node:hover {
+  border-color: #f59e0b;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.8), 0 0 14px rgba(245, 158, 11, 0.45);
+}
+
+.vmp-chokepoint-beacon {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #f59e0b;
+  box-shadow: 0 0 6px #f59e0b;
+  flex-shrink: 0;
+  animation: vmpBeaconPulse 2s ease-in-out infinite;
+}
+
+@keyframes vmpBeaconPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.2); }
+}
+
+.vmp-chokepoint-label {
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #fef3c7;
+  text-transform: uppercase;
+  font-family: var(--font-mono, monospace);
+  line-height: 1;
+}
+
+/* ==========================================================================
+   12. COMMERCIAL PORT & PROMINENT DESTINATION CALLOUTS (Sections 9 & 13)
+   ========================================================================== */
+.vmp-leaflet-port-div-icon {
+  background: transparent !important;
+  border: none !important;
+}
+
+.vmp-port-node {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(3, 11, 20, 0.88);
+  border: 1.2px solid #38bdf8;
+  border-radius: 14px;
+  padding: 2px 7px;
+  color: #38bdf8;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6), 0 0 8px rgba(56, 189, 248, 0.2);
+  backdrop-filter: blur(8px);
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.vmp-port-node:hover {
+  transform: translateY(-1px) scale(1.05);
+  border-color: #00f0ff;
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(0, 240, 255, 0.4);
+}
+
+.vmp-port-node.is-selected {
+  border-color: #00f0ff;
+  background: rgba(0, 240, 255, 0.18);
+  box-shadow: 0 0 16px rgba(0, 240, 255, 0.55);
+}
+
+.vmp-port-anchor-sym {
+  font-size: 10px;
+  line-height: 1;
+}
+
+.vmp-port-tag {
+  display: none;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #e2e8f0;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vmp-port-node:hover .vmp-port-tag,
+.vmp-port-node.is-selected .vmp-port-tag,
+.vmp-high-zoom .vmp-port-tag {
+  display: inline-block;
+}
+
+/* Floating Destination Callout Card (Section 13) */
+.vmp-leaflet-destination-div-icon {
+  background: transparent !important;
+  border: none !important;
+}
+
+.vmp-destination-node {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.vmp-dest-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  background: rgba(3, 11, 20, 0.94);
+  border: 1px solid rgba(245, 158, 11, 0.7);
+  border-radius: 5px;
+  padding: 3px 8px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.8), 0 0 12px rgba(245, 158, 11, 0.3);
+  backdrop-filter: blur(10px);
+  white-space: nowrap;
+}
+
+.vmp-dest-badge {
+  font-size: 7px;
+  font-weight: 800;
+  color: #f59e0b;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.vmp-dest-name {
+  font-size: 10px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.vmp-dest-pin {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 1px;
+}
+
+.vmp-dest-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #f59e0b;
+  box-shadow: 0 0 8px #f59e0b;
+}
+
+/* ==========================================================================
+   13. SOPHISTICATED ROUTE HIERARCHY & FLOW ANIMATIONS (Sections 10, 11, 12)
+   ========================================================================== */
+.vmp-active-route-line {
+  stroke-dasharray: 8, 8;
+  animation: vmpMaritimeFlow 2.8s linear infinite;
+  filter: drop-shadow(0 0 6px rgba(0, 240, 255, 0.8));
+}
+
+@keyframes vmpMaritimeFlow {
+  from { stroke-dashoffset: 32; }
+  to { stroke-dashoffset: 0; }
+}
+
+.vmp-inactive-route-line {
+  transition: opacity 0.2s ease;
+}
+
+.vmp-leaflet-route-direction-icon {
+  background: transparent !important;
+  border: none !important;
+}
+
+.vmp-route-arrow-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 0 6px #00f0ff);
+  will-change: transform;
+}
+
+/* ==========================================================================
+   14. MARITIME INTELLIGENCE TOOLTIP CARD (Section 14)
+   ========================================================================== */
+.vmp-leaflet-tooltip-wrap {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.vmp-vessel-intel-card {
+  background: rgba(3, 11, 20, 0.95);
+  border: 1px solid rgba(0, 240, 255, 0.35);
+  border-radius: 8px;
+  padding: 10px 12px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.85), 0 0 18px rgba(0, 240, 255, 0.15);
+  backdrop-filter: blur(14px);
+  font-family: var(--font-sans, system-ui, sans-serif);
+  color: #f1f5f9;
+  min-width: 220px;
+  max-width: 280px;
+}
+
+.vmp-intel-header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.vmp-intel-name {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 0.02em;
+}
+
+.vmp-intel-type-dwt {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+.vmp-intel-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 6px 0;
+}
+
+.vmp-intel-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.vmp-intel-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.72rem;
+}
+
+.vmp-intel-label {
+  color: #64748b;
+  font-weight: 600;
+  font-size: 0.65rem;
+  letter-spacing: 0.04em;
+}
+
+.vmp-intel-val {
+  color: #e2e8f0;
+  font-weight: 700;
+  font-family: var(--font-mono, monospace);
+}
+
+.vmp-intel-status-pill {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  font-family: var(--font-mono, monospace);
+}
+
+.vmp-intel-status-pill.is-live {
+  color: #10b981;
+}
+
+.vmp-intel-status-pill.is-recent {
+  color: #38bdf8;
+}
+
+.vmp-intel-status-pill.is-stale {
+  color: #f59e0b;
+}
+
+.vmp-intel-status-pill.is-unavailable {
+  color: #64748b;
+}
+
+.vmp-intel-pos {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.68rem;
+}
+
+.vmp-intel-pos-label {
+  color: #64748b;
+  font-weight: 600;
+  font-size: 0.65rem;
+  letter-spacing: 0.04em;
+}
+
+.vmp-intel-pos-val {
+  color: #00f0ff;
+  font-weight: 700;
+  font-family: var(--font-mono, monospace);
+}
+
+.vmp-intel-dest-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 5px;
+  padding-top: 5px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.06);
+  font-size: 0.7rem;
+}
+
+.vmp-intel-dest-val {
+  color: #fde68a;
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   15. MAP HUD OVERLAYS (Section 15)
+   ========================================================================== */
+.vmp-map-hud-top-left {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 500;
+  pointer-events: none;
+  background: rgba(3, 11, 20, 0.85);
+  border: 1px solid rgba(56, 189, 248, 0.22);
+  border-radius: 6px;
+  padding: 5px 10px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.vmp-hud-title {
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #94a3b8;
+  text-transform: uppercase;
+}
+
+.vmp-hud-status {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #00f0ff;
+  letter-spacing: 0.04em;
+  font-family: var(--font-mono, monospace);
+}
+
+.vmp-hud-live-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 6px #10b981;
+  animation: vmpLiveDotPulse 1.8s infinite;
+}
+
+.vmp-map-hud-bottom-left {
+  position: absolute;
+  bottom: 12px;
+  left: 14px;
+  z-index: 500;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(3, 11, 20, 0.85);
+  border: 1px solid rgba(56, 189, 248, 0.22);
+  border-radius: 4px;
+  padding: 4px 8px;
+  backdrop-filter: blur(10px);
+  font-size: 0.65rem;
+  color: #94a3b8;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.vmp-hud-label {
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.vmp-hud-count {
+  color: #00f0ff;
+  font-weight: 800;
+  font-family: var(--font-mono, monospace);
+}
+
+/* ==========================================================================
+   16. MAP LEGEND REFINED SYMBOLS (Section 16)
+   ========================================================================== */
+.vmp-legend-live-sym {
+  color: #00f0ff;
+  font-size: 14px;
+  line-height: 1;
+  text-shadow: 0 0 6px rgba(0, 240, 255, 0.8);
+}
+
+.vmp-legend-vessel-sym {
+  color: #38bdf8;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.vmp-legend-port-sym {
+  color: #38bdf8;
+  font-size: 13px;
+  line-height: 1;
+}
+
+.vmp-legend-choke-sym {
+  color: #f59e0b;
+  font-size: 11px;
+  line-height: 1;
+  text-shadow: 0 0 6px rgba(245, 158, 11, 0.8);
+}
+
+.vmp-legend-active-route-line {
+  display: block;
+  width: 18px;
+  height: 2.5px;
+  background: #00f0ff;
+  border-radius: 1px;
+  box-shadow: 0 0 8px #00f0ff;
+}
+
+.vmp-legend-planned-route-line {
+  display: block;
+  width: 18px;
+  height: 2px;
+  background: repeating-linear-gradient(90deg, #38bdf8 0, #38bdf8 4px, transparent 4px, transparent 7px);
+}
+

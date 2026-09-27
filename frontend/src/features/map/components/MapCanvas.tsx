@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -21,10 +21,67 @@ import {
   createPortMarkerIcon,
   createTerminalMarkerIcon,
   createWaypointMarkerIcon,
+  getVesselTelemetryStatus,
 } from './VesselMarker';
 import { renderPortPopupHtml } from './PortPopup';
 import { renderRoutesLayer, type RouteGeometry } from './RouteLayer';
 import { MapTilesService } from '../../../services/map/map-tiles.service';
+
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function renderVesselTooltipHtml(v: VesselPosition): string {
+  const telemetry = getVesselTelemetryStatus(v);
+  const displayName = escapeHtml(v.name.replace(/^REFERENCE-/, ''));
+  const headingFormatted = Math.round(v.heading || 0).toString().padStart(3, '0');
+  const speedFormatted = v.speed_knots.toFixed(1);
+  const statusBadge = telemetry.toUpperCase();
+  const latDir = v.latitude >= 0 ? 'N' : 'S';
+  const lngDir = v.longitude >= 0 ? 'E' : 'W';
+  const posFormatted = `${Math.abs(v.latitude).toFixed(3)}° ${latDir}, ${Math.abs(v.longitude).toFixed(3)}° ${lngDir}`;
+  const dwtFormatted = v.capacity_tons ? ` &middot; ${v.capacity_tons.toLocaleString()} DWT` : '';
+
+  return `
+    <div class="vmp-vessel-intel-card">
+      <div class="vmp-intel-header">
+        <span class="vmp-intel-name">${displayName}</span>
+        <span class="vmp-intel-type-dwt">${escapeHtml(v.vessel_type)}${dwtFormatted}</span>
+      </div>
+      <div class="vmp-intel-divider"></div>
+      <div class="vmp-intel-grid">
+        <div class="vmp-intel-row">
+          <span class="vmp-intel-label">SPEED</span>
+          <span class="vmp-intel-val">${speedFormatted} kts</span>
+        </div>
+        <div class="vmp-intel-row">
+          <span class="vmp-intel-label">HEADING</span>
+          <span class="vmp-intel-val">${headingFormatted}°</span>
+        </div>
+        <div class="vmp-intel-row">
+          <span class="vmp-intel-label">STATUS</span>
+          <span class="vmp-intel-status-pill is-${telemetry}">● ${statusBadge}</span>
+        </div>
+      </div>
+      <div class="vmp-intel-divider"></div>
+      <div class="vmp-intel-pos">
+        <span class="vmp-intel-pos-label">POSITION</span>
+        <span class="vmp-intel-pos-val">${posFormatted}</span>
+      </div>
+      ${v.destination_port && v.destination_port !== 'Awaiting orders' && v.destination_port !== 'TBD' ? `
+        <div class="vmp-intel-dest-row">
+          <span class="vmp-intel-label">DEST</span>
+          <span class="vmp-intel-dest-val">⚓ ${escapeHtml(v.destination_port)}</span>
+        </div>
+      ` : ''}
+    </div>
+  `;
+}
 
 interface MapCanvasProps {
   vessels: VesselPosition[];
@@ -107,6 +164,21 @@ export function MapCanvas({
   const animFrameIdRef = useRef<number | null>(null);
   const currentZoomRef = useRef<number>(4);
 
+  // Vessels currently visible inside the viewport bounds
+  const [vesselsInViewCount, setVesselsInViewCount] = useState<number>(vessels.length);
+
+  const updateVesselsInView = useCallback(() => {
+    if (!mapRef.current) return;
+    const bounds = mapRef.current.getBounds();
+    let inView = 0;
+    vessels.forEach((v) => {
+      if (bounds.contains([v.latitude, v.longitude])) {
+        inView += 1;
+      }
+    });
+    setVesselsInViewCount(inView);
+  }, [vessels]);
+
   // 1. Initialize Map
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
@@ -158,9 +230,21 @@ export function MapCanvas({
     map.on('zoomend', () => {
       const z = map.getZoom();
       currentZoomRef.current = z;
+      if (containerRef.current) {
+        if (z >= 6) {
+          containerRef.current.classList.add('vmp-high-zoom');
+        } else {
+          containerRef.current.classList.remove('vmp-high-zoom');
+        }
+      }
       if (onZoomChange) onZoomChange(z);
       renderVesselsOrClusters();
       renderPortsOrClusters();
+      updateVesselsInView();
+    });
+
+    map.on('moveend', () => {
+      updateVesselsInView();
     });
 
     map.on('click', (e: L.LeafletMouseEvent) => {
@@ -174,7 +258,11 @@ export function MapCanvas({
     });
 
     mapRef.current = map;
+    if (containerRef.current) {
+      (containerRef.current as any)._leaflet_map = map;
+    }
     if (onZoomChange) onZoomChange(4);
+    updateVesselsInView();
 
     const ro = new ResizeObserver(() => {
       map.invalidateSize();
@@ -359,13 +447,15 @@ export function MapCanvas({
   }, [renderPortsOrClusters]);
 
   // 8. Render Commercial Shipping Routes from Database
+  const selectedVessel = vessels.find((v) => v.id === selectedVesselId) ?? null;
+
   useEffect(() => {
     if ((resolvedRoutes && resolvedRoutes.length > 0) || (module11Geometries && module11Geometries.length > 0)) {
-      renderRoutesLayer(routesGroupRef.current, resolvedRoutes || [], module11Geometries);
+      renderRoutesLayer(routesGroupRef.current, resolvedRoutes || [], module11Geometries, selectedVessel);
     } else {
       routesGroupRef.current.clearLayers();
     }
-  }, [resolvedRoutes, module11Geometries]);
+  }, [resolvedRoutes, module11Geometries, selectedVessel]);
 
   // 9. Traffic Density Layer (Requirement 16)
   useEffect(() => {
@@ -434,7 +524,8 @@ export function MapCanvas({
     });
 
     renderVesselsOrClusters();
-  }, [vessels, selectedVesselId, mode, historicalPoints, historicalIndex]);
+    updateVesselsInView();
+  }, [vessels, selectedVesselId, mode, historicalPoints, historicalIndex, updateVesselsInView]);
 
   // 11. Intelligent Clustering vs Individual Vessels (Requirement 11)
   const renderVesselsOrClusters = useCallback(() => {
@@ -534,24 +625,11 @@ export function MapCanvas({
           onSelectVessel(v.id);
         });
 
-        marker.bindTooltip(
-          `
-          <div class="vmp-vessel-tooltip-box">
-            <div class="vmp-tt-name">${v.name.replace(/^REFERENCE-/, '')}</div>
-            <div class="vmp-tt-sub">${v.vessel_type} &middot; ${v.status.toUpperCase()}</div>
-            <div class="vmp-tt-metrics">
-              <span>SOG: <strong>${v.speed_knots.toFixed(1)} kn</strong></span>
-              <span>HDG: <strong>${v.heading}°</strong></span>
-            </div>
-            <div class="vmp-tt-dest">Dest: <strong>${v.destination_port}</strong></div>
-          </div>
-        `,
-          {
-            direction: 'top',
-            offset: [0, -20],
-            className: 'vmp-leaflet-tooltip-wrap',
-          }
-        );
+        marker.bindTooltip(renderVesselTooltipHtml(v), {
+          direction: 'top',
+          offset: [0, -20],
+          className: 'vmp-leaflet-tooltip-wrap',
+        });
 
         vesselGroupRef.current.addLayer(marker);
         markerInstancesRef.current.set(v.id, marker);
@@ -559,6 +637,7 @@ export function MapCanvas({
         // Update icon state (for selection, category, etc.)
         marker.setIcon(createVesselMarkerIcon(v, isSelected, false));
         marker.setZIndexOffset(isSelected ? 1200 : 500);
+        marker.setTooltipContent(renderVesselTooltipHtml(v));
       }
     });
 
@@ -779,10 +858,27 @@ export function MapCanvas({
   }, [selectedVesselId]);
 
   return (
-    <div
-      className="vmp-canvas-container"
-      ref={containerRef}
-      aria-label="OceanLens Real-Time Maritime Operations Map"
-    />
+    <div className="vmp-map-canvas-wrapper" style={{ width: '100%', height: '100%', position: 'relative' }}>
+      <div
+        className="vmp-canvas-container"
+        ref={containerRef}
+        aria-label="OceanLens Real-Time Maritime Operations Map"
+        style={{ width: '100%', height: '100%' }}
+      />
+
+      {/* Subtle Map HUD Overlays (Section 15) */}
+      <div className="vmp-map-hud-top-left" aria-hidden="true">
+        <div className="vmp-hud-title">GLOBAL FLEET</div>
+        <div className="vmp-hud-status">
+          <span className="vmp-hud-live-dot"></span>
+          <span>TRACKING ACTIVE</span>
+        </div>
+      </div>
+
+      <div className="vmp-map-hud-bottom-left" aria-hidden="true">
+        <span className="vmp-hud-label">VESSELS IN VIEW:</span>
+        <strong className="vmp-hud-count">{vesselsInViewCount}</strong>
+      </div>
+    </div>
   );
 }
