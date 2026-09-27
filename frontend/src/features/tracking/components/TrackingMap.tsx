@@ -1,7 +1,7 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { Radio, ShieldAlert } from 'lucide-react';
+import { Radio, ShieldAlert, Maximize2 } from 'lucide-react';
 import { MapTilesService } from '../../../services/map/map-tiles.service';
 import type { TrackedVesselSummary, PositionObservation, TrackedPortInfo } from '../../../types/tracking';
 
@@ -30,14 +30,14 @@ export const TrackingMap: React.FC<TrackingMapProps> = ({
   const routeLayerRef = useRef<L.LayerGroup | null>(null);
   const historyLayerRef = useRef<L.LayerGroup | null>(null);
 
-  // 1. Initialize Map
+  // 1. Initialize Leaflet Map with authentic dark tile layer & custom zoom position
   useEffect(() => {
     if (!mapContainerRef.current || mapInstanceRef.current) return;
 
     const tileConfig = MapTilesService.getTileConfig('dark');
 
     const map = L.map(mapContainerRef.current, {
-      center: [15.0, 80.0], // Centered over major maritime trade crossway
+      center: [15.0, 80.0], // Centered over major maritime Indian Ocean & Malacca trade corridor
       zoom: 3,
       minZoom: 2,
       maxZoom: 18,
@@ -64,7 +64,32 @@ export const TrackingMap: React.FC<TrackingMapProps> = ({
     };
   }, []);
 
-  // 2. Render Vessel Markers
+  // Fit all active fleet vessels in view
+  const fitAllVessels = useCallback(() => {
+    if (!mapInstanceRef.current) return;
+    const positioned = vessels.filter(
+      (v) => v.latest_position && v.latest_position.latitude != null && v.latest_position.longitude != null
+    );
+    if (positioned.length === 0) {
+      mapInstanceRef.current.setView([15.0, 80.0], 3, { animate: true });
+      return;
+    }
+    const latLngs: [number, number][] = positioned.map((v) => [
+      v.latest_position!.latitude,
+      v.latest_position!.longitude,
+    ]);
+    if (latLngs.length === 1) {
+      mapInstanceRef.current.setView(latLngs[0], 6, { animate: true });
+    } else {
+      mapInstanceRef.current.fitBounds(L.latLngBounds(latLngs), {
+        padding: [60, 60],
+        maxZoom: 8,
+        animate: true,
+      });
+    }
+  }, [vessels]);
+
+  // 2. Render Directional Maritime Vessel Markers with Semantic Colors & Pulse
   useEffect(() => {
     if (!mapInstanceRef.current || !markersLayerRef.current) return;
     markersLayerRef.current.clearLayers();
@@ -77,69 +102,57 @@ export const TrackingMap: React.FC<TrackingMapProps> = ({
       const pos = v.latest_position!;
       const isSelected = v.vessel_id === selectedVesselId;
 
-      // Determine color by freshness
-      let strokeColor = '#20C98A'; // LIVE (emerald)
-      let fillColor = 'rgba(32, 201, 138, 0.45)';
+      // Semantic status colors matching enterprise maritime standards
+      let strokeColor = '#10B981'; // LIVE (< 2h)
+      let fillColor = 'rgba(16, 185, 129, 0.32)';
+      let dropShadow = 'drop-shadow(0 0 6px rgba(16, 185, 129, 0.65))';
       let badgeLabel = 'LIVE';
       let isLive = true;
 
       if (pos.freshness_status === 'RECENT') {
-        strokeColor = '#2F8CFF'; // RECENT (blue)
-        fillColor = 'rgba(47, 140, 255, 0.45)';
+        strokeColor = '#00D9FF'; // RECENT (2h-24h)
+        fillColor = 'rgba(0, 217, 255, 0.28)';
+        dropShadow = 'drop-shadow(0 0 6px rgba(0, 217, 255, 0.5))';
         badgeLabel = 'RECENT';
         isLive = false;
       } else if (pos.freshness_status === 'STALE') {
-        strokeColor = '#FFB020'; // STALE (amber)
-        fillColor = 'rgba(255, 176, 32, 0.45)';
+        strokeColor = '#F59E0B'; // STALE (> 24h)
+        fillColor = 'rgba(245, 158, 11, 0.28)';
+        dropShadow = 'drop-shadow(0 0 5px rgba(245, 158, 11, 0.45))';
         badgeLabel = 'STALE';
         isLive = false;
       }
 
       if (isSelected) {
         strokeColor = '#00D9FF';
-        fillColor = 'rgba(0, 217, 255, 0.65)';
+        fillColor = 'rgba(0, 217, 255, 0.6)';
+        dropShadow = 'drop-shadow(0 0 10px rgba(0, 217, 255, 0.85))';
       }
 
+      // Real heading angle in degrees (North = 0°)
       const headingDeg = pos.heading ?? 0;
       const markerSize = isSelected ? 34 : 26;
 
       const html = `
-        <div style="
-          width: ${markerSize}px;
-          height: ${markerSize}px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transform: rotate(${headingDeg}deg);
-          transition: transform 0.25s ease-out;
-          cursor: pointer;
-          position: relative;
-        ">
+        <div class="vessel-marker-wrapper" style="width: ${markerSize}px; height: ${markerSize}px;">
           ${
             isSelected
-              ? `<div style="
-                  position: absolute;
-                  width: ${markerSize + 10}px;
-                  height: ${markerSize + 10}px;
-                  border-radius: 50%;
-                  border: 1.5px solid rgba(0, 217, 255, 0.7);
-                  box-shadow: 0 0 12px rgba(0, 217, 255, 0.5);
-                  pointer-events: none;
-                "></div>`
+              ? `<div class="vessel-selected-reticle"></div>
+                 <div class="vessel-selected-bracket"></div>`
               : isLive
-              ? `<div style="
-                  position: absolute;
-                  width: ${markerSize + 6}px;
-                  height: ${markerSize + 6}px;
-                  border-radius: 50%;
-                  border: 1px solid rgba(32, 201, 138, 0.4);
-                  pointer-events: none;
-                "></div>`
+              ? `<div class="vessel-live-pulse-ring"></div>`
               : ''
           }
-          <svg width="${markerSize}" height="${markerSize}" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 2L19 21L12 17L5 21L12 2Z" fill="${fillColor}" stroke="${strokeColor}" stroke-width="${isSelected ? 2.5 : 1.7}" stroke-linejoin="round"/>
-          </svg>
+          <div style="transform: rotate(${headingDeg}deg); transition: transform 0.25s ease-out; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%;">
+            <svg width="${markerSize}" height="${markerSize}" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: ${dropShadow};">
+              <!-- Vessel Hull Precision Silhouette -->
+              <path d="M14 2.5L23.5 24L14 19.5L4.5 24L14 2.5Z" fill="${fillColor}" stroke="${strokeColor}" stroke-width="${isSelected ? 2.4 : 1.7}" stroke-linejoin="round"/>
+              <!-- Keel Centerline -->
+              <line x1="14" y1="6" x2="14" y2="18.5" stroke="${strokeColor}" stroke-width="1.2" stroke-linecap="round" opacity="0.8"/>
+              <!-- Central Radar Transponder Dot -->
+              <circle cx="14" cy="13.5" r="2.2" fill="${strokeColor}"/>
+            </svg>
+          </div>
         </div>
       `;
 
@@ -152,32 +165,62 @@ export const TrackingMap: React.FC<TrackingMapProps> = ({
 
       const marker = L.marker([pos.latitude, pos.longitude], { icon: customIcon });
 
+      // Interactive Hover Tooltip
+      marker.bindTooltip(
+        `<div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; line-height: 1.35;">
+          <div style="font-weight: 700; color: #00D9FF; text-transform: uppercase; font-size: 11px;">${v.name}</div>
+          <div style="color: #8DA2B7; font-size: 9px; margin-bottom: 2px;">${v.vessel_type} &bull; ${v.capacity_tons.toLocaleString()} DWT</div>
+          <div style="color: #D3E0EA; font-size: 10px;">
+            <span style="color: #00D9FF; font-weight: 700;">${pos.speed_knots != null ? pos.speed_knots.toFixed(1) + ' kts' : '0.0 kts'}</span> &bull; HDG <span style="font-weight: 700;">${pos.heading != null ? pos.heading.toFixed(0) + '&deg;' : 'N/A'}</span>
+          </div>
+          <div style="margin-top: 3px; font-weight: 700; color: ${strokeColor}; font-size: 9px;">
+            &bull; ${badgeLabel}
+          </div>
+        </div>`,
+        {
+          className: 'tracking-vessel-tooltip',
+          direction: 'top',
+          offset: [0, -14],
+          opacity: 0.98,
+        }
+      );
+
+      // Detailed Click Popup
       const popupContent = `
-        <div style="font-family: 'JetBrains Mono', monospace, -apple-system, sans-serif; color: #F5F8FC; font-size: 11px; min-width: 200px; padding: 4px;">
-          <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; border-bottom: 1px solid rgba(100, 190, 240, 0.14); padding-bottom: 4px;">
-            <strong style="font-size: 12px; color: #00D9FF; text-transform: uppercase;">${v.name}</strong>
-            <span style="font-size: 9px; font-weight: 800; padding: 1px 5px; border-radius: 3px; background: ${fillColor}; color: ${strokeColor}; border: 1px solid ${strokeColor};">
+        <div style="font-family: 'JetBrains Mono', monospace, -apple-system, sans-serif; color: #F5F8FC; font-size: 11px; min-width: 220px; padding: 2px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; border-bottom: 1px solid rgba(0, 217, 255, 0.2); padding-bottom: 6px;">
+            <strong style="font-size: 12px; color: #00D9FF; text-transform: uppercase; letter-spacing: 0.02em;">${v.name}</strong>
+            <span style="font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 4px; background: ${fillColor}; color: ${strokeColor}; border: 1px solid ${strokeColor}; letter-spacing: 0.04em;">
               ${badgeLabel}
             </span>
           </div>
-          <div style="color: #7189A3; font-size: 10px; margin-bottom: 3px;">
-            IMO: ${v.imo_number || 'N/A'} &middot; ${v.vessel_type}
+          <div style="color: #8DA2B7; font-size: 10px; margin-bottom: 6px;">
+            IMO: <strong style="color: #D3E0EA;">${v.imo_number || 'N/A'}</strong> &middot; ${v.vessel_type} (${v.capacity_tons.toLocaleString()} DWT)
           </div>
-          <div style="color: #D3E0EA; font-size: 10px; margin-bottom: 3px;">
-            Position: <strong style="color: #FFFFFF;">${pos.latitude.toFixed(4)}&deg;, ${pos.longitude.toFixed(4)}&deg;</strong>
-          </div>
-          <div style="color: #D3E0EA; font-size: 10px; margin-bottom: 3px;">
-            Speed: <strong style="color: #00D9FF;">${pos.speed_knots != null ? pos.speed_knots.toFixed(1) + ' kts' : 'N/A'}</strong> &middot; Heading: <strong>${pos.heading != null ? pos.heading.toFixed(0) + '&deg;' : 'N/A'}</strong>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: rgba(0, 217, 255, 0.05); border: 1px solid rgba(0, 217, 255, 0.15); border-radius: 6px; padding: 6px 8px; margin-bottom: 8px;">
+            <div>
+              <div style="font-size: 9px; color: #7189A3;">SPEED</div>
+              <div style="font-size: 11px; font-weight: 700; color: #00D9FF;">${pos.speed_knots != null ? pos.speed_knots.toFixed(1) + ' kts' : 'N/A'}</div>
+            </div>
+            <div>
+              <div style="font-size: 9px; color: #7189A3;">HEADING</div>
+              <div style="font-size: 11px; font-weight: 700; color: #F5F8FC;">${pos.heading != null ? pos.heading.toFixed(0) + '&deg;' : 'N/A'}</div>
+            </div>
+            <div style="grid-column: span 2;">
+              <div style="font-size: 9px; color: #7189A3;">COORDINATES</div>
+              <div style="font-size: 10px; font-weight: 600; color: #FFFFFF;">${pos.latitude.toFixed(4)}&deg; N, ${pos.longitude.toFixed(4)}&deg; E</div>
+            </div>
           </div>
           ${
             v.active_booking
-              ? `<div style="margin-top: 6px; padding: 4px 6px; background: rgba(0, 217, 255, 0.08); border-radius: 4px; border: 1px solid rgba(0, 217, 255, 0.25); color: #00D9FF; font-size: 10px;">
+              ? `<div style="margin-bottom: 6px; padding: 4px 6px; background: rgba(0, 217, 255, 0.08); border-radius: 4px; border: 1px solid rgba(0, 217, 255, 0.25); color: #00D9FF; font-size: 10px;">
                   Booking: <strong>${v.active_booking.booking_reference}</strong>
                  </div>`
               : ''
           }
-          <div style="margin-top: 6px; font-size: 9px; color: #7189A3;">
-            Observed: ${new Date(pos.recorded_at).toUTCString()}
+          <div style="font-size: 9px; color: #7189A3; display: flex; justify-content: space-between; border-top: 1px solid rgba(100, 190, 240, 0.12); padding-top: 4px;">
+            <span>Observed:</span>
+            <span>${new Date(pos.recorded_at).toUTCString()}</span>
           </div>
         </div>
       `;
@@ -214,8 +257,9 @@ export const TrackingMap: React.FC<TrackingMapProps> = ({
 
       const polyline = L.polyline(latlngs, {
         color: '#00D9FF',
-        weight: 2.5,
+        weight: 2,
         opacity: 0.85,
+        dashArray: '3, 4',
         lineJoin: 'round',
       });
 
@@ -226,12 +270,12 @@ export const TrackingMap: React.FC<TrackingMapProps> = ({
 
       polyline.addTo(historyLayerRef.current);
 
-      // Add small dots on historical points
+      // Precision dots on historical points
       historicalPoints.forEach((p, idx) => {
         const circle = L.circleMarker([p.latitude, p.longitude], {
           radius: 2.5,
           color: '#00D9FF',
-          fillColor: '#061321',
+          fillColor: '#030A14',
           fillOpacity: 1,
           weight: 1.5,
         });
@@ -240,7 +284,7 @@ export const TrackingMap: React.FC<TrackingMapProps> = ({
       });
     }
 
-    // 3B. Planned Route Corridor (Origin Port -> Destination Port)
+    // 3B. Planned Route Corridor with Animated Flow & Professional Port Callouts
     if (
       originPort &&
       destinationPort &&
@@ -255,27 +299,36 @@ export const TrackingMap: React.FC<TrackingMapProps> = ({
       ];
 
       const plannedLine = L.polyline(corridorPoints, {
-        color: '#FFB020',
-        weight: 1.5,
-        dashArray: '5, 7',
-        opacity: 0.65,
+        color: '#00D9FF',
+        weight: 2,
+        dashArray: '8, 12',
+        opacity: 0.75,
+        className: 'maritime-corridor-flow',
       });
 
       plannedLine.bindTooltip(
-        '<div style="font-family: monospace; font-size: 10px; font-weight: 700; color: #FFB020;">PLANNED ROUTE CORRIDOR (NOT OBSERVED TRACK)</div>',
+        '<div style="font-family: monospace; font-size: 10px; font-weight: 700; color: #00D9FF;">PLANNED ROUTE CORRIDOR (NAUTICAL WAYPOINT VOYAGE)</div>',
         { sticky: true }
       );
 
       plannedLine.addTo(routeLayerRef.current);
 
-      // Port icons
+      // Professional Callout Markers with Vertical Stems anchored to exact coordinates
       const createPortIcon = (name: string, isOrigin: boolean) =>
         L.divIcon({
-          className: 'port-marker',
-          html: `<div class="tracking-port-label ${isOrigin ? 'origin' : 'dest'}">
-            ${isOrigin ? 'ORIGIN: ' : 'DEST: '}${name}
-          </div>`,
-          iconAnchor: [30, 10],
+          className: 'maritime-port-div-icon',
+          html: `
+            <div class="maritime-port-callout">
+              <div class="maritime-port-card ${isOrigin ? 'origin' : 'dest'}">
+                <div class="port-badge-label">${isOrigin ? 'ORIGIN PORT' : 'DESTINATION PORT'}</div>
+                <div class="port-title">${name}</div>
+              </div>
+              <div class="maritime-port-stem ${isOrigin ? 'origin' : 'dest'}"></div>
+              <div class="maritime-port-anchor ${isOrigin ? 'origin' : 'dest'}"></div>
+            </div>
+          `,
+          iconSize: [140, 48],
+          iconAnchor: [70, 48],
         });
 
       L.marker([originPort.latitude, originPort.longitude], {
@@ -289,13 +342,49 @@ export const TrackingMap: React.FC<TrackingMapProps> = ({
   }, [historicalPoints, originPort, destinationPort]);
 
   const positionedCount = vessels.filter((v) => v.latest_position != null).length;
+  const selectedVessel = vessels.find((v) => v.vessel_id === selectedVesselId);
+  const liveCount = vessels.filter((v) => v.latest_position?.freshness_status === 'LIVE').length;
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden' }}>
       {/* Map Container */}
       <div ref={mapContainerRef} style={{ width: '100%', height: '100%', zIndex: 1 }} />
 
-      {/* Floating Map Legend Overlay */}
+      {/* Top-Left Maritime HUD Overlay */}
+      <div className="tracking-map-hud tracking-map-hud-tl">
+        <div className="tracking-hud-title">
+          <span className="tracking-hud-pulse-dot" style={{ background: liveCount > 0 ? '#10B981' : '#F59E0B' }} />
+          <span>LIVE FLEET TRACKING</span>
+        </div>
+        <div className="tracking-hud-sub">
+          {liveCount > 0 ? 'TELEMETRY ACTIVE' : 'TELEMETRY STANDBY'} &middot; AIS 156.025 MHZ
+        </div>
+      </div>
+
+      {/* Bottom-Left Fleet Status HUD Overlay */}
+      <div className="tracking-map-hud tracking-map-hud-bl">
+        <div className="tracking-hud-stat">
+          <span className="tracking-hud-label">FLEET IN VIEW:</span>
+          <strong className="tracking-hud-val">{positionedCount} VESSELS</strong>
+        </div>
+        {selectedVessel && (
+          <div className="tracking-hud-selected">
+            <span>TARGET: </span>
+            <strong>{selectedVessel.name}</strong>
+          </div>
+        )}
+        <button
+          type="button"
+          className="tracking-map-fit-btn"
+          onClick={fitAllVessels}
+          title="Fit fleet in view"
+        >
+          <Maximize2 size={11} />
+          <span>FIT FLEET</span>
+        </button>
+      </div>
+
+      {/* Floating Map Legend Overlay (Top Right) */}
       <div className="tracking-map-legend">
         <div className="tracking-legend-title">
           <Radio size={12} />
@@ -304,28 +393,28 @@ export const TrackingMap: React.FC<TrackingMapProps> = ({
         <div className="tracking-legend-list">
           <div className="tracking-legend-item">
             <div className="tracking-legend-dot-label">
-              <span className="tracking-legend-dot" style={{ backgroundColor: '#20C98A', boxShadow: '0 0 6px #20C98A' }} />
+              <span className="tracking-legend-dot" style={{ backgroundColor: '#10B981', boxShadow: '0 0 6px #10B981' }} />
               <span>LIVE</span>
             </div>
             <span className="tracking-legend-time">&lt; 2h</span>
           </div>
           <div className="tracking-legend-item">
             <div className="tracking-legend-dot-label">
-              <span className="tracking-legend-dot" style={{ backgroundColor: '#2F8CFF' }} />
+              <span className="tracking-legend-dot" style={{ backgroundColor: '#00D9FF' }} />
               <span>RECENT</span>
             </div>
             <span className="tracking-legend-time">2h–24h</span>
           </div>
           <div className="tracking-legend-item">
             <div className="tracking-legend-dot-label">
-              <span className="tracking-legend-dot" style={{ backgroundColor: '#FFB020' }} />
+              <span className="tracking-legend-dot" style={{ backgroundColor: '#F59E0B' }} />
               <span>STALE</span>
             </div>
             <span className="tracking-legend-time">&gt; 24h</span>
           </div>
           <div className="tracking-legend-item">
             <div className="tracking-legend-dot-label">
-              <span className="tracking-legend-dot" style={{ backgroundColor: '#7189A3' }} />
+              <span className="tracking-legend-dot" style={{ backgroundColor: '#64748B' }} />
               <span>UNAVAILABLE</span>
             </div>
             <span className="tracking-legend-time">No fix</span>
@@ -347,24 +436,25 @@ export const TrackingMap: React.FC<TrackingMapProps> = ({
             left: '50%',
             transform: 'translateX(-50%)',
             zIndex: 15,
-            backgroundColor: 'rgba(6, 19, 33, 0.94)',
-            backdropFilter: 'blur(10px)',
-            border: '1px solid rgba(255, 176, 32, 0.45)',
+            backgroundColor: 'rgba(4, 14, 25, 0.94)',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
+            border: '1px solid rgba(245, 158, 11, 0.45)',
             borderRadius: '10px',
             padding: '14px 20px',
             color: '#F5F8FC',
             maxWidth: '500px',
             textAlign: 'center',
-            boxShadow: '0 12px 36px rgba(0, 0, 0, 0.65)',
+            boxShadow: '0 12px 36px rgba(0, 0, 0, 0.75)',
             fontFamily: "'JetBrains Mono', monospace",
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: '#FFB020', fontWeight: 700, fontSize: '13px', marginBottom: '6px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: '#F59E0B', fontWeight: 700, fontSize: '13px', marginBottom: '6px' }}>
             <ShieldAlert size={16} /> Authentic Telemetry Unconfigured
           </div>
           <p style={{ margin: '0 0 12px', fontSize: '11px', color: '#A5B8CC', lineHeight: 1.5, fontFamily: 'sans-serif' }}>
             Commercial AIS subscription is currently unconfigured. Per platform Rule 28 integrity guidelines,
-            vessel coordinates are marked <code style={{ color: '#FFB020' }}>DATA_UNAVAILABLE</code> rather than synthesizing simulated vessel movement.
+            vessel coordinates are marked <code style={{ color: '#F59E0B' }}>DATA_UNAVAILABLE</code> rather than synthesizing simulated vessel movement.
           </p>
           {onOpenIngestModal && (
             <button

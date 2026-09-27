@@ -769,15 +769,15 @@
 }
 
 /* ============================================================
-   6. INTERACTIVE TRACKING MAP CANVAS (RIGHT)
+   6. INTERACTIVE TRACKING MAP CANVAS (RIGHT) - MARITIME TERMINAL
    ============================================================ */
 
 .tracking-map-panel {
-  background: #091A2A;
-  border: 1px solid rgba(100, 190, 240, 0.18);
+  background: #030A14;
+  border: 1px solid rgba(0, 217, 255, 0.22);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.65), inset 0 0 0 1px rgba(0, 217, 255, 0.08);
   display: flex;
   flex-direction: column;
   position: relative;
@@ -791,81 +791,311 @@
   }
 }
 
+/* Subtle Nautical Radar Vignette Overlay */
+.tracking-map-panel::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 400;
+  box-shadow: inset 0 0 60px rgba(2, 8, 16, 0.75), inset 0 0 120px rgba(2, 8, 16, 0.4);
+  border-radius: 12px;
+}
+
 /* Leaflet Container customization */
 .tracking-map-panel .leaflet-container {
-  background: #050E18 !important;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #030A14 !important;
+  font-family: 'JetBrains Mono', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   width: 100% !important;
   height: 100% !important;
 }
 
-/* Styled Leaflet Zoom Controls */
-.tracking-map-panel .leaflet-bar {
-  border: 1px solid rgba(100, 190, 240, 0.25) !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45) !important;
-  border-radius: 8px !important;
-  overflow: hidden;
-}
-
-.tracking-map-panel .leaflet-bar a {
-  background-color: #091A2A !important;
-  color: #D3E0EA !important;
-  border-bottom: 1px solid rgba(100, 190, 240, 0.15) !important;
-  width: 32px !important;
-  height: 32px !important;
-  line-height: 32px !important;
-  font-size: 14px !important;
-  transition: all 0.15s ease !important;
-}
-
-.tracking-map-panel .leaflet-bar a:hover {
-  background-color: #0B2238 !important;
-  color: #00D9FF !important;
-}
-
-.tracking-map-panel .leaflet-control-attribution {
-  background: rgba(6, 19, 33, 0.85) !important;
-  color: #6A829A !important;
-  font-size: 9px !important;
-  border-top-left-radius: 6px;
-  padding: 2px 6px !important;
-}
-
-.tracking-map-panel .leaflet-control-attribution a {
-  color: #7189A3 !important;
-}
-
-/* Leaflet Popup Styling */
-.tracking-map-panel .leaflet-popup-content-wrapper {
-  background: #091A2A !important;
-  color: #F5F8FC !important;
-  border: 1px solid rgba(0, 217, 255, 0.35) !important;
-  border-radius: 10px !important;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6) !important;
-  padding: 0 !important;
-}
-
-.tracking-map-panel .leaflet-popup-content {
-  margin: 12px 14px !important;
-  line-height: 1.4 !important;
-}
-
-.tracking-map-panel .leaflet-popup-tip {
-  background: #091A2A !important;
-  border: 1px solid rgba(0, 217, 255, 0.35) !important;
-}
-
-.tracking-map-panel .leaflet-popup-close-button {
-  color: #7189A3 !important;
-  padding: 4px !important;
-}
-
-.tracking-map-panel .leaflet-popup-close-button:hover {
-  color: #FFFFFF !important;
+/* Premium Maritime Dark Tile Grading: deep navy ocean, dark charcoal landmass, subtle blue-gray borders */
+.tracking-map-panel .leaflet-tile-pane {
+  filter: brightness(0.76) contrast(1.24) saturate(0.85) hue-rotate(196deg);
 }
 
 /* ============================================================
-   7. FLOATING MAP LEGEND & ANNOTATIONS
+   7. MARITIME HUD OVERLAYS (TOP-LEFT & BOTTOM-LEFT)
+   ============================================================ */
+
+.tracking-map-hud {
+  position: absolute;
+  z-index: 1000;
+  background: rgba(4, 14, 25, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 217, 255, 0.22);
+  border-radius: 8px;
+  padding: 6px 12px;
+  color: #F5F8FC;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
+  font-family: 'JetBrains Mono', monospace;
+  pointer-events: auto;
+}
+
+.tracking-map-hud-tl {
+  top: 14px;
+  left: 14px;
+}
+
+.tracking-hud-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #00D9FF;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.tracking-hud-pulse-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10B981;
+  box-shadow: 0 0 8px #10B981;
+  display: inline-block;
+  animation: tracking-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+.tracking-hud-sub {
+  font-size: 8px;
+  color: #7189A3;
+  margin-top: 2px;
+  letter-spacing: 0.04em;
+}
+
+.tracking-map-hud-bl {
+  bottom: 14px;
+  left: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 10px;
+}
+
+.tracking-hud-label {
+  color: #7189A3;
+  margin-right: 4px;
+}
+
+.tracking-hud-val {
+  color: #00D9FF;
+  font-weight: 700;
+}
+
+.tracking-hud-selected {
+  border-left: 1px solid rgba(100, 190, 240, 0.2);
+  padding-left: 10px;
+  color: #D3E0EA;
+}
+
+.tracking-hud-selected strong {
+  color: #00D9FF;
+}
+
+.tracking-map-fit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(0, 217, 255, 0.12);
+  border: 1px solid rgba(0, 217, 255, 0.35);
+  border-radius: 6px;
+  padding: 3px 8px;
+  color: #00D9FF;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  letter-spacing: 0.03em;
+}
+
+.tracking-map-fit-btn:hover {
+  background: rgba(0, 217, 255, 0.24);
+  border-color: #00D9FF;
+  box-shadow: 0 0 12px rgba(0, 217, 255, 0.35);
+}
+
+/* ============================================================
+   8. VESSEL MARKERS & HEADING ANIMATIONS
+   ============================================================ */
+
+.vessel-marker-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* Concentric Radar Wave Pulse for Authentic LIVE vessels */
+@keyframes vessel-live-radar-ping {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(1.6);
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+.vessel-live-pulse-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 1.5px solid #10B981;
+  animation: vessel-live-radar-ping 2.6s cubic-bezier(0.2, 0, 0.3, 1) infinite;
+  pointer-events: none;
+}
+
+/* Dual Ring Target Reticle for Selected Vessel */
+@keyframes reticle-rotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.vessel-selected-reticle {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1.5px dashed rgba(0, 217, 255, 0.85);
+  box-shadow: 0 0 14px rgba(0, 217, 255, 0.5), inset 0 0 8px rgba(0, 217, 255, 0.25);
+  animation: reticle-rotate 16s linear infinite;
+  pointer-events: none;
+}
+
+.vessel-selected-bracket {
+  position: absolute;
+  width: 48px;
+  height: 48px;
+  pointer-events: none;
+  border: 1px solid rgba(0, 217, 255, 0.35);
+  border-radius: 4px;
+}
+
+/* ============================================================
+   9. DESTINATION & ORIGIN CALLOUT LABELS
+   ============================================================ */
+
+.maritime-port-div-icon {
+  background: transparent !important;
+  border: none !important;
+}
+
+.maritime-port-callout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: auto;
+  cursor: pointer;
+  filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.75));
+}
+
+.maritime-port-card {
+  background: rgba(5, 17, 30, 0.94);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-family: 'JetBrains Mono', monospace;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.maritime-port-card.dest {
+  border-color: rgba(0, 217, 255, 0.65);
+  box-shadow: 0 0 14px rgba(0, 217, 255, 0.25);
+}
+
+.maritime-port-card.origin {
+  border-color: rgba(16, 185, 129, 0.65);
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.25);
+}
+
+.maritime-port-card .port-badge-label {
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.maritime-port-card.dest .port-badge-label {
+  color: #00D9FF;
+}
+
+.maritime-port-card.origin .port-badge-label {
+  color: #10B981;
+}
+
+.maritime-port-card .port-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #F5F8FC;
+  margin-top: 1px;
+}
+
+.maritime-port-stem {
+  width: 1.5px;
+  height: 10px;
+}
+
+.maritime-port-stem.dest {
+  background: linear-gradient(to bottom, #00D9FF, rgba(0, 217, 255, 0.3));
+}
+
+.maritime-port-stem.origin {
+  background: linear-gradient(to bottom, #10B981, rgba(16, 185, 129, 0.3));
+}
+
+.maritime-port-anchor {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1.5px solid;
+  background: #040E1B;
+}
+
+.maritime-port-anchor.dest {
+  border-color: #00D9FF;
+  box-shadow: 0 0 8px #00D9FF;
+}
+
+.maritime-port-anchor.origin {
+  border-color: #10B981;
+  box-shadow: 0 0 8px #10B981;
+}
+
+/* ============================================================
+   10. ANIMATED ROUTE CORRIDOR FLOW
+   ============================================================ */
+
+@keyframes maritimeFlow {
+  from {
+    stroke-dashoffset: 32;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.maritime-corridor-flow {
+  animation: maritimeFlow 2.8s linear infinite;
+  stroke-linecap: round;
+}
+
+/* ============================================================
+   11. FLOATING MAP LEGEND & ANNOTATIONS (TOP-RIGHT)
    ============================================================ */
 
 .tracking-map-legend {
@@ -873,16 +1103,17 @@
   top: 14px;
   right: 14px;
   z-index: 1000;
-  background: rgba(6, 19, 33, 0.9);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(100, 190, 240, 0.22);
+  background: rgba(4, 14, 25, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 217, 255, 0.22);
   border-radius: 10px;
   padding: 10px 14px;
   color: #F5F8FC;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.6);
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
-  min-width: 190px;
+  min-width: 195px;
 }
 
 .tracking-legend-title {
@@ -893,7 +1124,7 @@
   align-items: center;
   gap: 6px;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   font-size: 10px;
 }
 
@@ -944,26 +1175,99 @@
   color: #00D9FF;
 }
 
-/* Port Labels on Map */
-.tracking-port-label {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  font-weight: 700;
-  white-space: nowrap;
-  border-radius: 5px;
-  padding: 3px 7px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
-  letter-spacing: 0.04em;
+/* ============================================================
+   12. STYLED LEAFLET CONTROLS & POPUPS
+   ============================================================ */
+
+.tracking-map-panel .leaflet-bar {
+  border: 1px solid rgba(0, 217, 255, 0.3) !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6) !important;
+  border-radius: 8px !important;
+  overflow: hidden;
+  margin-right: 14px !important;
+  margin-bottom: 14px !important;
 }
 
-.tracking-port-label.origin {
-  background: #091A2A;
-  border: 1px solid #20C98A;
-  color: #20C98A;
+.tracking-map-panel .leaflet-bar a {
+  background-color: #081626 !important;
+  color: #D3E0EA !important;
+  border-bottom: 1px solid rgba(0, 217, 255, 0.18) !important;
+  width: 32px !important;
+  height: 32px !important;
+  line-height: 30px !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  transition: all 0.15s ease !important;
 }
 
-.tracking-port-label.dest {
-  background: #091A2A;
-  border: 1px solid #FF4D55;
-  color: #FF7076;
+.tracking-map-panel .leaflet-bar a:hover {
+  background-color: #0d223a !important;
+  color: #00D9FF !important;
+  box-shadow: inset 0 0 8px rgba(0, 217, 255, 0.25) !important;
+}
+
+.tracking-map-panel .leaflet-control-attribution {
+  background: rgba(4, 12, 22, 0.88) !important;
+  color: #556B82 !important;
+  font-size: 9px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  border-top-left-radius: 6px;
+  padding: 2px 8px !important;
+  border: 1px solid rgba(100, 190, 240, 0.12);
+  border-right: none;
+  border-bottom: none;
+}
+
+.tracking-map-panel .leaflet-control-attribution a {
+  color: #6A829A !important;
+  text-decoration: none !important;
+}
+
+.tracking-map-panel .leaflet-control-attribution a:hover {
+  color: #00D9FF !important;
+}
+
+/* Leaflet Popup Styling */
+.tracking-map-panel .leaflet-popup-content-wrapper {
+  background: #071626 !important;
+  color: #F5F8FC !important;
+  border: 1px solid rgba(0, 217, 255, 0.38) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.75), 0 0 16px rgba(0, 217, 255, 0.15) !important;
+  padding: 0 !important;
+}
+
+.tracking-map-panel .leaflet-popup-content {
+  margin: 10px 12px !important;
+  line-height: 1.4 !important;
+}
+
+.tracking-map-panel .leaflet-popup-tip {
+  background: #071626 !important;
+  border: 1px solid rgba(0, 217, 255, 0.38) !important;
+}
+
+.tracking-map-panel .leaflet-popup-close-button {
+  color: #7189A3 !important;
+  padding: 6px !important;
+  font-size: 14px !important;
+}
+
+.tracking-map-panel .leaflet-popup-close-button:hover {
+  color: #00D9FF !important;
+}
+
+/* Custom Tooltip on Hover */
+.tracking-vessel-tooltip {
+  background: rgba(6, 19, 33, 0.94) !important;
+  border: 1px solid rgba(0, 217, 255, 0.35) !important;
+  border-radius: 6px !important;
+  padding: 4px 8px !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6) !important;
+  color: #F5F8FC !important;
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+.tracking-vessel-tooltip::before {
+  border-top-color: rgba(6, 19, 33, 0.94) !important;
 }
