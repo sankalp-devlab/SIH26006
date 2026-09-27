@@ -352,7 +352,7 @@ export function VesselMapPage() {
   };
 
   return (
-    <div className={`vmp-fullscreen-shell ${isFullscreen ? 'is-fullscreen' : ''}`}>
+    <div className={`vmp-fullscreen-shell vmp-vessels-workspace ${isFullscreen ? 'is-fullscreen' : ''}`}>
       {/* TOP NAVIGATION / GLOBAL SEARCH (Requirements 6, 7, 12) */}
       <VesselMapNav
         vessels={vessels as any}

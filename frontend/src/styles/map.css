@@ -456,7 +456,8 @@
   right: 16px;
   bottom: 48px;
   width: 380px;
-  max-width: calc(100vw - 32px);
+  max-width: calc(100% - 32px);
+  max-height: calc(100% - 64px);
   z-index: 1100;
   background: rgba(5, 16, 29, 0.96);
   border: 1px solid rgba(56, 189, 248, 0.3);

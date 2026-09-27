@@ -721,13 +721,15 @@
 }
 
 /* Live Vessel Map workspace edge-to-edge layout override (Requirements 2, 4, 24) */
-.page-content:has(.vmp-vessels-workspace) {
+.page-content:has(.vmp-vessels-workspace),
+.page-content:has(.vmp-fullscreen-shell) {
   padding: 0 !important;
   max-width: 100% !important;
   width: 100% !important;
   margin: 0 !important;
-  height: calc(100vh - var(--topbar-height, 52px));
-  overflow: hidden;
+  min-height: calc(100vh - var(--topbar-height, 52px));
+  height: auto;
+  overflow: visible;
   display: flex;
   flex-direction: column;
 }
