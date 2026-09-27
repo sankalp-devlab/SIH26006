@@ -1,21 +1,23 @@
+/**
+ * SIH 26006 Maritime Intelligence Platform
+ * Module 20: Live Vessel Tracking Dashboard Page (/tracking)
+ * Authentic Geospatial Telemetry & Booking Fleet Monitoring
+ */
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   Radio,
-  Ship,
   Search,
   RefreshCw,
   Plus,
   Shield,
-  Clock,
-  Compass,
-  Package,
-  AlertCircle,
-  ExternalLink,
   ChevronRight,
-  Info,
+  X,
+  Compass,
+  Ship,
+  Navigation,
 } from 'lucide-react';
-import { Button } from '../../components/ui/Button';
 import { trackingService } from '../../services/api/tracking.service';
 import type {
   TrackingSystemStatus,
@@ -28,6 +30,7 @@ import type {
 import { TrackingMap } from './components/TrackingMap';
 import { VesselTrackingDrawer } from './components/VesselTrackingDrawer';
 import { TrackingTelemetryIngestModal } from './components/TrackingTelemetryIngestModal';
+import './tracking.css';
 
 export const TrackingDashboardPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -127,17 +130,31 @@ export const TrackingDashboardPage: React.FC = () => {
     });
   }, [vessels, selectedStatusTab, searchQuery]);
 
-  const getFreshnessBadge = (status: TrackingFreshnessStatus) => {
+  const getFreshnessBadgeClass = (status: TrackingFreshnessStatus) => {
     switch (status) {
       case 'LIVE':
-        return { bg: '#ecfdf5', text: '#065f46', border: '#a7f3d0', label: 'LIVE' };
+        return 'live';
       case 'RECENT':
-        return { bg: '#eff6ff', text: '#1e40af', border: '#bfdbfe', label: 'RECENT' };
+        return 'recent';
       case 'STALE':
-        return { bg: '#fffbeb', text: '#92400e', border: '#fde68a', label: 'STALE' };
+        return 'stale';
       case 'DATA_UNAVAILABLE':
       default:
-        return { bg: '#f1f5f9', text: '#64748b', border: '#cbd5e1', label: 'UNAVAILABLE' };
+        return 'unavailable';
+    }
+  };
+
+  const getFreshnessLabel = (status: TrackingFreshnessStatus) => {
+    switch (status) {
+      case 'LIVE':
+        return 'LIVE';
+      case 'RECENT':
+        return 'RECENT';
+      case 'STALE':
+        return 'STALE';
+      case 'DATA_UNAVAILABLE':
+      default:
+        return 'UNAVAILABLE';
     }
   };
 
@@ -146,184 +163,214 @@ export const TrackingDashboardPage: React.FC = () => {
   const selectedDestPort: TrackedPortInfo | null = vesselDetail?.active_booking?.destination_port || null;
   const selectedHistory: PositionObservation[] = vesselDetail?.position_history || [];
 
+  // Determine system status label and class
+  const liveCount = systemStatus?.metrics.live_vessels_count || 0;
+  const isProviderConfigured = systemStatus?.provider_info?.is_configured || false;
+  const statusPillClass = liveCount > 0 ? 'live' : isProviderConfigured ? 'standby' : 'offline';
+  const statusPillLabel = liveCount > 0 ? 'LIVE TELEMETRY' : isProviderConfigured ? 'TELEMETRY ONLINE' : 'TELEMETRY STANDBY';
+
+  const formatKpiNumber = (num?: number) => {
+    if (num === undefined || num === null) return '00';
+    return num < 10 ? `0${num}` : `${num}`;
+  };
+
   return (
-    <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem', height: 'calc(100vh - 60px)', overflow: 'hidden' }}>
-      {/* Top Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', flexShrink: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div
-            style={{
-              width: '36px',
-              height: '36px',
-              borderRadius: '8px',
-              backgroundColor: 'rgba(2, 132, 199, 0.12)',
-              color: '#0284c7',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Radio size={20} />
+    <div className="oceanlens-master-container tracking-page-root">
+      {/* ============================================================== */}
+      {/* 1. OPERATIONS CONTROL CENTER HEADER                            */}
+      {/* ============================================================== */}
+      <header className="tracking-header">
+        <div className="tracking-header-left">
+          <div className="tracking-icon-box">
+            <Radio size={22} />
           </div>
-          <div>
-            <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-text-primary)' }}>
-              Live Vessel Tracking
+          <div className="tracking-header-text">
+            <div className="tracking-tag-row">
+              <span className="tracking-module-tag">Module 20 &middot; Fleet Operations</span>
+              <span className={`tracking-live-status-pill ${statusPillClass}`}>
+                <span className="tracking-status-dot">
+                  <span className="tracking-status-dot-ring" />
+                  <span className="tracking-status-dot-core" />
+                </span>
+                <span>{statusPillLabel}</span>
+              </span>
+            </div>
+            <h1 className="tracking-title">
+              LIVE VESSEL TRACKING
             </h1>
-            <p style={{ margin: '2px 0 0', fontSize: '0.8125rem', color: 'var(--color-text-muted)' }}>
-              Module 20 &middot; Authentic Geospatial Telemetry & Booking Fleet Monitoring
+            <p className="tracking-subtitle">
+              Authentic geospatial telemetry &amp; booking fleet monitoring
             </p>
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Button
-            size="sm"
-            variant="secondary"
-            icon={<Plus size={14} />}
+        <div className="tracking-header-actions">
+          <button
+            type="button"
+            className="tracking-btn tracking-btn-primary"
             onClick={() => setIsIngestModalOpen(true)}
+            title="Ingest Telemetry Observation"
           >
-            Ingest Telemetry
-          </Button>
-          <Button
-            size="sm"
-            variant="secondary"
-            icon={<RefreshCw size={14} className={isLoading ? 'animate-spin' : ''} />}
+            <Plus size={14} />
+            <span>+ Ingest Telemetry</span>
+          </button>
+          <button
+            type="button"
+            className="tracking-btn tracking-btn-secondary"
             onClick={fetchData}
             disabled={isLoading}
+            title="Refresh Telemetry Fleet"
           >
-            Refresh Telemetry
-          </Button>
+            <RefreshCw size={13} className={isLoading ? 'animate-spin' : ''} />
+            <span>Refresh</span>
+          </button>
         </div>
-      </div>
+      </header>
 
-      {/* KPI Stats Bar */}
+      {/* ============================================================== */}
+      {/* 2. COMPACT OPERATIONAL KPI ROW                                 */}
+      {/* ============================================================== */}
       {systemStatus && (
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
-            gap: '10px',
-            flexShrink: 0,
-          }}
-        >
-          <div style={{ padding: '10px 14px', backgroundColor: 'var(--color-bg-surface)', borderRadius: '8px', border: '1px solid var(--color-border-subtle)' }}>
-            <div style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>Fleet Vessels</div>
-            <div style={{ fontSize: '1.3rem', fontWeight: 800, color: 'var(--color-text-primary)', marginTop: '2px' }}>
-              {systemStatus.metrics.total_fleet_vessels}
+        <div className="tracking-kpi-grid">
+          {/* Total Fleet Vessels */}
+          <div className="tracking-kpi-card cyan">
+            <div className="tracking-kpi-accent-bar" />
+            <div className="tracking-kpi-label">Fleet</div>
+            <div className="tracking-kpi-value">
+              {formatKpiNumber(systemStatus.metrics.total_fleet_vessels)}
             </div>
+            <div className="tracking-kpi-desc">Total fleet vessels</div>
           </div>
 
-          <div style={{ padding: '10px 14px', backgroundColor: 'var(--color-bg-surface)', borderRadius: '8px', border: '1px solid var(--color-border-subtle)' }}>
-            <div style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>With Telemetry</div>
-            <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#0284c7', marginTop: '2px' }}>
-              {systemStatus.metrics.vessels_with_telemetry}
+          {/* With Telemetry */}
+          <div className="tracking-kpi-card blue">
+            <div className="tracking-kpi-accent-bar" />
+            <div className="tracking-kpi-label">With Telemetry</div>
+            <div className="tracking-kpi-value">
+              {formatKpiNumber(systemStatus.metrics.vessels_with_telemetry)}
             </div>
+            <div className="tracking-kpi-desc">Active telemetry</div>
           </div>
 
-          <div style={{ padding: '10px 14px', backgroundColor: 'var(--color-bg-surface)', borderRadius: '8px', border: '1px solid var(--color-border-subtle)' }}>
-            <div style={{ fontSize: '0.6875rem', color: '#10b981', fontWeight: 600 }}>Live Signals (&lt; 2h)</div>
-            <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#10b981', marginTop: '2px' }}>
-              {systemStatus.metrics.live_vessels_count}
+          {/* Live Signals (< 2h) */}
+          <div className="tracking-kpi-card emerald">
+            <div className="tracking-kpi-accent-bar" />
+            <div className="tracking-kpi-label">Live Signals</div>
+            <div className="tracking-kpi-value">
+              {formatKpiNumber(systemStatus.metrics.live_vessels_count)}
             </div>
+            <div className="tracking-kpi-desc">&lt; 2h observed</div>
           </div>
 
-          <div style={{ padding: '10px 14px', backgroundColor: 'var(--color-bg-surface)', borderRadius: '8px', border: '1px solid var(--color-border-subtle)' }}>
-            <div style={{ fontSize: '0.6875rem', color: '#0284c7', fontWeight: 600 }}>Recent Signals (2h–24h)</div>
-            <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#0284c7', marginTop: '2px' }}>
-              {systemStatus.metrics.recent_vessels_count || 0}
+          {/* Recent Signals (2h–24h) */}
+          <div className="tracking-kpi-card cyan">
+            <div className="tracking-kpi-accent-bar" />
+            <div className="tracking-kpi-label">Recent Signals</div>
+            <div className="tracking-kpi-value">
+              {formatKpiNumber(systemStatus.metrics.recent_vessels_count || 0)}
             </div>
+            <div className="tracking-kpi-desc">2h–24h window</div>
           </div>
 
-          <div style={{ padding: '10px 14px', backgroundColor: 'var(--color-bg-surface)', borderRadius: '8px', border: '1px solid var(--color-border-subtle)' }}>
-            <div style={{ fontSize: '0.6875rem', color: '#f59e0b', fontWeight: 600 }}>Stale Signals (&gt; 24h)</div>
-            <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#f59e0b', marginTop: '2px' }}>
-              {systemStatus.metrics.stale_vessels_count}
+          {/* Stale Signals (> 24h) */}
+          <div className="tracking-kpi-card amber">
+            <div className="tracking-kpi-accent-bar" />
+            <div className="tracking-kpi-label">Stale Signals</div>
+            <div className="tracking-kpi-value">
+              {formatKpiNumber(systemStatus.metrics.stale_vessels_count)}
             </div>
+            <div className="tracking-kpi-desc">&gt; 24h latency</div>
           </div>
 
-          <div style={{ padding: '10px 14px', backgroundColor: 'var(--color-bg-surface)', borderRadius: '8px', border: '1px solid var(--color-border-subtle)' }}>
-            <div style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>Data Unavailable</div>
-            <div style={{ fontSize: '1.3rem', fontWeight: 800, color: 'var(--color-text-muted)', marginTop: '2px' }}>
-              {systemStatus.metrics.data_unavailable_vessels_count}
+          {/* Data Unavailable */}
+          <div className="tracking-kpi-card gray">
+            <div className="tracking-kpi-accent-bar" />
+            <div className="tracking-kpi-label">Unavailable</div>
+            <div className="tracking-kpi-value">
+              {formatKpiNumber(systemStatus.metrics.data_unavailable_vessels_count)}
             </div>
+            <div className="tracking-kpi-desc">No coordinates</div>
           </div>
         </div>
       )}
 
-      {/* Provider Status / Rule 28 Disclosure Banner */}
+      {/* ============================================================== */}
+      {/* 3. DATA AUTHENTICITY GUARANTEE BANNER (RULE 28)                */}
+      {/* ============================================================== */}
       {systemStatus && (
-        <div
-          style={{
-            padding: '8px 14px',
-            borderRadius: '6px',
-            backgroundColor: 'rgba(56, 189, 248, 0.05)',
-            border: '1px solid rgba(56, 189, 248, 0.2)',
-            fontSize: '0.75rem',
-            color: 'var(--color-text-secondary)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '12px',
-            flexShrink: 0,
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Shield size={15} color="#0284c7" style={{ flexShrink: 0 }} />
-            <div>
-              <strong>Data Authenticity Guarantee (Rule 28):</strong> {systemStatus.provider_info.status_message}
+        <div className="tracking-authenticity-banner">
+          <div className="tracking-authenticity-left">
+            <div className="tracking-authenticity-icon">
+              <Shield size={16} />
+            </div>
+            <div className="tracking-authenticity-text">
+              <div className="tracking-authenticity-heading">
+                <span>&loz; DATA AUTHENTICITY GUARANTEE (RULE 28)</span>
+              </div>
+              <div className="tracking-authenticity-desc">
+                {systemStatus.provider_info.status_message} Operating on verified telemetry per platform integrity guidelines.
+              </div>
             </div>
           </div>
-          <div style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)', whiteSpace: 'nowrap' }}>
-            Telemetry Store: <strong>public.vessel_positions</strong>
+
+          <div className="tracking-authenticity-right">
+            <span>TELEMETRY STORE:</span>
+            <span className="tracking-store-tag">public.vessel_positions</span>
           </div>
         </div>
       )}
 
-      {/* Main Split-View: Vessel List on Left, Interactive Map on Right */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '360px 1fr',
-          gap: '14px',
-          flex: 1,
-          minHeight: 0,
-          overflow: 'hidden',
-        }}
-      >
-        {/* Left: Vessel Telemetry List */}
-        <div
-          style={{
-            backgroundColor: 'var(--color-bg-surface)',
-            borderRadius: '10px',
-            border: '1px solid var(--color-border-subtle)',
-            display: 'flex',
-            flexDirection: 'column',
-            overflow: 'hidden',
-          }}
-        >
-          {/* List Search & Filter Header */}
-          <div style={{ padding: '12px', borderBottom: '1px solid var(--color-border-subtle)', backgroundColor: 'var(--color-bg-surface-alt)' }}>
-            <div style={{ position: 'relative', marginBottom: '8px' }}>
-              <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
+      {/* ============================================================== */}
+      {/* 4. MAIN TRACKING WORKSPACE (FLEET PANEL + LIVE MAP)            */}
+      {/* ============================================================== */}
+      <div className="tracking-workspace-grid">
+        {/* Left: Fleet Intelligence Panel */}
+        <div className="tracking-fleet-panel">
+          {/* Header & Controls */}
+          <div className="tracking-fleet-header">
+            <div className="tracking-fleet-title-row">
+              <span className="tracking-fleet-title">
+                <Ship size={14} style={{ color: '#00D9FF' }} />
+                <span>Fleet Vessels</span>
+              </span>
+              <span className="tracking-fleet-count">
+                {filteredVessels.length} / {vessels.length} monitored
+              </span>
+            </div>
+
+            {/* Search Box */}
+            <div className="tracking-search-box">
+              <Search size={13} className="tracking-search-icon" />
               <input
                 type="text"
                 placeholder="Search vessel, IMO, booking..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '6px 10px 6px 30px',
-                  borderRadius: '6px',
-                  border: '1px solid var(--color-border-subtle)',
-                  backgroundColor: 'var(--color-bg-surface)',
-                  color: 'var(--color-text-primary)',
-                  fontSize: '0.8125rem',
-                }}
+                className="tracking-search-input"
               />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  style={{
+                    position: 'absolute',
+                    right: '8px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    color: '#7189A3',
+                    cursor: 'pointer',
+                    padding: '2px',
+                  }}
+                >
+                  <X size={12} />
+                </button>
+              )}
             </div>
 
-            {/* Filter Tabs */}
-            <div style={{ display: 'flex', gap: '4px', overflowX: 'auto', paddingBottom: '2px' }}>
+            {/* Segmented Filter Tabs */}
+            <div className="tracking-filter-tabs">
               {[
                 { key: 'all', label: 'All' },
                 { key: 'LIVE', label: 'Live' },
@@ -335,17 +382,7 @@ export const TrackingDashboardPage: React.FC = () => {
                   key={tab.key}
                   type="button"
                   onClick={() => setSelectedStatusTab(tab.key)}
-                  style={{
-                    padding: '3px 8px',
-                    borderRadius: '4px',
-                    fontSize: '0.6875rem',
-                    fontWeight: selectedStatusTab === tab.key ? 700 : 500,
-                    backgroundColor: selectedStatusTab === tab.key ? 'rgba(2, 132, 199, 0.15)' : 'transparent',
-                    border: selectedStatusTab === tab.key ? '1px solid #0284c7' : '1px solid transparent',
-                    color: selectedStatusTab === tab.key ? '#0284c7' : 'var(--color-text-muted)',
-                    cursor: 'pointer',
-                    whiteSpace: 'nowrap',
-                  }}
+                  className={`tracking-filter-tab ${selectedStatusTab === tab.key ? 'active' : ''}`}
                 >
                   {tab.label}
                 </button>
@@ -353,90 +390,65 @@ export const TrackingDashboardPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Scrollable Vessel Items */}
-          <div style={{ flex: 1, overflowY: 'auto', padding: '8px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          {/* Scrollable Vessel Intelligence Cards */}
+          <div className="tracking-vessel-list">
             {isLoading ? (
-              <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-text-muted)', fontSize: '0.8125rem' }}>
-                <RefreshCw size={20} className="animate-spin" style={{ margin: '0 auto 8px', display: 'block' }} />
-                Scanning fleet positions...
+              <div style={{ padding: '32px 16px', textAlign: 'center', color: '#7189A3', fontFamily: 'JetBrains Mono, monospace', fontSize: '11px' }}>
+                <RefreshCw size={18} className="animate-spin" style={{ margin: '0 auto 8px', display: 'block', color: '#00D9FF' }} />
+                Scanning fleet telemetry...
               </div>
             ) : filteredVessels.length === 0 ? (
-              <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-text-muted)', fontSize: '0.8125rem' }}>
+              <div style={{ padding: '32px 16px', textAlign: 'center', color: '#7189A3', fontFamily: 'JetBrains Mono, monospace', fontSize: '11px' }}>
                 No vessels matching filter.
               </div>
             ) : (
               filteredVessels.map((v) => {
                 const isSelected = v.vessel_id === selectedVesselId;
-                const badge = getFreshnessBadge(v.tracking_status);
+                const badgeClass = getFreshnessBadgeClass(v.tracking_status);
+                const badgeLabel = getFreshnessLabel(v.tracking_status);
+
                 return (
                   <div
                     key={v.vessel_id}
                     onClick={() => handleSelectVessel(v.vessel_id)}
-                    style={{
-                      padding: '10px 12px',
-                      borderRadius: '8px',
-                      backgroundColor: isSelected ? 'rgba(2, 132, 199, 0.08)' : 'var(--color-bg-surface-alt)',
-                      border: isSelected ? '1.5px solid #0284c7' : '1px solid var(--color-border-subtle)',
-                      cursor: 'pointer',
-                      transition: 'border 0.15s, background 0.15s',
-                    }}
+                    className={`tracking-vessel-card ${isSelected ? 'selected' : ''}`}
                   >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    {/* Row 1: Vessel Name & Freshness Badge */}
+                    <div className="tracking-vessel-card-row1">
                       <div>
-                        <div style={{ fontWeight: 800, fontSize: '0.875rem', color: 'var(--color-text-primary)' }}>
+                        <div className="tracking-vessel-name">
                           {v.name}
                         </div>
-                        <div style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)' }}>
+                        <div className="tracking-vessel-meta">
                           {v.vessel_type} &middot; {v.capacity_tons.toLocaleString()} DWT
                         </div>
                       </div>
-                      <span
-                        style={{
-                          padding: '2px 6px',
-                          borderRadius: '999px',
-                          fontSize: '0.625rem',
-                          fontWeight: 800,
-                          backgroundColor: badge.bg,
-                          color: badge.text,
-                          border: `1px solid ${badge.border}`,
-                        }}
-                      >
-                        {badge.label}
+                      <span className={`tracking-status-badge ${badgeClass}`}>
+                        {badgeLabel}
                       </span>
                     </div>
 
+                    {/* Row 2: Position coordinates or unavailable note */}
                     {v.latest_position ? (
-                      <div style={{ marginTop: '6px', fontSize: '0.6875rem', color: 'var(--color-text-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <span>
-                          {v.latest_position.latitude.toFixed(3)}&deg;, {v.latest_position.longitude.toFixed(3)}&deg;
+                      <div className="tracking-vessel-telemetry-row">
+                        <span className="tracking-coord-text">
+                          &bull; {v.latest_position.latitude.toFixed(3)}&deg;, {v.latest_position.longitude.toFixed(3)}&deg;
                         </span>
-                        <span>
-                          {v.latest_position.speed_knots != null ? `${v.latest_position.speed_knots.toFixed(1)} kts` : ''}{' '}
-                          {v.latest_position.heading != null ? `&middot; ${v.latest_position.heading.toFixed(0)}°` : ''}
+                        <span className="tracking-speed-heading">
+                          {v.latest_position.speed_knots != null ? `${v.latest_position.speed_knots.toFixed(1)} kts` : ''}
+                          {v.latest_position.heading != null ? ` · HDG ${v.latest_position.heading.toFixed(0)}°` : ''}
                         </span>
                       </div>
                     ) : (
-                      <div style={{ marginTop: '6px', fontSize: '0.6875rem', color: 'var(--color-text-muted)' }}>
+                      <div className="tracking-telemetry-unavailable">
                         Position: DATA_UNAVAILABLE
                       </div>
                     )}
 
+                    {/* Row 3: Active Booking Ref Chip (if assigned) */}
                     {v.active_booking && (
-                      <div
-                        style={{
-                          marginTop: '6px',
-                          padding: '3px 6px',
-                          borderRadius: '4px',
-                          backgroundColor: 'rgba(56, 189, 248, 0.08)',
-                          border: '1px solid rgba(56, 189, 248, 0.2)',
-                          fontSize: '0.675rem',
-                          color: '#0284c7',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                        }}
-                      >
-                        <span>Booking: {v.active_booking.booking_reference}</span>
+                      <div className="tracking-booking-chip">
+                        <span>BOOKING: {v.active_booking.booking_reference}</span>
                         <ChevronRight size={12} />
                       </div>
                     )}
@@ -448,16 +460,7 @@ export const TrackingDashboardPage: React.FC = () => {
         </div>
 
         {/* Right: Interactive Tracking Map Canvas */}
-        <div
-          style={{
-            backgroundColor: 'var(--color-bg-surface)',
-            borderRadius: '10px',
-            border: '1px solid var(--color-border-subtle)',
-            overflow: 'hidden',
-            display: 'flex',
-            flexDirection: 'column',
-          }}
-        >
+        <div className="tracking-map-panel">
           <TrackingMap
             vessels={vessels}
             selectedVesselId={selectedVesselId}
@@ -470,7 +473,9 @@ export const TrackingDashboardPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Slide-out Inspection Drawer */}
+      {/* ============================================================== */}
+      {/* 5. SLIDE-OUT INSPECTION DRAWER & MODAL                         */}
+      {/* ============================================================== */}
       {isDrawerOpen && (
         <VesselTrackingDrawer
           vesselDetail={vesselDetail}
@@ -483,7 +488,6 @@ export const TrackingDashboardPage: React.FC = () => {
         />
       )}
 
-      {/* Telemetry Ingestion Modal */}
       {isIngestModalOpen && (
         <TrackingTelemetryIngestModal
           isOpen={isIngestModalOpen}
@@ -499,3 +503,5 @@ export const TrackingDashboardPage: React.FC = () => {
     </div>
   );
 };
+
+export default TrackingDashboardPage;

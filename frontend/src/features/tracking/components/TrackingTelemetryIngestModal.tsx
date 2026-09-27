@@ -1,5 +1,10 @@
+/**
+ * SIH 26006 Maritime Intelligence Platform
+ * Module 20: Telemetry Ingestion Modal
+ */
+
 import React, { useState } from 'react';
-import { X, Radio, CheckCircle2, AlertTriangle, Shield, Navigation } from 'lucide-react';
+import { X, Radio, CheckCircle2, AlertTriangle, Shield } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
 import { trackingService } from '../../../services/api/tracking.service';
 import type { TrackedVesselSummary, PositionIngestPayload } from '../../../types/tracking';
@@ -104,14 +109,15 @@ export const TrackingTelemetryIngestModal: React.FC<TrackingTelemetryIngestModal
         alignItems: 'center',
         justifyContent: 'center',
         padding: '1rem',
+        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
       }}
     >
       <div
         style={{
           position: 'absolute',
           inset: 0,
-          backgroundColor: 'rgba(5, 12, 28, 0.85)',
-          backdropFilter: 'blur(5px)',
+          backgroundColor: 'rgba(4, 14, 25, 0.85)',
+          backdropFilter: 'blur(6px)',
         }}
         onClick={onClose}
       />
@@ -121,20 +127,21 @@ export const TrackingTelemetryIngestModal: React.FC<TrackingTelemetryIngestModal
           position: 'relative',
           width: '100%',
           maxWidth: '520px',
-          backgroundColor: 'var(--color-bg-surface)',
+          backgroundColor: '#091A2A',
           borderRadius: '12px',
-          border: '1px solid var(--color-border-subtle)',
-          boxShadow: '0 24px 60px rgba(0, 0, 0, 0.6)',
+          border: '1px solid rgba(0, 217, 255, 0.35)',
+          boxShadow: '0 24px 60px rgba(0, 0, 0, 0.7)',
           zIndex: 1101,
           overflow: 'hidden',
+          color: '#F5F8FC',
         }}
       >
         {/* Header */}
         <div
           style={{
-            padding: '1.25rem 1.5rem',
-            borderBottom: '1px solid var(--color-border-subtle)',
-            backgroundColor: 'var(--color-bg-surface-alt)',
+            padding: '16px 20px',
+            borderBottom: '1px solid rgba(100, 190, 240, 0.16)',
+            backgroundColor: '#061321',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
@@ -146,52 +153,64 @@ export const TrackingTelemetryIngestModal: React.FC<TrackingTelemetryIngestModal
                 width: '36px',
                 height: '36px',
                 borderRadius: '8px',
-                backgroundColor: 'rgba(2, 132, 199, 0.12)',
-                color: '#0284c7',
+                backgroundColor: 'rgba(0, 217, 255, 0.12)',
+                color: '#00D9FF',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
+                border: '1px solid rgba(0, 217, 255, 0.3)',
               }}
             >
-              <Radio size={20} />
+              <Radio size={18} />
             </div>
             <div>
-              <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800, color: 'var(--color-text-primary)' }}>
+              <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 700, color: '#FFFFFF', fontFamily: "'JetBrains Mono', monospace", textTransform: 'uppercase' }}>
                 Ingest Authentic Telemetry
               </h3>
-              <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
-                Module 20 &middot; Supabase vessel_positions telemetry persistence
+              <div style={{ fontSize: '11px', color: '#7189A3', fontFamily: "'JetBrains Mono', monospace" }}>
+                Module 20 &middot; vessel_positions telemetry persistence
               </div>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer', padding: '4px' }}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#7189A3',
+              cursor: 'pointer',
+              padding: '4px',
+              borderRadius: '4px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            title="Close modal"
           >
             <X size={18} />
           </button>
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <form onSubmit={handleSubmit} style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
           {errorMessage && (
-            <div style={{ padding: '10px', borderRadius: '6px', backgroundColor: '#fef2f2', border: '1px solid #fecaca', color: '#991b1b', fontSize: '0.8125rem', display: 'flex', gap: '8px' }}>
-              <AlertTriangle size={16} style={{ flexShrink: 0 }} />
+            <div style={{ padding: '10px 12px', borderRadius: '6px', backgroundColor: 'rgba(255, 77, 85, 0.12)', border: '1px solid rgba(255, 77, 85, 0.35)', color: '#FF7076', fontSize: '12px', display: 'flex', gap: '8px', fontFamily: "'JetBrains Mono', monospace" }}>
+              <AlertTriangle size={15} style={{ flexShrink: 0 }} />
               <div>{errorMessage}</div>
             </div>
           )}
 
           {successMessage && (
-            <div style={{ padding: '10px', borderRadius: '6px', backgroundColor: '#ecfdf5', border: '1px solid #a7f3d0', color: '#065f46', fontSize: '0.8125rem', display: 'flex', gap: '8px' }}>
-              <CheckCircle2 size={16} style={{ flexShrink: 0 }} />
+            <div style={{ padding: '10px 12px', borderRadius: '6px', backgroundColor: 'rgba(32, 201, 138, 0.12)', border: '1px solid rgba(32, 201, 138, 0.35)', color: '#38E5A3', fontSize: '12px', display: 'flex', gap: '8px', fontFamily: "'JetBrains Mono', monospace" }}>
+              <CheckCircle2 size={15} style={{ flexShrink: 0 }} />
               <div>{successMessage}</div>
             </div>
           )}
 
           {/* Vessel Selection */}
           <div>
-            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-muted)', marginBottom: '4px', textTransform: 'uppercase' }}>
+            <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#8DA2B7', marginBottom: '4px', textTransform: 'uppercase', fontFamily: "'JetBrains Mono', monospace" }}>
               Target Fleet Vessel
             </label>
             <select
@@ -201,10 +220,12 @@ export const TrackingTelemetryIngestModal: React.FC<TrackingTelemetryIngestModal
                 width: '100%',
                 padding: '8px 10px',
                 borderRadius: '6px',
-                border: '1px solid var(--color-border-subtle)',
-                backgroundColor: 'var(--color-bg-surface-alt)',
-                color: 'var(--color-text-primary)',
-                fontSize: '0.8125rem',
+                border: '1px solid rgba(100, 190, 240, 0.2)',
+                backgroundColor: '#061321',
+                color: '#F5F8FC',
+                fontSize: '12px',
+                fontFamily: "'JetBrains Mono', monospace",
+                outline: 'none',
               }}
             >
               {vessels.map((v) => (
@@ -217,7 +238,7 @@ export const TrackingTelemetryIngestModal: React.FC<TrackingTelemetryIngestModal
 
           {/* Quick Presets */}
           <div>
-            <div style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)', marginBottom: '4px', fontWeight: 600 }}>
+            <div style={{ fontSize: '10px', color: '#7189A3', marginBottom: '4px', fontWeight: 600, fontFamily: "'JetBrains Mono', monospace", textTransform: 'uppercase' }}>
               Authentic Maritime Corridor Presets:
             </div>
             <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
@@ -234,11 +255,13 @@ export const TrackingTelemetryIngestModal: React.FC<TrackingTelemetryIngestModal
                   style={{
                     padding: '3px 8px',
                     borderRadius: '4px',
-                    fontSize: '0.675rem',
-                    backgroundColor: 'rgba(56, 189, 248, 0.08)',
-                    border: '1px solid rgba(56, 189, 248, 0.25)',
-                    color: '#38bdf8',
+                    fontSize: '10px',
+                    fontFamily: "'JetBrains Mono', monospace",
+                    backgroundColor: 'rgba(0, 217, 255, 0.08)',
+                    border: '1px solid rgba(0, 217, 255, 0.25)',
+                    color: '#00D9FF',
                     cursor: 'pointer',
+                    transition: 'all 0.15s ease',
                   }}
                 >
                   {p.label}
@@ -250,7 +273,7 @@ export const TrackingTelemetryIngestModal: React.FC<TrackingTelemetryIngestModal
           {/* Coordinates Row */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-muted)', marginBottom: '4px' }}>
+              <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#8DA2B7', marginBottom: '4px', fontFamily: "'JetBrains Mono', monospace" }}>
                 Latitude (-90 to +90&deg;)
               </label>
               <input
@@ -261,18 +284,21 @@ export const TrackingTelemetryIngestModal: React.FC<TrackingTelemetryIngestModal
                 required
                 style={{
                   width: '100%',
+                  boxSpacing: 'border-box',
                   padding: '8px 10px',
                   borderRadius: '6px',
-                  border: '1px solid var(--color-border-subtle)',
-                  backgroundColor: 'var(--color-bg-surface-alt)',
-                  color: 'var(--color-text-primary)',
-                  fontSize: '0.8125rem',
+                  border: '1px solid rgba(100, 190, 240, 0.2)',
+                  backgroundColor: '#061321',
+                  color: '#F5F8FC',
+                  fontSize: '12px',
+                  fontFamily: "'JetBrains Mono', monospace",
+                  outline: 'none',
                 }}
               />
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-muted)', marginBottom: '4px' }}>
+              <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#8DA2B7', marginBottom: '4px', fontFamily: "'JetBrains Mono', monospace" }}>
                 Longitude (-180 to +180&deg;)
               </label>
               <input
@@ -283,12 +309,15 @@ export const TrackingTelemetryIngestModal: React.FC<TrackingTelemetryIngestModal
                 required
                 style={{
                   width: '100%',
+                  boxSpacing: 'border-box',
                   padding: '8px 10px',
                   borderRadius: '6px',
-                  border: '1px solid var(--color-border-subtle)',
-                  backgroundColor: 'var(--color-bg-surface-alt)',
-                  color: 'var(--color-text-primary)',
-                  fontSize: '0.8125rem',
+                  border: '1px solid rgba(100, 190, 240, 0.2)',
+                  backgroundColor: '#061321',
+                  color: '#F5F8FC',
+                  fontSize: '12px',
+                  fontFamily: "'JetBrains Mono', monospace",
+                  outline: 'none',
                 }}
               />
             </div>
@@ -297,7 +326,7 @@ export const TrackingTelemetryIngestModal: React.FC<TrackingTelemetryIngestModal
           {/* Speed and Heading Row */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-muted)', marginBottom: '4px' }}>
+              <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#8DA2B7', marginBottom: '4px', fontFamily: "'JetBrains Mono', monospace" }}>
                 Speed Over Ground (knots)
               </label>
               <input
@@ -308,18 +337,21 @@ export const TrackingTelemetryIngestModal: React.FC<TrackingTelemetryIngestModal
                 onChange={(e) => setSpeedKnots(e.target.value)}
                 style={{
                   width: '100%',
+                  boxSpacing: 'border-box',
                   padding: '8px 10px',
                   borderRadius: '6px',
-                  border: '1px solid var(--color-border-subtle)',
-                  backgroundColor: 'var(--color-bg-surface-alt)',
-                  color: 'var(--color-text-primary)',
-                  fontSize: '0.8125rem',
+                  border: '1px solid rgba(100, 190, 240, 0.2)',
+                  backgroundColor: '#061321',
+                  color: '#F5F8FC',
+                  fontSize: '12px',
+                  fontFamily: "'JetBrains Mono', monospace",
+                  outline: 'none',
                 }}
               />
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-muted)', marginBottom: '4px' }}>
+              <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#8DA2B7', marginBottom: '4px', fontFamily: "'JetBrains Mono', monospace" }}>
                 Heading / Course (0 to 360&deg;)
               </label>
               <input
@@ -331,36 +363,50 @@ export const TrackingTelemetryIngestModal: React.FC<TrackingTelemetryIngestModal
                 onChange={(e) => setHeading(e.target.value)}
                 style={{
                   width: '100%',
+                  boxSpacing: 'border-box',
                   padding: '8px 10px',
                   borderRadius: '6px',
-                  border: '1px solid var(--color-border-subtle)',
-                  backgroundColor: 'var(--color-bg-surface-alt)',
-                  color: 'var(--color-text-primary)',
-                  fontSize: '0.8125rem',
+                  border: '1px solid rgba(100, 190, 240, 0.2)',
+                  backgroundColor: '#061321',
+                  color: '#F5F8FC',
+                  fontSize: '12px',
+                  fontFamily: "'JetBrains Mono', monospace",
+                  outline: 'none',
                 }}
               />
             </div>
           </div>
 
           {/* Rule 28 Disclosure */}
-          <div style={{ padding: '8px 10px', borderRadius: '6px', backgroundColor: 'rgba(56, 189, 248, 0.05)', border: '1px solid rgba(56, 189, 248, 0.2)', fontSize: '0.6875rem', color: 'var(--color-text-muted)', display: 'flex', gap: '6px' }}>
-            <Shield size={14} color="#0284c7" style={{ flexShrink: 0, marginTop: '2px' }} />
+          <div style={{ padding: '8px 10px', borderRadius: '6px', backgroundColor: 'rgba(0, 217, 255, 0.05)', border: '1px solid rgba(0, 217, 255, 0.2)', fontSize: '11px', color: '#A5B8CC', display: 'flex', gap: '6px', lineHeight: 1.45 }}>
+            <Shield size={14} color="#00D9FF" style={{ flexShrink: 0, marginTop: '2px' }} />
             <div>
-              Observations are strictly committed to Supabase <code>public.vessel_positions</code> with current UTC timestamp. Freshness is evaluated in real time without synthetic animation.
+              Observations are strictly committed to Supabase <code style={{ color: '#00D9FF' }}>public.vessel_positions</code> with current UTC timestamp. Freshness is evaluated in real time without synthetic animation.
             </div>
           </div>
 
           {/* Footer Buttons */}
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', paddingTop: '8px' }}>
-            <Button size="sm" variant="ghost" type="button" onClick={onClose} disabled={isSubmitting}>
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={isSubmitting}
+              className="tracking-btn tracking-btn-secondary"
+            >
               Cancel
-            </Button>
-            <Button size="sm" variant="primary" type="submit" disabled={isSubmitting}>
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="tracking-btn tracking-btn-primary"
+            >
               {isSubmitting ? 'Ingesting...' : 'Ingest Observation'}
-            </Button>
+            </button>
           </div>
         </form>
       </div>
     </div>
   );
 };
+
+export default TrackingTelemetryIngestModal;

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { MapPin, ShieldAlert, Compass, Navigation, Radio } from 'lucide-react';
+import { Radio, ShieldAlert } from 'lucide-react';
 import { MapTilesService } from '../../../services/map/map-tiles.service';
 import type { TrackedVesselSummary, PositionObservation, TrackedPortInfo } from '../../../types/tracking';
 
@@ -78,27 +78,30 @@ export const TrackingMap: React.FC<TrackingMapProps> = ({
       const isSelected = v.vessel_id === selectedVesselId;
 
       // Determine color by freshness
-      let strokeColor = '#10b981'; // LIVE (emerald)
-      let fillColor = 'rgba(16, 185, 129, 0.4)';
+      let strokeColor = '#20C98A'; // LIVE (emerald)
+      let fillColor = 'rgba(32, 201, 138, 0.45)';
       let badgeLabel = 'LIVE';
+      let isLive = true;
 
       if (pos.freshness_status === 'RECENT') {
-        strokeColor = '#3b82f6'; // RECENT (blue)
-        fillColor = 'rgba(59, 130, 246, 0.4)';
+        strokeColor = '#2F8CFF'; // RECENT (blue)
+        fillColor = 'rgba(47, 140, 255, 0.45)';
         badgeLabel = 'RECENT';
+        isLive = false;
       } else if (pos.freshness_status === 'STALE') {
-        strokeColor = '#f59e0b'; // STALE (amber)
-        fillColor = 'rgba(245, 158, 11, 0.4)';
+        strokeColor = '#FFB020'; // STALE (amber)
+        fillColor = 'rgba(255, 176, 32, 0.45)';
         badgeLabel = 'STALE';
+        isLive = false;
       }
 
       if (isSelected) {
-        strokeColor = '#00f0ff';
-        fillColor = 'rgba(0, 240, 255, 0.6)';
+        strokeColor = '#00D9FF';
+        fillColor = 'rgba(0, 217, 255, 0.65)';
       }
 
       const headingDeg = pos.heading ?? 0;
-      const markerSize = isSelected ? 36 : 28;
+      const markerSize = isSelected ? 34 : 26;
 
       const html = `
         <div style="
@@ -108,11 +111,34 @@ export const TrackingMap: React.FC<TrackingMapProps> = ({
           align-items: center;
           justify-content: center;
           transform: rotate(${headingDeg}deg);
-          transition: transform 0.3s;
+          transition: transform 0.25s ease-out;
           cursor: pointer;
+          position: relative;
         ">
+          ${
+            isSelected
+              ? `<div style="
+                  position: absolute;
+                  width: ${markerSize + 10}px;
+                  height: ${markerSize + 10}px;
+                  border-radius: 50%;
+                  border: 1.5px solid rgba(0, 217, 255, 0.7);
+                  box-shadow: 0 0 12px rgba(0, 217, 255, 0.5);
+                  pointer-events: none;
+                "></div>`
+              : isLive
+              ? `<div style="
+                  position: absolute;
+                  width: ${markerSize + 6}px;
+                  height: ${markerSize + 6}px;
+                  border-radius: 50%;
+                  border: 1px solid rgba(32, 201, 138, 0.4);
+                  pointer-events: none;
+                "></div>`
+              : ''
+          }
           <svg width="${markerSize}" height="${markerSize}" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 2L19 21L12 17L5 21L12 2Z" fill="${fillColor}" stroke="${strokeColor}" stroke-width="${isSelected ? 2.5 : 1.5}" stroke-linejoin="round"/>
+            <path d="M12 2L19 21L12 17L5 21L12 2Z" fill="${fillColor}" stroke="${strokeColor}" stroke-width="${isSelected ? 2.5 : 1.7}" stroke-linejoin="round"/>
           </svg>
         </div>
       `;
@@ -127,28 +153,30 @@ export const TrackingMap: React.FC<TrackingMapProps> = ({
       const marker = L.marker([pos.latitude, pos.longitude], { icon: customIcon });
 
       const popupContent = `
-        <div style="font-family: var(--font-sans, system-ui); color: #f8fafc; font-size: 12px; min-width: 180px; padding: 4px;">
-          <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px;">
-            <strong style="font-size: 13px; color: #38bdf8;">${v.name}</strong>
-            <span style="font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 4px; background: ${fillColor}; color: ${strokeColor}; border: 1px solid ${strokeColor};">
+        <div style="font-family: 'JetBrains Mono', monospace, -apple-system, sans-serif; color: #F5F8FC; font-size: 11px; min-width: 200px; padding: 4px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; border-bottom: 1px solid rgba(100, 190, 240, 0.14); padding-bottom: 4px;">
+            <strong style="font-size: 12px; color: #00D9FF; text-transform: uppercase;">${v.name}</strong>
+            <span style="font-size: 9px; font-weight: 800; padding: 1px 5px; border-radius: 3px; background: ${fillColor}; color: ${strokeColor}; border: 1px solid ${strokeColor};">
               ${badgeLabel}
             </span>
           </div>
-          <div style="color: #94a3b8; font-size: 11px; margin-bottom: 2px;">IMO: ${v.imo_number || 'N/A'} &middot; ${v.vessel_type}</div>
-          <div style="color: #cbd5e1; font-size: 11px; margin-bottom: 2px;">
-            Position: <strong>${pos.latitude.toFixed(4)}&deg;, ${pos.longitude.toFixed(4)}&deg;</strong>
+          <div style="color: #7189A3; font-size: 10px; margin-bottom: 3px;">
+            IMO: ${v.imo_number || 'N/A'} &middot; ${v.vessel_type}
           </div>
-          <div style="color: #cbd5e1; font-size: 11px; margin-bottom: 2px;">
-            Speed: <strong>${pos.speed_knots != null ? pos.speed_knots.toFixed(1) + ' kts' : 'N/A'}</strong> &middot; Heading: <strong>${pos.heading != null ? pos.heading.toFixed(0) + '&deg;' : 'N/A'}</strong>
+          <div style="color: #D3E0EA; font-size: 10px; margin-bottom: 3px;">
+            Position: <strong style="color: #FFFFFF;">${pos.latitude.toFixed(4)}&deg;, ${pos.longitude.toFixed(4)}&deg;</strong>
+          </div>
+          <div style="color: #D3E0EA; font-size: 10px; margin-bottom: 3px;">
+            Speed: <strong style="color: #00D9FF;">${pos.speed_knots != null ? pos.speed_knots.toFixed(1) + ' kts' : 'N/A'}</strong> &middot; Heading: <strong>${pos.heading != null ? pos.heading.toFixed(0) + '&deg;' : 'N/A'}</strong>
           </div>
           ${
             v.active_booking
-              ? `<div style="margin-top: 6px; padding: 4px 6px; background: rgba(56, 189, 248, 0.1); border-radius: 4px; border: 1px solid rgba(56, 189, 248, 0.25); color: #38bdf8;">
-                  Active Booking: <strong>${v.active_booking.booking_reference}</strong>
+              ? `<div style="margin-top: 6px; padding: 4px 6px; background: rgba(0, 217, 255, 0.08); border-radius: 4px; border: 1px solid rgba(0, 217, 255, 0.25); color: #00D9FF; font-size: 10px;">
+                  Booking: <strong>${v.active_booking.booking_reference}</strong>
                  </div>`
               : ''
           }
-          <div style="margin-top: 6px; font-size: 9px; color: #64748b;">
+          <div style="margin-top: 6px; font-size: 9px; color: #7189A3;">
             Observed: ${new Date(pos.recorded_at).toUTCString()}
           </div>
         </div>
@@ -185,14 +213,14 @@ export const TrackingMap: React.FC<TrackingMapProps> = ({
       const latlngs: [number, number][] = historicalPoints.map((p) => [p.latitude, p.longitude]);
 
       const polyline = L.polyline(latlngs, {
-        color: '#00f0ff',
-        weight: 3,
+        color: '#00D9FF',
+        weight: 2.5,
         opacity: 0.85,
         lineJoin: 'round',
       });
 
       polyline.bindTooltip(
-        '<div style="font-size: 11px; font-weight: 700; color: #00f0ff;">AUTHENTIC OBSERVED POSITION TRACK (HISTORICAL AIS)</div>',
+        '<div style="font-family: monospace; font-size: 10px; font-weight: 700; color: #00D9FF;">AUTHENTIC OBSERVED POSITION TRACK (HISTORICAL AIS)</div>',
         { sticky: true }
       );
 
@@ -201,9 +229,9 @@ export const TrackingMap: React.FC<TrackingMapProps> = ({
       // Add small dots on historical points
       historicalPoints.forEach((p, idx) => {
         const circle = L.circleMarker([p.latitude, p.longitude], {
-          radius: 3,
-          color: '#00f0ff',
-          fillColor: '#050c1c',
+          radius: 2.5,
+          color: '#00D9FF',
+          fillColor: '#061321',
           fillOpacity: 1,
           weight: 1.5,
         });
@@ -227,14 +255,14 @@ export const TrackingMap: React.FC<TrackingMapProps> = ({
       ];
 
       const plannedLine = L.polyline(corridorPoints, {
-        color: '#f59e0b',
-        weight: 2,
-        dashArray: '6, 8',
-        opacity: 0.7,
+        color: '#FFB020',
+        weight: 1.5,
+        dashArray: '5, 7',
+        opacity: 0.65,
       });
 
       plannedLine.bindTooltip(
-        '<div style="font-size: 11px; font-weight: 700; color: #f59e0b;">PLANNED ROUTE CORRIDOR (NOT OBSERVED TRACK)</div>',
+        '<div style="font-family: monospace; font-size: 10px; font-weight: 700; color: #FFB020;">PLANNED ROUTE CORRIDOR (NOT OBSERVED TRACK)</div>',
         { sticky: true }
       );
 
@@ -244,17 +272,9 @@ export const TrackingMap: React.FC<TrackingMapProps> = ({
       const createPortIcon = (name: string, isOrigin: boolean) =>
         L.divIcon({
           className: 'port-marker',
-          html: `<div style="
-            background: #0f172a;
-            border: 1.5px solid ${isOrigin ? '#10b981' : '#f43f5e'};
-            color: #f8fafc;
-            border-radius: 4px;
-            padding: 2px 6px;
-            font-size: 10px;
-            font-weight: 700;
-            white-space: nowrap;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.5);
-          ">${isOrigin ? 'Origin: ' : 'Dest: '}${name}</div>`,
+          html: `<div class="tracking-port-label ${isOrigin ? 'origin' : 'dest'}">
+            ${isOrigin ? 'ORIGIN: ' : 'DEST: '}${name}
+          </div>`,
           iconAnchor: [30, 10],
         });
 
@@ -271,52 +291,50 @@ export const TrackingMap: React.FC<TrackingMapProps> = ({
   const positionedCount = vessels.filter((v) => v.latest_position != null).length;
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100%', minHeight: '520px', overflow: 'hidden' }}>
+    <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden' }}>
       {/* Map Container */}
-      <div ref={mapContainerRef} style={{ width: '100%', height: '100%', minHeight: '520px', zIndex: 1 }} />
+      <div ref={mapContainerRef} style={{ width: '100%', height: '100%', zIndex: 1 }} />
 
       {/* Floating Map Legend Overlay */}
-      <div
-        style={{
-          position: 'absolute',
-          top: '12px',
-          right: '12px',
-          zIndex: 10,
-          backgroundColor: 'rgba(5, 12, 28, 0.88)',
-          backdropFilter: 'blur(8px)',
-          border: '1px solid rgba(56, 189, 248, 0.25)',
-          borderRadius: '8px',
-          padding: '10px 14px',
-          color: '#f8fafc',
-          fontSize: '0.75rem',
-          boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
-          maxWidth: '280px',
-        }}
-      >
-        <div style={{ fontWeight: 800, color: '#38bdf8', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <Radio size={13} /> Live Telemetry Freshness
+      <div className="tracking-map-legend">
+        <div className="tracking-legend-title">
+          <Radio size={12} />
+          <span>Telemetry Freshness</span>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#10b981' }} />
-            <span>LIVE (&lt; 2h observed)</span>
+        <div className="tracking-legend-list">
+          <div className="tracking-legend-item">
+            <div className="tracking-legend-dot-label">
+              <span className="tracking-legend-dot" style={{ backgroundColor: '#20C98A', boxShadow: '0 0 6px #20C98A' }} />
+              <span>LIVE</span>
+            </div>
+            <span className="tracking-legend-time">&lt; 2h</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#3b82f6' }} />
-            <span>RECENT (2h &ndash; 24h)</span>
+          <div className="tracking-legend-item">
+            <div className="tracking-legend-dot-label">
+              <span className="tracking-legend-dot" style={{ backgroundColor: '#2F8CFF' }} />
+              <span>RECENT</span>
+            </div>
+            <span className="tracking-legend-time">2h–24h</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#f59e0b' }} />
-            <span>STALE (&gt; 24h delay)</span>
+          <div className="tracking-legend-item">
+            <div className="tracking-legend-dot-label">
+              <span className="tracking-legend-dot" style={{ backgroundColor: '#FFB020' }} />
+              <span>STALE</span>
+            </div>
+            <span className="tracking-legend-time">&gt; 24h</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#64748b' }} />
-            <span>DATA_UNAVAILABLE (Unpositioned)</span>
+          <div className="tracking-legend-item">
+            <div className="tracking-legend-dot-label">
+              <span className="tracking-legend-dot" style={{ backgroundColor: '#7189A3' }} />
+              <span>UNAVAILABLE</span>
+            </div>
+            <span className="tracking-legend-time">No fix</span>
           </div>
         </div>
 
-        <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', marginTop: '8px', paddingTop: '6px', fontSize: '0.675rem', color: '#94a3b8' }}>
-          Tracked fleet: <strong>{positionedCount}</strong> / {vessels.length} vessels
+        <div className="tracking-legend-footer">
+          <span>Tracked:</span>
+          <strong>{positionedCount} / {vessels.length} vessels</strong>
         </div>
       </div>
 
@@ -329,38 +347,31 @@ export const TrackingMap: React.FC<TrackingMapProps> = ({
             left: '50%',
             transform: 'translateX(-50%)',
             zIndex: 15,
-            backgroundColor: 'rgba(5, 12, 28, 0.92)',
-            backdropFilter: 'blur(8px)',
-            border: '1px solid rgba(245, 158, 11, 0.4)',
+            backgroundColor: 'rgba(6, 19, 33, 0.94)',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255, 176, 32, 0.45)',
             borderRadius: '10px',
             padding: '14px 20px',
-            color: '#f8fafc',
-            maxWidth: '520px',
+            color: '#F5F8FC',
+            maxWidth: '500px',
             textAlign: 'center',
-            boxShadow: '0 12px 36px rgba(0, 0, 0, 0.6)',
+            boxShadow: '0 12px 36px rgba(0, 0, 0, 0.65)',
+            fontFamily: "'JetBrains Mono', monospace",
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: '#f59e0b', fontWeight: 800, fontSize: '0.875rem', marginBottom: '4px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: '#FFB020', fontWeight: 700, fontSize: '13px', marginBottom: '6px' }}>
             <ShieldAlert size={16} /> Authentic Telemetry Unconfigured
           </div>
-          <p style={{ margin: '0 0 10px', fontSize: '0.75rem', color: '#cbd5e1', lineHeight: 1.4 }}>
+          <p style={{ margin: '0 0 12px', fontSize: '11px', color: '#A5B8CC', lineHeight: 1.5, fontFamily: 'sans-serif' }}>
             Commercial AIS subscription is currently unconfigured. Per platform Rule 28 integrity guidelines,
-            vessel coordinates are marked <code>DATA_UNAVAILABLE</code> rather than synthesizing simulated vessel movement.
+            vessel coordinates are marked <code style={{ color: '#FFB020' }}>DATA_UNAVAILABLE</code> rather than synthesizing simulated vessel movement.
           </p>
           {onOpenIngestModal && (
             <button
               type="button"
               onClick={onOpenIngestModal}
-              style={{
-                backgroundColor: '#0284c7',
-                color: 'white',
-                border: 'none',
-                padding: '6px 14px',
-                borderRadius: '6px',
-                fontSize: '0.75rem',
-                fontWeight: 700,
-                cursor: 'pointer',
-              }}
+              className="tracking-btn tracking-btn-primary"
+              style={{ margin: '0 auto' }}
             >
               Ingest Test Telemetry Observation
             </button>
@@ -370,3 +381,5 @@ export const TrackingMap: React.FC<TrackingMapProps> = ({
     </div>
   );
 };
+
+export default TrackingMap;
