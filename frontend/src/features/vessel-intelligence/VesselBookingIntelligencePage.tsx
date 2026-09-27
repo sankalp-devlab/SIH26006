@@ -46,6 +46,7 @@ import {
   DetailedVesselIntelligence,
 } from './components/VesselIntelligenceDetailPanel';
 import { MultiVesselComparisonModal } from './components/MultiVesselComparisonModal';
+import './vessel-booking-intelligence.css';
 import type { Port } from '../../types/port';
 import type { Vessel } from '../../types/vessel';
 import type {
@@ -103,6 +104,23 @@ export const VesselBookingIntelligencePage: React.FC = () => {
   const [maxAcceptableRisk, setMaxAcceptableRisk] = useState<string>('ANY');
   const [bunkerPriceOverride, setBunkerPriceOverride] = useState<string>('');
   const [dailyHireOverride, setDailyHireOverride] = useState<string>('');
+
+  // Computed seaport references and active overrides counter
+  const originPort = useMemo(() => ports.find((p) => p.id === Number(originPortId)), [ports, originPortId]);
+  const destPort = useMemo(() => ports.find((p) => p.id === Number(destPortId)), [ports, destPortId]);
+
+  const activeParamCount = useMemo(() => {
+    let count = 0;
+    if (maxBudgetUsd && Number(maxBudgetUsd) > 0) count++;
+    if (maxWaitingTimeDays && Number(maxWaitingTimeDays) > 0) count++;
+    if (minVesselCapacityDwt && Number(minVesselCapacityDwt) > 0) count++;
+    if (maxAcceptableRisk && maxAcceptableRisk !== 'ANY') count++;
+    if (bunkerPriceOverride && Number(bunkerPriceOverride) > 0) count++;
+    if (dailyHireOverride && Number(dailyHireOverride) > 0) count++;
+    if (shipper && shipper !== 'Enterprise Charterer Ltd') count++;
+    if (consignee && consignee !== 'Industrial Receiving Terminal') count++;
+    return count;
+  }, [maxBudgetUsd, maxWaitingTimeDays, minVesselCapacityDwt, maxAcceptableRisk, bunkerPriceOverride, dailyHireOverride, shipper, consignee]);
 
   // Execution & Results States
   const [executionMessage, setExecutionMessage] = useState<string>('');
@@ -770,760 +788,660 @@ export const VesselBookingIntelligencePage: React.FC = () => {
   }, [feasibleVessels, comparisonPool]);
 
   return (
-    <div className="ciw-container" style={{ padding: '1.5rem 2rem', maxWidth: '1440px', margin: '0 auto', boxSizing: 'border-box' }}>
+    <div className="vbi-workspace">
+      <div className="vbi-content-layer">
 
-      {/* MODULE HEADER BAR */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem' }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div
-              style={{
-                width: '26px',
-                height: '26px',
-                borderRadius: '5px',
-                background: 'rgba(56, 189, 248, 0.15)',
-                color: '#38bdf8',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                border: '1px solid rgba(56, 189, 248, 0.3)',
-              }}
-            >
-              <Compass size={15} />
+        {/* MODULE HEADER BAR */}
+        <div className="vbi-header-bar">
+          <div className="vbi-header-left">
+            <div className="vbi-header-meta">
+              <div className="vbi-system-tag">
+                <Compass size={13} />
+                <span>MARITIME DECISION SUPPORT SYSTEM</span>
+              </div>
+              <div className="vbi-status-indicator">
+                <span className="vbi-status-dot" />
+                <span>INTELLIGENCE ENGINE READY</span>
+              </div>
             </div>
-            <span style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', color: '#38bdf8', letterSpacing: '0.08em' }}>
-              MARITIME DECISION SUPPORT SYSTEM
-            </span>
+            <h1 className="vbi-page-title">
+              <span className="vbi-title-lead">VESSEL BOOKING</span>
+              <span className="vbi-title-accent">INTELLIGENCE</span>
+            </h1>
+            <p className="vbi-page-subtitle">
+              Cargo-to-vessel decision support using route, cost, ETA, capacity and operational intelligence.
+            </p>
           </div>
-          <h1 style={{ margin: '6px 0 0', fontSize: '1.5rem', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.01em', textTransform: 'uppercase' }}>
-            VESSEL BOOKING INTELLIGENCE
-          </h1>
-          <p style={{ margin: '4px 0 0', fontSize: '0.8125rem', color: '#94a3b8', lineHeight: 1.4 }}>
-            Cargo-to-vessel decision support using route, cost, ETA, capacity and operational intelligence.
-          </p>
-        </div>
 
-        {/* Top Header Actions */}
-        <div style={{ display: 'flex', gap: '8px' }}>
-          {stage !== 'input' && (
-            <Button
-              variant="secondary"
-              size="sm"
-              icon={<RotateCcw size={14} />}
-              onClick={() => setStage('input')}
-            >
-              New Shipment Analysis
-            </Button>
-          )}
-          <Button
-            variant="ghost"
-            size="sm"
-            icon={<ExternalLink size={14} />}
-            onClick={() => navigate('/bookings')}
-          >
-            Commercial Bookings Hub
-          </Button>
-        </div>
-      </div>
-
-      {/* ERROR & RECONNECTION BANNER */}
-      {errorMessage && (
-        <div
-          style={{
-            padding: '0.875rem 1.25rem',
-            backgroundColor: retryCountdown ? 'rgba(56, 189, 248, 0.08)' : 'rgba(239, 68, 68, 0.1)',
-            border: retryCountdown ? '1px solid rgba(56, 189, 248, 0.35)' : '1px solid rgba(239, 68, 68, 0.3)',
-            color: retryCountdown ? '#38bdf8' : '#f87171',
-            borderRadius: '8px',
-            fontSize: '0.8125rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: '12px',
-            marginBottom: '1.25rem',
-            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.25)',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            {retryCountdown ? (
-              <RefreshCw size={18} style={{ animation: 'spin 1.5s linear infinite' }} />
-            ) : (
-              <AlertCircle size={18} />
+          {/* Top Header Actions */}
+          <div className="vbi-header-actions">
+            {stage !== 'input' && (
+              <Button
+                variant="secondary"
+                size="sm"
+                icon={<RotateCcw size={14} />}
+                onClick={() => setStage('input')}
+              >
+                New Shipment Analysis
+              </Button>
             )}
-            <div>
-              <span style={{ fontWeight: 600 }}>{errorMessage}</span>
-              {retryCountdown !== null && retryCountdown > 0 && (
-                <span style={{ marginLeft: '6px', opacity: 0.85 }}>
-                  (Auto-reconnecting in {retryCountdown}s...)
-                </span>
+            <Button
+              variant="ghost"
+              size="sm"
+              icon={<ExternalLink size={14} />}
+              onClick={() => navigate('/bookings')}
+            >
+              Commercial Bookings Hub
+            </Button>
+          </div>
+        </div>
+
+        {/* ERROR & RECONNECTION BANNER */}
+        {errorMessage && (
+          <div
+            style={{
+              padding: '0.875rem 1.25rem',
+              backgroundColor: retryCountdown ? 'rgba(56, 189, 248, 0.08)' : 'rgba(239, 68, 68, 0.1)',
+              border: retryCountdown ? '1px solid rgba(56, 189, 248, 0.35)' : '1px solid rgba(239, 68, 68, 0.3)',
+              color: retryCountdown ? '#38bdf8' : '#f87171',
+              borderRadius: '8px',
+              fontSize: '0.8125rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              gap: '12px',
+              marginBottom: '1.25rem',
+              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.25)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              {retryCountdown ? (
+                <RefreshCw size={18} style={{ animation: 'spin 1.5s linear infinite' }} />
+              ) : (
+                <AlertCircle size={18} />
               )}
+              <div>
+                <span style={{ fontWeight: 600 }}>{errorMessage}</span>
+                {retryCountdown !== null && retryCountdown > 0 && (
+                  <span style={{ marginLeft: '6px', opacity: 0.85 }}>
+                    (Auto-reconnecting in {retryCountdown}s...)
+                  </span>
+                )}
+              </div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Button
+                type="button"
+                variant={retryCountdown ? 'primary' : 'secondary'}
+                size="sm"
+                icon={<RotateCcw size={13} />}
+                onClick={() => {
+                  setRetryCountdown(null);
+                  setErrorMessage('');
+                  handleRunAnalysis();
+                }}
+              >
+                Retry Analysis
+              </Button>
+              <button
+                type="button"
+                onClick={() => {
+                  setRetryCountdown(null);
+                  setErrorMessage('');
+                }}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: retryCountdown ? '#38bdf8' : '#f87171',
+                  cursor: 'pointer',
+                  padding: '4px',
+                  lineHeight: 1,
+                }}
+                title="Dismiss"
+              >
+                <X size={16} />
+              </button>
             </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Button
+        )}
+
+        {/* STRUCTURED BOOKING WORKFLOW PROGRESS BAR */}
+        {stage === 'input' && (
+          <div className="vbi-workflow-nav">
+            <button
               type="button"
-              variant={retryCountdown ? 'primary' : 'secondary'}
-              size="sm"
-              icon={<RotateCcw size={13} />}
-              onClick={() => {
-                setRetryCountdown(null);
-                setErrorMessage('');
-                handleRunAnalysis();
-              }}
+              onClick={() => document.getElementById('vbi-section-cargo')?.scrollIntoView({ behavior: 'smooth' })}
+              className={`vbi-workflow-step is-active ${commodity && Number(weightTons) > 0 ? 'is-completed' : ''}`}
             >
-              Retry Analysis
-            </Button>
+              <div className="vbi-step-num">01</div>
+              <div className="vbi-step-info">
+                <span className="vbi-step-label">CARGO</span>
+                <span className="vbi-step-desc">Tonnage & stowage</span>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => document.getElementById('vbi-section-route')?.scrollIntoView({ behavior: 'smooth' })}
+              className={`vbi-workflow-step ${originPortId && destPortId ? 'is-active' : ''} ${originPortId && destPortId && departureDate && laycanEndDate && !laycanDateError && !arrivalDateError ? 'is-completed' : ''}`}
+            >
+              <div className="vbi-step-num">02</div>
+              <div className="vbi-step-info">
+                <span className="vbi-step-label">ROUTE</span>
+                <span className="vbi-step-desc">Corridor & laycan</span>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => document.getElementById('vbi-section-priority')?.scrollIntoView({ behavior: 'smooth' })}
+              className="vbi-workflow-step is-active is-completed"
+            >
+              <div className="vbi-step-num">03</div>
+              <div className="vbi-step-info">
+                <span className="vbi-step-label">OPTIMIZATION</span>
+                <span className="vbi-step-desc">MCDA scoring focus</span>
+              </div>
+            </button>
+
             <button
               type="button"
               onClick={() => {
-                setRetryCountdown(null);
-                setErrorMessage('');
+                setShowScenarioSettings(true);
+                setTimeout(() => document.getElementById('vbi-section-params')?.scrollIntoView({ behavior: 'smooth' }), 50);
               }}
-              style={{
-                background: 'transparent',
-                border: 'none',
-                color: retryCountdown ? '#38bdf8' : '#f87171',
-                cursor: 'pointer',
-                padding: '4px',
-                lineHeight: 1,
-              }}
-              title="Dismiss"
+              className={`vbi-workflow-step ${showScenarioSettings || activeParamCount > 0 ? 'is-active' : ''} ${activeParamCount > 0 ? 'is-completed' : ''}`}
             >
-              <X size={16} />
+              <div className="vbi-step-num">04</div>
+              <div className="vbi-step-info">
+                <span className="vbi-step-label">PARAMETERS</span>
+                <span className="vbi-step-desc">{activeParamCount > 0 ? `${activeParamCount} overrides active` : 'Charter & limits'}</span>
+              </div>
             </button>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* ========================================================================= */}
-      {/* 1. USER INPUT SECTION (CLEAN INTELLIGENCE INPUT SECTION)                  */}
-      {/* ========================================================================= */}
-      <style>{`
-        .vbi-main-grid {
-          display: grid;
-          grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-          gap: 2rem;
-          margin-bottom: 2rem;
-        }
-        .vbi-nested-2col {
-          display: grid;
-          grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-          gap: 14px;
-        }
-        .vbi-priority-grid {
-          display: grid;
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 12px;
-        }
-        .vbi-priority-card {
-          transition: all 0.15s ease;
-        }
-        .vbi-priority-card:hover {
-          border-color: rgba(56, 189, 248, 0.4) !important;
-          background-color: rgba(15, 23, 42, 0.75) !important;
-        }
-        .vbi-advanced-grid {
-          display: grid;
-          grid-template-columns: repeat(4, minmax(0, 1fr));
-          gap: 14px;
-        }
-        .vbi-cta-button {
-          transition: all 0.15s ease;
-        }
-        .vbi-cta-button:hover:not(:disabled) {
-          transform: translateY(-1px);
-          filter: brightness(1.08);
-        }
-        @media (max-width: 1080px) {
-          .vbi-main-grid {
-            grid-template-columns: 1fr;
-            gap: 1.5rem;
-          }
-          .vbi-advanced-grid {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-          }
-        }
-        @media (max-width: 640px) {
-          .vbi-nested-2col {
-            grid-template-columns: 1fr;
-            gap: 10px;
-          }
-          .vbi-priority-grid {
-            grid-template-columns: 1fr;
-          }
-          .vbi-advanced-grid {
-            grid-template-columns: 1fr;
-          }
-          .vbi-cta-container {
-            justify-content: stretch !important;
-          }
-          .vbi-cta-button {
-            width: 100% !important;
-          }
-        }
-      `}</style>
+        {/* ========================================================================= */}
+        {/* 1. USER INPUT SECTION (CLEAN INTELLIGENCE INPUT SECTION)                  */}
+        {/* ========================================================================= */}
+        {stage === 'input' && (
+          <div className="vbi-form-surface">
+            <form onSubmit={handleRunAnalysis}>
 
-      {/* ========================================================================= */}
-      {/* 1. USER INPUT SECTION (CLEAN INTELLIGENCE INPUT SECTION)                  */}
-      {/* ========================================================================= */}
-      {stage === 'input' && (
-        <div
-          className="card"
-          style={{
-            padding: '1.75rem 2rem',
-            borderRadius: '10px',
-            backgroundColor: 'var(--color-bg-surface, #091A2A)',
-            border: '1px solid rgba(56, 189, 248, 0.2)',
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.45)',
-          }}
-        >
-          <form onSubmit={handleRunAnalysis}>
+              {/* PRIMARY 2-COLUMN INPUT GRID */}
+              <div className="vbi-main-grid">
 
-            {/* BALANCED TWO-COLUMN PRIMARY INPUT GRID */}
-            <div className="vbi-main-grid">
-
-              {/* Column 1: Cargo Specifications */}
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.25rem', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '0.75rem' }}>
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '5px',
-                      padding: '3px 8px',
-                      borderRadius: '5px',
-                      backgroundColor: 'rgba(56, 189, 248, 0.12)',
-                      border: '1px solid rgba(56, 189, 248, 0.3)',
-                      color: '#38bdf8',
-                      fontSize: '0.75rem',
-                      fontWeight: 800,
-                      letterSpacing: '0.04em',
-                    }}
-                  >
-                    <Package size={14} />
-                    <span>01</span>
-                  </div>
-                  <div>
-                    <h3 style={{ margin: 0, fontSize: '0.875rem', fontWeight: 800, color: '#f8fafc', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                      Cargo Specifications
-                    </h3>
-                    <div style={{ fontSize: '0.725rem', color: '#94a3b8' }}>
-                      Shipment commodity, physical tonnage & special handling
+                {/* Column 1: Cargo Specifications */}
+                <div id="vbi-section-cargo" className="vbi-section-column">
+                  <div className="vbi-section-header">
+                    <div className="vbi-section-badge">
+                      <Package size={14} />
+                      <span>01</span>
+                    </div>
+                    <div className="vbi-section-title-wrap">
+                      <h3>Cargo Specifications</h3>
+                      <div className="vbi-section-sub">
+                        Shipment commodity, physical tonnage & special handling
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.125rem' }}>
-                  {/* Commodity Description - Full width */}
-                  <Input
-                    label="Commodity Description *"
-                    placeholder="e.g. Pilbara High-Grade Iron Ore"
-                    required
-                    value={commodity}
-                    onChange={(e) => setCommodity(e.target.value)}
-                  />
+                  <div className="vbi-field-stack">
+                    {/* Commodity Description */}
+                    <Input
+                      label="Commodity Description *"
+                      placeholder="e.g. Pilbara High-Grade Iron Ore"
+                      required
+                      value={commodity}
+                      onChange={(e) => setCommodity(e.target.value)}
+                    />
 
-                  {/* Cargo Category - Full width */}
-                  <Select
-                    label="Cargo Category *"
-                    options={[
-                      { value: 'Dry Bulk', label: 'Dry Bulk (Ore, Coal, Grain, Fertilizer)' },
-                      { value: 'Liquid Bulk', label: 'Liquid Bulk (Crude Oil, Clean Products, Chemicals)' },
-                      { value: 'Containerized', label: 'Containerized Freight (Box / TEU / FEU)' },
-                      { value: 'Breakbulk', label: 'Breakbulk / Heavy Machinery / Steel Products' },
-                    ]}
-                    value={cargoType}
-                    onChange={(e) => setCargoType(e.target.value)}
-                  />
+                    {/* Cargo Category */}
+                    <Select
+                      label="Cargo Category *"
+                      options={[
+                        { value: 'Dry Bulk', label: 'Dry Bulk (Ore, Coal, Grain, Fertilizer)' },
+                        { value: 'Liquid Bulk', label: 'Liquid Bulk (Crude Oil, Clean Products, Chemicals)' },
+                        { value: 'Containerized', label: 'Containerized Freight (Box / TEU / FEU)' },
+                        { value: 'Breakbulk', label: 'Breakbulk / Heavy Machinery / Steel Products' },
+                      ]}
+                      value={cargoType}
+                      onChange={(e) => setCargoType(e.target.value)}
+                    />
 
-                  {/* Dynamic Category Dependent Fields */}
-                  {cargoType === 'Containerized' ? (
-                    <>
-                      <div className="vbi-nested-2col">
-                        <Input
-                          label="Container Count *"
-                          type="number"
-                          placeholder="e.g. 500"
-                          required
-                          value={containerCount}
-                          onChange={(e) => setContainerCount(e.target.value)}
-                        />
-                        <Select
-                          label="Container Type / Size"
-                          options={[
-                            { value: 'TEU (20ft)', label: 'TEU (20ft Standard)' },
-                            { value: 'FEU (40ft)', label: 'FEU (40ft Standard)' },
-                            { value: '40ft High Cube', label: '40ft High Cube (HC)' },
-                          ]}
-                          value={containerSize}
-                          onChange={(e) => setContainerSize(e.target.value)}
-                        />
-                      </div>
+                    {/* Category Dependent Fields */}
+                    {cargoType === 'Containerized' ? (
+                      <>
+                        <div className="vbi-nested-2col">
+                          <Input
+                            label="Container Count *"
+                            type="number"
+                            placeholder="e.g. 500"
+                            required
+                            suffix="TEU"
+                            value={containerCount}
+                            onChange={(e) => setContainerCount(e.target.value)}
+                          />
+                          <Select
+                            label="Container Type / Size"
+                            options={[
+                              { value: 'TEU (20ft)', label: 'TEU (20ft Standard)' },
+                              { value: 'FEU (40ft)', label: 'FEU (40ft Standard)' },
+                              { value: '40ft High Cube', label: '40ft High Cube (HC)' },
+                            ]}
+                            value={containerSize}
+                            onChange={(e) => setContainerSize(e.target.value)}
+                          />
+                        </div>
+                        <div className="vbi-nested-2col">
+                          <Input
+                            label="Cargo Weight (Metric Tons) *"
+                            type="number"
+                            placeholder="e.g. 12500"
+                            required
+                            suffix="MT"
+                            value={weightTons}
+                            onChange={(e) => setWeightTons(e.target.value)}
+                          />
+                          <Input
+                            label="Volume (m³)"
+                            type="number"
+                            placeholder="e.g. 24000 (optional)"
+                            suffix="m³"
+                            value={volumeM3}
+                            onChange={(e) => setVolumeM3(e.target.value)}
+                          />
+                        </div>
+                      </>
+                    ) : (
                       <div className="vbi-nested-2col">
                         <Input
                           label="Cargo Weight (Metric Tons) *"
                           type="number"
-                          placeholder="e.g. 12500"
+                          placeholder="e.g. 75000"
                           required
+                          suffix="MT"
                           value={weightTons}
                           onChange={(e) => setWeightTons(e.target.value)}
                         />
                         <Input
                           label="Volume (m³)"
                           type="number"
-                          placeholder="e.g. 24000 (optional)"
+                          placeholder="e.g. 95000 (optional)"
+                          suffix="m³"
                           value={volumeM3}
                           onChange={(e) => setVolumeM3(e.target.value)}
                         />
                       </div>
-                    </>
-                  ) : (
-                    <div className="vbi-nested-2col">
-                      <Input
-                        label="Cargo Weight (Metric Tons) *"
-                        type="number"
-                        placeholder="e.g. 75000"
-                        required
-                        value={weightTons}
-                        onChange={(e) => setWeightTons(e.target.value)}
-                      />
-                      <Input
-                        label="Volume (m³)"
-                        type="number"
-                        placeholder="e.g. 95000 (optional)"
-                        value={volumeM3}
-                        onChange={(e) => setVolumeM3(e.target.value)}
-                      />
-                    </div>
-                  )}
-
-                  {/* Special Cargo Handling Requirements - Full width */}
-                  <Select
-                    label="Special Cargo Handling Requirements"
-                    options={[
-                      { value: 'Standard Ambient', label: 'Standard Ambient' },
-                      { value: 'Refrigerated', label: 'Refrigerated' },
-                      { value: 'Hazardous', label: 'Hazardous' },
-                      { value: 'Temperature Controlled', label: 'Temperature Controlled' },
-                      { value: 'Oversized', label: 'Oversized' },
-                      { value: 'Heavy Lift', label: 'Heavy Lift' },
-                      { value: 'Other', label: 'Other' },
-                    ]}
-                    value={specialRequirement}
-                    onChange={(e) => setSpecialRequirement(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              {/* Column 2: Journey & Route Requirements */}
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.25rem', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '0.75rem' }}>
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '5px',
-                      padding: '3px 8px',
-                      borderRadius: '5px',
-                      backgroundColor: 'rgba(56, 189, 248, 0.12)',
-                      border: '1px solid rgba(56, 189, 248, 0.3)',
-                      color: '#38bdf8',
-                      fontSize: '0.75rem',
-                      fontWeight: 800,
-                      letterSpacing: '0.04em',
-                    }}
-                  >
-                    <MapPin size={14} />
-                    <span>02</span>
-                  </div>
-                  <div>
-                    <h3 style={{ margin: 0, fontSize: '0.875rem', fontWeight: 800, color: '#f8fafc', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                      Journey & Route Requirements
-                    </h3>
-                    <div style={{ fontSize: '0.725rem', color: '#94a3b8' }}>
-                      Seaports, navigational corridor & laycan windows
-                    </div>
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.125rem' }}>
-                  {/* Origin Seaport (50%) + Destination Seaport (50%) */}
-                  <div className="vbi-nested-2col">
-                    <Select
-                      label="Origin Seaport (Loading Port) *"
-                      required
-                      options={[
-                        { value: '', label: 'Select loading port...' },
-                        ...ports.map((p) => ({
-                          value: p.id,
-                          label: `${p.name} (${p.unlocode || p.country || 'Global'})`,
-                        })),
-                      ]}
-                      value={originPortId}
-                      onChange={(e) => setOriginPortId(e.target.value)}
-                    />
-
-                    <Select
-                      label="Destination Seaport (Discharge Port) *"
-                      required
-                      options={[
-                        { value: '', label: 'Select discharge port...' },
-                        ...ports.map((p) => ({
-                          value: p.id,
-                          label: `${p.name} (${p.unlocode || p.country || 'Global'})`,
-                        })),
-                      ]}
-                      value={destPortId}
-                      onChange={(e) => setDestPortId(e.target.value)}
-                    />
-                  </div>
-
-                  {/* Laycan Window Range (50% / 50%) */}
-                  <div>
-                    <div className="vbi-nested-2col">
-                      <Input
-                        label="Preferred Departure Date (Laycan Start) *"
-                        type="date"
-                        required
-                        value={departureDate}
-                        onChange={(e) => setDepartureDate(e.target.value)}
-                      />
-                      <Input
-                        label="Laycan End Date *"
-                        type="date"
-                        required
-                        value={laycanEndDate}
-                        onChange={(e) => setLaycanEndDate(e.target.value)}
-                      />
-                    </div>
-                    {laycanDateError && (
-                      <div style={{ color: '#f87171', fontSize: '0.725rem', marginTop: '4px', fontWeight: 600 }}>
-                        {laycanDateError}
-                      </div>
                     )}
-                  </div>
 
-                  {/* Latest Acceptable Arrival (Full width) */}
-                  <div>
-                    <Input
-                      label="Latest Acceptable Arrival"
-                      type="date"
-                      value={latestArrivalDate}
-                      onChange={(e) => setLatestArrivalDate(e.target.value)}
-                      helperText="Optional delivery constraint. Evaluates vessels as Feasible, Feasible with Risk, or Does not meet requirement."
+                    {/* Special Cargo Handling */}
+                    <Select
+                      label="Special Cargo Handling Requirements"
+                      options={[
+                        { value: 'Standard Ambient', label: 'Standard Ambient' },
+                        { value: 'Refrigerated', label: 'Refrigerated' },
+                        { value: 'Hazardous', label: 'Hazardous' },
+                        { value: 'Temperature Controlled', label: 'Temperature Controlled' },
+                        { value: 'Oversized', label: 'Oversized' },
+                        { value: 'Heavy Lift', label: 'Heavy Lift' },
+                        { value: 'Other', label: 'Other' },
+                      ]}
+                      value={specialRequirement}
+                      onChange={(e) => setSpecialRequirement(e.target.value)}
                     />
-                    {arrivalDateError && (
-                      <div style={{ color: '#f87171', fontSize: '0.725rem', marginTop: '4px', fontWeight: 600 }}>
-                        {arrivalDateError}
+                  </div>
+                </div>
+
+                {/* Column 2: Journey & Route Requirements */}
+                <div id="vbi-section-route" className="vbi-section-column">
+                  <div className="vbi-section-header">
+                    <div className="vbi-section-badge">
+                      <MapPin size={14} />
+                      <span>02</span>
+                    </div>
+                    <div className="vbi-section-title-wrap">
+                      <h3>Journey & Route Requirements</h3>
+                      <div className="vbi-section-sub">
+                        Seaports, navigational corridor & laycan windows
                       </div>
-                    )}
+                    </div>
+                  </div>
+
+                  <div className="vbi-field-stack">
+                    {/* Origin & Destination with Nautical Corridor Bridge */}
+                    <div className="vbi-route-corridor">
+                      <div className="vbi-route-ports-row">
+                        <div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
+                            <MapPin size={13} color="#38bdf8" />
+                            <span style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', color: '#38bdf8', letterSpacing: '0.04em' }}>
+                              ORIGIN (LOADING PORT) *
+                            </span>
+                          </div>
+                          <Select
+                            label=""
+                            required
+                            options={[
+                              { value: '', label: 'Select loading port...' },
+                              ...ports.map((p) => ({
+                                value: p.id,
+                                label: `${p.name} (${p.unlocode || p.country || 'Global'})`,
+                              })),
+                            ]}
+                            value={originPortId}
+                            onChange={(e) => setOriginPortId(e.target.value)}
+                          />
+                        </div>
+
+                        <div className="vbi-route-midway">
+                          <div className="vbi-route-connector-line">
+                            <span className="vbi-route-line-segment" />
+                            <Anchor size={14} />
+                            <ArrowRight size={14} />
+                            <span className="vbi-route-line-segment" />
+                          </div>
+                          <span className="vbi-route-label">MARITIME CORRIDOR</span>
+                        </div>
+
+                        <div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
+                            <Anchor size={13} color="#38bdf8" />
+                            <span style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', color: '#38bdf8', letterSpacing: '0.04em' }}>
+                              DESTINATION (DISCHARGE PORT) *
+                            </span>
+                          </div>
+                          <Select
+                            label=""
+                            required
+                            options={[
+                              { value: '', label: 'Select discharge port...' },
+                              ...ports.map((p) => ({
+                                value: p.id,
+                                label: `${p.name} (${p.unlocode || p.country || 'Global'})`,
+                              })),
+                            ]}
+                            value={destPortId}
+                            onChange={(e) => setDestPortId(e.target.value)}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Laycan Window Range */}
+                    <div className="vbi-date-cluster">
+                      <div className="vbi-nested-2col">
+                        <Input
+                          label="Preferred Departure Date (Laycan Start) *"
+                          type="date"
+                          required
+                          icon={<Calendar size={14} color="#38bdf8" />}
+                          value={departureDate}
+                          onChange={(e) => setDepartureDate(e.target.value)}
+                        />
+                        <Input
+                          label="Laycan End Date *"
+                          type="date"
+                          required
+                          icon={<Calendar size={14} color="#38bdf8" />}
+                          value={laycanEndDate}
+                          onChange={(e) => setLaycanEndDate(e.target.value)}
+                        />
+                      </div>
+                      {laycanDateError && (
+                        <div style={{ color: '#f87171', fontSize: '0.725rem', marginTop: '-4px', fontWeight: 600 }}>
+                          {laycanDateError}
+                        </div>
+                      )}
+
+                      {/* Latest Acceptable Arrival */}
+                      <div>
+                        <Input
+                          label="Latest Acceptable Arrival (Optional)"
+                          type="date"
+                          icon={<Calendar size={14} color="#38bdf8" />}
+                          value={latestArrivalDate}
+                          onChange={(e) => setLatestArrivalDate(e.target.value)}
+                          helperText="Optional delivery constraint. Evaluates vessels as Feasible, Feasible with Risk, or Does not meet requirement."
+                        />
+                        {arrivalDateError && (
+                          <div style={{ color: '#f87171', fontSize: '0.725rem', marginTop: '4px', fontWeight: 600 }}>
+                            {arrivalDateError}
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
+
               </div>
 
-            </div>
-
-            {/* 03 DELIVERY OPTIMIZATION */}
-            <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '1.5rem', marginBottom: '1.75rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1rem' }}>
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '5px',
-                    padding: '3px 8px',
-                    borderRadius: '5px',
-                    backgroundColor: 'rgba(56, 189, 248, 0.12)',
-                    border: '1px solid rgba(56, 189, 248, 0.3)',
-                    color: '#38bdf8',
-                    fontSize: '0.75rem',
-                    fontWeight: 800,
-                    letterSpacing: '0.04em',
-                  }}
-                >
-                  <Sliders size={14} />
-                  <span>03</span>
-                </div>
-                <div>
-                  <h3 style={{ margin: 0, fontSize: '0.875rem', fontWeight: 800, color: '#f8fafc', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                    Delivery Optimization Priority *
-                  </h3>
-                  <div style={{ fontSize: '0.725rem', color: '#94a3b8' }}>
-                    Select primary objective criterion for MCDA candidate vessel and route scoring
+              {/* 03 DELIVERY OPTIMIZATION */}
+              <div id="vbi-section-priority" className="vbi-priority-section">
+                <div className="vbi-section-header" style={{ borderBottom: 'none', marginBottom: '1rem', paddingBottom: 0 }}>
+                  <div className="vbi-section-badge">
+                    <Sliders size={14} />
+                    <span>03</span>
+                  </div>
+                  <div className="vbi-section-title-wrap">
+                    <h3>Delivery Optimization Priority *</h3>
+                    <div className="vbi-section-sub">
+                      Select primary objective criterion for MCDA candidate vessel and route scoring
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* 2 x 2 Grid of Priority Cards */}
-              <div className="vbi-priority-grid">
-                {[
-                  {
-                    key: 'lowest_cost',
-                    label: 'Lowest Cost',
-                    desc: 'Minimizes voyage bunker expenditure and $/MT freight cost.',
-                    icon: <DollarSign size={18} />,
-                  },
-                  {
-                    key: 'fastest_eta',
-                    label: 'Fastest Delivery',
-                    desc: 'Prioritizes maximum service speed and expedited port arrival ETA.',
-                    icon: <Clock size={18} />,
-                  },
-                  {
-                    key: 'lowest_risk',
-                    label: 'Lowest Risk',
-                    desc: 'Avoids critical navigational chokepoints and elevated risk corridors.',
-                    icon: <Shield size={18} />,
-                  },
-                  {
-                    key: 'balanced',
-                    label: 'Balanced',
-                    desc: 'Harmonizes bunker economics, transit duration, and maritime risk.',
-                    icon: <Compass size={18} />,
-                  },
-                ].map((item) => {
-                  const isSelected = priority === item.key;
-                  return (
-                    <button
-                      key={item.key}
-                      type="button"
-                      onClick={() => setPriority(item.key as OptimizationPreference)}
-                      className="vbi-priority-card"
-                      style={{
-                        textAlign: 'left',
-                        padding: '14px 16px',
-                        borderRadius: '8px',
-                        backgroundColor: isSelected ? 'rgba(2, 132, 199, 0.14)' : 'rgba(15, 23, 42, 0.55)',
-                        border: isSelected ? '1.5px solid #38bdf8' : '1px solid rgba(255, 255, 255, 0.08)',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'flex-start',
-                        gap: '12px',
-                        boxShadow: isSelected ? '0 0 16px rgba(56, 189, 248, 0.12)' : 'none',
-                      }}
-                    >
-                      <div
-                        style={{
-                          width: '32px',
-                          height: '32px',
-                          borderRadius: '6px',
-                          backgroundColor: isSelected ? 'rgba(56, 189, 248, 0.2)' : 'rgba(255, 255, 255, 0.05)',
-                          border: `1px solid ${isSelected ? 'rgba(56, 189, 248, 0.4)' : 'rgba(255, 255, 255, 0.1)'}`,
-                          color: isSelected ? '#38bdf8' : '#94a3b8',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          flexShrink: 0,
-                        }}
+                <div className="vbi-priority-grid">
+                  {[
+                    {
+                      key: 'lowest_cost',
+                      label: 'Lowest Cost',
+                      desc: 'Minimizes voyage bunker expenditure and $/MT freight cost.',
+                      icon: <DollarSign size={18} />,
+                    },
+                    {
+                      key: 'fastest_eta',
+                      label: 'Fastest Delivery',
+                      desc: 'Prioritizes maximum service speed and expedited port arrival ETA.',
+                      icon: <Clock size={18} />,
+                    },
+                    {
+                      key: 'lowest_risk',
+                      label: 'Lowest Risk',
+                      desc: 'Avoids critical navigational chokepoints and elevated risk corridors.',
+                      icon: <Shield size={18} />,
+                    },
+                    {
+                      key: 'balanced',
+                      label: 'Balanced',
+                      desc: 'Harmonizes bunker economics, transit duration, and maritime risk.',
+                      icon: <Compass size={18} />,
+                    },
+                  ].map((item) => {
+                    const isSelected = priority === item.key;
+                    return (
+                      <button
+                        key={item.key}
+                        type="button"
+                        onClick={() => setPriority(item.key as OptimizationPreference)}
+                        className={`vbi-priority-card ${isSelected ? 'is-selected' : ''}`}
                       >
-                        {item.icon}
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
-                          <span style={{ fontWeight: 800, fontSize: '0.85rem', color: isSelected ? '#ffffff' : '#e2e8f0' }}>
-                            {item.label}
-                          </span>
+                        <div className="vbi-priority-top">
+                          <div className="vbi-priority-icon">
+                            {item.icon}
+                          </div>
                           {isSelected && (
-                            <span
-                              style={{
-                                fontSize: '0.65rem',
-                                fontWeight: 800,
-                                letterSpacing: '0.06em',
-                                textTransform: 'uppercase',
-                                color: '#38bdf8',
-                                backgroundColor: 'rgba(56, 189, 248, 0.15)',
-                                padding: '2px 6px',
-                                borderRadius: '4px',
-                                border: '1px solid rgba(56, 189, 248, 0.3)',
-                              }}
-                            >
-                              ACTIVE
+                            <span className="vbi-priority-badge">
+                              <span className="vbi-priority-badge-dot" />
+                              <span>ACTIVE</span>
                             </span>
                           )}
                         </div>
-                        <p style={{ margin: '4px 0 0', fontSize: '0.75rem', color: isSelected ? '#cbd5e1' : '#94a3b8', lineHeight: 1.4 }}>
-                          {item.desc}
-                        </p>
-                      </div>
-                    </button>
-                  );
-                })}
+                        <div className="vbi-priority-body">
+                          <span className="vbi-priority-title">{item.label}</span>
+                          <p className="vbi-priority-desc">{item.desc}</p>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
 
-            {/* 04 ADVANCED SCENARIO PARAMETERS (EXPANDABLE) */}
-            <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '1.25rem', marginBottom: '1.75rem' }}>
-              <button
-                type="button"
-                onClick={() => setShowScenarioSettings(!showScenarioSettings)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  width: '100%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  cursor: 'pointer',
-                  padding: '6px 0',
-                  textAlign: 'left',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '5px',
-                      padding: '3px 8px',
-                      borderRadius: '5px',
-                      backgroundColor: showScenarioSettings ? 'rgba(56, 189, 248, 0.15)' : 'rgba(255, 255, 255, 0.05)',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                      color: showScenarioSettings ? '#38bdf8' : '#94a3b8',
-                      fontSize: '0.75rem',
-                      fontWeight: 800,
-                      letterSpacing: '0.04em',
-                    }}
+              {/* 04 ADVANCED SCENARIO PARAMETERS */}
+              <div id="vbi-section-params" className="vbi-advanced-section">
+                <button
+                  type="button"
+                  onClick={() => setShowScenarioSettings(!showScenarioSettings)}
+                  className="vbi-accordion-btn"
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div className="vbi-section-badge" style={{ backgroundColor: showScenarioSettings ? 'rgba(0, 217, 255, 0.15)' : 'rgba(255, 255, 255, 0.05)', color: showScenarioSettings ? '#00D9FF' : '#94a3b8' }}>
+                      <Sliders size={14} />
+                      <span>04</span>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.875rem', fontWeight: 800, color: '#f8fafc', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span>ADVANCED SCENARIO PARAMETERS & CONSTRAINTS</span>
+                        <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 500 }}>(Optional)</span>
+                        {activeParamCount > 0 && (
+                          <span className="vbi-param-count-tag">
+                            {activeParamCount} SET
+                          </span>
+                        )}
+                      </div>
+                      <div style={{ fontSize: '0.725rem', color: '#94a3b8', marginTop: '1px' }}>
+                        Decision constraints, charter rates, bunker costs and counterparty entities
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="vbi-accordion-toggle-tag">
+                    <span>{showScenarioSettings ? 'Collapse' : 'Configure Parameters'}</span>
+                    {showScenarioSettings ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+                  </div>
+                </button>
+
+                {showScenarioSettings && (
+                  <div className="vbi-advanced-panel">
+                    <div className="vbi-advanced-grid">
+                      <Input
+                        label="Maximum Budget (USD)"
+                        type="number"
+                        placeholder="e.g. 120000"
+                        suffix="USD"
+                        value={maxBudgetUsd}
+                        onChange={(e) => setMaxBudgetUsd(e.target.value)}
+                      />
+                      <Input
+                        label="Maximum Waiting Time (Days)"
+                        type="number"
+                        placeholder="e.g. 3"
+                        suffix="DAYS"
+                        value={maxWaitingTimeDays}
+                        onChange={(e) => setMaxWaitingTimeDays(e.target.value)}
+                      />
+                      <Input
+                        label="Minimum Vessel Capacity (DWT MT)"
+                        type="number"
+                        placeholder="e.g. 50000"
+                        suffix="DWT MT"
+                        value={minVesselCapacityDwt}
+                        onChange={(e) => setMinVesselCapacityDwt(e.target.value)}
+                      />
+                      <Select
+                        label="Maximum Acceptable Risk"
+                        options={[
+                          { value: 'ANY', label: 'Any Risk Tier (Standard Filter)' },
+                          { value: 'LOW', label: 'Low Risk Only (Score <= 40)' },
+                          { value: 'MODERATE', label: 'Low or Moderate Risk (Score <= 65)' },
+                        ]}
+                        value={maxAcceptableRisk}
+                        onChange={(e) => setMaxAcceptableRisk(e.target.value)}
+                      />
+                      <Input
+                        label="Empirical Bunker Price ($/MT)"
+                        type="number"
+                        placeholder="e.g. 620"
+                        suffix="$/MT"
+                        value={bunkerPriceOverride}
+                        onChange={(e) => setBunkerPriceOverride(e.target.value)}
+                      />
+                      <Input
+                        label="Vessel Daily Time-Charter Hire ($/day)"
+                        type="number"
+                        placeholder="e.g. 24000"
+                        suffix="$/DAY"
+                        value={dailyHireOverride}
+                        onChange={(e) => setDailyHireOverride(e.target.value)}
+                      />
+                      <Input
+                        label="Charterer Corporate Entity"
+                        placeholder="e.g. Enterprise Charterer Ltd"
+                        value={shipper}
+                        onChange={(e) => setShipper(e.target.value)}
+                      />
+                      <Input
+                        label="Discharge Receiver Entity"
+                        placeholder="e.g. Industrial Receiving Terminal"
+                        value={consignee}
+                        onChange={(e) => setConsignee(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* DECISION SUMMARY PREVIEW & PRIMARY ACTION AREA */}
+              <div className="vbi-action-dock">
+                <div className="vbi-summary-strip">
+                  <div className="vbi-summary-item">
+                    <span className="vbi-summary-label">CARGO</span>
+                    <span className="vbi-summary-val">
+                      {Number(weightTons || 0).toLocaleString()} MT &middot; {commodity ? (commodity.length > 22 ? `${commodity.slice(0, 20)}...` : commodity) : cargoType}
+                    </span>
+                  </div>
+                  <div className="vbi-summary-divider" />
+                  <div className="vbi-summary-item">
+                    <span className="vbi-summary-label">CORRIDOR ROUTE</span>
+                    <span className="vbi-summary-val">
+                      {originPort ? originPort.name : 'Origin'} &rarr; {destPort ? destPort.name : 'Destination'}
+                    </span>
+                  </div>
+                  <div className="vbi-summary-divider" />
+                  <div className="vbi-summary-item">
+                    <span className="vbi-summary-label">LAYCAN WINDOW</span>
+                    <span className="vbi-summary-val">
+                      {departureDate ? new Date(departureDate).toLocaleDateString(undefined, { day: '2-digit', month: 'short' }) : '—'} &rarr; {laycanEndDate ? new Date(laycanEndDate).toLocaleDateString(undefined, { day: '2-digit', month: 'short' }) : '—'}
+                    </span>
+                  </div>
+                  <div className="vbi-summary-divider" />
+                  <div className="vbi-summary-item">
+                    <span className="vbi-summary-label">OBJECTIVE</span>
+                    <span className="vbi-summary-val" style={{ color: 'var(--ol-cyan, #00D9FF)' }}>
+                      {priority.replace('_', ' ').toUpperCase()}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="vbi-cta-block">
+                  <button
+                    type="submit"
+                    disabled={Boolean(laycanDateError || arrivalDateError)}
+                    className="vbi-run-analysis-btn"
                   >
-                    <Sliders size={14} />
-                    <span>04</span>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#f8fafc', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <span>Advanced Scenario Parameters & Constraints</span>
-                      <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 500 }}>(Optional)</span>
-                    </div>
-                    <div style={{ fontSize: '0.725rem', color: '#94a3b8' }}>
-                      Decision constraints, charter rates, bunker costs and counterparty entities
-                    </div>
-                  </div>
+                    <Compass size={18} />
+                    <span>RUN INTELLIGENCE ANALYSIS</span>
+                  </button>
+                  <span className="vbi-cta-subtext">
+                    Match cargo &rarr; vessel &rarr; route &rarr; cost &rarr; ETA
+                  </span>
                 </div>
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    color: '#38bdf8',
-                    fontSize: '0.75rem',
-                    fontWeight: 700,
-                  }}
-                >
-                  <span>{showScenarioSettings ? 'Collapse' : 'Configure Parameters'}</span>
-                  {showScenarioSettings ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                </div>
-              </button>
+              </div>
 
-              {showScenarioSettings && (
-                <div
-                  className="vbi-advanced-grid"
-                  style={{
-                    marginTop: '1rem',
-                    padding: '16px 20px',
-                    borderRadius: '8px',
-                    backgroundColor: 'rgba(15, 23, 42, 0.65)',
-                    border: '1px solid rgba(255, 255, 255, 0.06)',
-                  }}
-                >
-                  <Input
-                    label="Maximum Budget (USD)"
-                    type="number"
-                    placeholder="e.g. 120000"
-                    value={maxBudgetUsd}
-                    onChange={(e) => setMaxBudgetUsd(e.target.value)}
-                  />
-                  <Input
-                    label="Maximum Waiting Time (Days)"
-                    type="number"
-                    placeholder="e.g. 3"
-                    value={maxWaitingTimeDays}
-                    onChange={(e) => setMaxWaitingTimeDays(e.target.value)}
-                  />
-                  <Input
-                    label="Minimum Vessel Capacity (DWT MT)"
-                    type="number"
-                    placeholder="e.g. 50000"
-                    value={minVesselCapacityDwt}
-                    onChange={(e) => setMinVesselCapacityDwt(e.target.value)}
-                  />
-                  <Select
-                    label="Maximum Acceptable Risk"
-                    options={[
-                      { value: 'ANY', label: 'Any Risk Tier (Standard Filter)' },
-                      { value: 'LOW', label: 'Low Risk Only (Score <= 40)' },
-                      { value: 'MODERATE', label: 'Low or Moderate Risk (Score <= 65)' },
-                    ]}
-                    value={maxAcceptableRisk}
-                    onChange={(e) => setMaxAcceptableRisk(e.target.value)}
-                  />
-                  <Input
-                    label="Empirical Bunker Price ($/MT)"
-                    type="number"
-                    placeholder="e.g. 620"
-                    value={bunkerPriceOverride}
-                    onChange={(e) => setBunkerPriceOverride(e.target.value)}
-                  />
-                  <Input
-                    label="Vessel Daily Time-Charter Hire ($/day)"
-                    type="number"
-                    placeholder="e.g. 24000"
-                    value={dailyHireOverride}
-                    onChange={(e) => setDailyHireOverride(e.target.value)}
-                  />
-                  <Input
-                    label="Charterer Corporate Entity"
-                    placeholder="e.g. Enterprise Charterer Ltd"
-                    value={shipper}
-                    onChange={(e) => setShipper(e.target.value)}
-                  />
-                  <Input
-                    label="Discharge Receiver Entity"
-                    placeholder="e.g. Industrial Receiving Terminal"
-                    value={consignee}
-                    onChange={(e) => setConsignee(e.target.value)}
-                  />
-                </div>
-              )}
-            </div>
-
-            {/* Primary CTA Row */}
-            <div
-              className="vbi-cta-container"
-              style={{
-                display: 'flex',
-                justifyContent: 'flex-end',
-                alignItems: 'center',
-                borderTop: '1px solid rgba(255, 255, 255, 0.08)',
-                paddingTop: '1.5rem',
-              }}
-            >
-              <Button
-                variant="primary"
-                size="md"
-                type="submit"
-                className="vbi-cta-button"
-                disabled={Boolean(laycanDateError || arrivalDateError)}
-                icon={<Compass size={18} />}
-                style={{
-                  padding: '12px 32px',
-                  fontWeight: 800,
-                  fontSize: '0.9375rem',
-                  letterSpacing: '0.04em',
-                  textTransform: 'uppercase',
-                  background: (laycanDateError || arrivalDateError)
-                    ? 'rgba(71, 85, 105, 0.5)'
-                    : 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
-                  boxShadow: (laycanDateError || arrivalDateError)
-                    ? 'none'
-                    : '0 4px 16px rgba(2, 132, 199, 0.4)',
-                  cursor: (laycanDateError || arrivalDateError) ? 'not-allowed' : 'pointer',
-                }}
-              >
-                RUN INTELLIGENCE ANALYSIS
-              </Button>
-            </div>
-          </form>
-        </div>
-      )}
+            </form>
+          </div>
+        )}
 
       {/* ========================================================================= */}
       {/* 2. ANALYZING PROGRESS STATE                                               */}
@@ -2377,6 +2295,7 @@ export const VesselBookingIntelligencePage: React.FC = () => {
         onRemoveFromCompare={handleToggleCompare}
       />
 
+      </div>
     </div>
   );
 };

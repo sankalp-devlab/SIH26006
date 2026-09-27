@@ -63,30 +63,31 @@ export const SkipperTableArtifact: React.FC<SkipperTableArtifactProps> = ({ payl
   };
 
   return (
-    <div className="bg-[#061321] border border-[rgba(100,190,240,0.16)] rounded-xl overflow-hidden my-3 shadow-md">
+    <div className="bg-[#061321] border border-[rgba(100,190,240,0.16)] rounded-xl overflow-hidden my-3 shadow-md w-full max-w-full box-border">
       {/* Table Header */}
-      <div className="flex items-center justify-between px-3.5 py-2.5 bg-[#040E19] border-b border-[rgba(100,190,240,0.12)]">
-        <div className="flex items-center gap-2">
-          <TableIcon size={14} className="text-cyan-400" />
-          <span className="text-xs font-semibold text-[#F5F8FC]">{payload.title}</span>
-          <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#091A2A] text-[#7189A3] border border-slate-800">
+      <div className="flex flex-wrap items-center justify-between gap-3 px-3.5 py-2.5 bg-[#040E19] border-b border-[rgba(100,190,240,0.12)]">
+        <div className="flex items-center gap-2 min-w-0 flex-1">
+          <TableIcon size={14} className="text-cyan-400 shrink-0" />
+          <span className="text-xs font-semibold text-[#F5F8FC] truncate">{payload.title}</span>
+          <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#091A2A] text-[#7189A3] border border-slate-800 shrink-0 whitespace-nowrap">
             {payload.totalCount} records
           </span>
         </div>
 
         <button
+          type="button"
           onClick={handleDownloadCsv}
-          className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#091A2A] hover:bg-slate-800 text-slate-300 hover:text-white text-[11px] font-medium transition-colors border border-slate-800"
+          className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#091A2A] hover:bg-slate-800 text-slate-300 hover:text-white text-[11px] font-medium transition-colors border border-slate-800 shrink-0 ml-auto"
           title="Export Table to CSV"
         >
-          <Download size={12} className="text-cyan-400" />
-          Export CSV
+          <Download size={12} className="text-cyan-400 shrink-0" />
+          <span>Export CSV</span>
         </button>
       </div>
 
       {/* Table Content */}
-      <div className="overflow-x-auto">
-        <table className="w-full text-left text-xs border-collapse">
+      <div className="table-wrapper w-full max-w-full overflow-x-auto scrollbar-thin">
+        <table className="w-full text-left text-xs border-collapse min-w-[500px]">
           <thead>
             <tr className="bg-[#030B14] text-[#7189A3] border-b border-slate-800 font-semibold">
               {payload.columns.map((col) => (

@@ -5,10 +5,11 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
   error?: string;
   helperText?: string;
   icon?: React.ReactNode;
+  suffix?: React.ReactNode;
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ label, error, helperText, icon, className = '', id, ...props }, ref) => {
+  ({ label, error, helperText, icon, suffix, className = '', id, ...props }, ref) => {
     const inputId = id || (label ? label.toLowerCase().replace(/\s+/g, '-') : undefined);
 
     return (
@@ -18,14 +19,15 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             {label}
           </label>
         )}
-        <div className="input-wrapper">
+        <div className={`input-wrapper ${suffix ? 'has-suffix' : ''}`}>
           {icon && <span className="input-icon">{icon}</span>}
           <input
             ref={ref}
             id={inputId}
-            className={`form-input ${icon ? 'has-icon' : ''} ${className}`.trim()}
+            className={`form-input ${icon ? 'has-icon' : ''} ${suffix ? 'has-suffix-input' : ''} ${className}`.trim()}
             {...props}
           />
+          {suffix && <span className="input-suffix">{suffix}</span>}
         </div>
         {error && <span className="text-xs" style={{ color: 'var(--color-status-danger)' }}>{error}</span>}
         {helperText && !error && <span className="text-xs text-muted">{helperText}</span>}

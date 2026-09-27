@@ -150,7 +150,7 @@ export const SkipperCenterChat: React.FC<SkipperCenterChatProps> = ({
             className="skipper-header-btn"
             title="Navigate back to Analytics Hub"
           >
-            <LayoutGrid size={13} className="skipper-cyan-text" />
+            <LayoutGrid size={13} className="skipper-cyan-text shrink-0" />
             <span className="skipper-btn-label">Analytics Hub</span>
           </button>
 
@@ -161,7 +161,7 @@ export const SkipperCenterChat: React.FC<SkipperCenterChatProps> = ({
             className={`skipper-header-btn ${rightPanelOpen ? 'active' : ''}`}
             title="Toggle Grounding Provenance Inspector"
           >
-            <ShieldCheck size={14} className={rightPanelOpen ? 'skipper-cyan-text' : 'skipper-muted-text'} />
+            <ShieldCheck size={14} className={`shrink-0 ${rightPanelOpen ? 'skipper-cyan-text' : 'skipper-muted-text'}`} />
             <span className="skipper-btn-label">Grounding</span>
           </button>
         </div>

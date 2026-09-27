@@ -135,10 +135,21 @@ export class SkipperDataRouter {
       };
     }
 
-    // Spot freight query
+    // Spot freight query (rolling 12-month series)
     const recentHistory = historical.slice(-12);
+    const formatChartDateLabel = (dateStr: string): string => {
+      const parts = dateStr.trim().split(/\s+/);
+      if (parts.length >= 2) {
+        const month = parts[0];
+        const year = parts[1];
+        const shortYear = year.length === 4 ? year.slice(2) : year;
+        return `${month} ${shortYear}`;
+      }
+      return dateStr;
+    };
+
     const chartPoints = recentHistory.map((h) => ({
-      label: h.date.substring(5),
+      label: formatChartDateLabel(h.date),
       value: h.spotRateUsdPerDay,
     }));
 

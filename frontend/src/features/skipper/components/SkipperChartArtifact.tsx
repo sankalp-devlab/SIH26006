@@ -11,9 +11,21 @@ export const SkipperChartArtifact: React.FC<SkipperChartArtifactProps> = ({ payl
 
   const width = 640;
   const height = 200;
-  const pad = { top: 25, right: 25, bottom: 35, left: 55 };
+  const pad = { top: 25, right: 35, bottom: 35, left: 55 };
   const plotW = width - pad.left - pad.right;
   const plotH = height - pad.top - pad.bottom;
+
+  const formatDisplayLabel = (label: string): string => {
+    if (!label) return '';
+    if (/^0\d{2}$/.test(label)) {
+      return `'${label.slice(1)}`;
+    }
+    const parts = label.trim().split(/\s+/);
+    if (parts.length === 2 && parts[1].length === 4) {
+      return `${parts[0]} ${parts[1].slice(2)}`;
+    }
+    return label;
+  };
 
   const values = payload.dataPoints.map((d) => d.value);
   const minVal = values.length ? Math.min(...values) * 0.85 : 0;
@@ -42,7 +54,7 @@ export const SkipperChartArtifact: React.FC<SkipperChartArtifactProps> = ({ payl
   const baselineY = payload.baseline !== undefined ? getY(payload.baseline) : null;
 
   return (
-    <div className="bg-[#061321] border border-[rgba(100,190,240,0.16)] rounded-xl p-3.5 my-3 shadow-md relative">
+    <div className="bg-[#061321] border border-[rgba(100,190,240,0.16)] rounded-xl p-3.5 my-3 shadow-md relative w-full max-w-full overflow-hidden box-border">
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           {isBar ? (
@@ -57,8 +69,12 @@ export const SkipperChartArtifact: React.FC<SkipperChartArtifactProps> = ({ payl
         </span>
       </div>
 
-      <div className="w-full overflow-x-auto scrollbar-none">
-        <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-48 select-none" style={{ minWidth: '460px' }}>
+      <div className="w-full max-w-full overflow-hidden">
+        <svg
+          viewBox={`0 0 ${width} ${height}`}
+          className="w-full h-auto max-h-52 select-none block"
+          style={{ width: '100%', height: 'auto', display: 'block' }}
+        >
           <defs>
             <linearGradient id="skipperAreaGrad" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#06b6d4" stopOpacity="0.25" />
@@ -130,7 +146,7 @@ export const SkipperChartArtifact: React.FC<SkipperChartArtifactProps> = ({ payl
                     fill="#94a3b8"
                     fontSize="9"
                   >
-                    {d.label}
+                    {formatDisplayLabel(d.label)}
                   </text>
                 </g>
               );
@@ -177,7 +193,7 @@ export const SkipperChartArtifact: React.FC<SkipperChartArtifactProps> = ({ payl
                       fill="#94a3b8"
                       fontSize="9"
                     >
-                      {pt.d.label}
+                      {formatDisplayLabel(pt.d.label)}
                     </text>
                   </g>
                 );
@@ -188,9 +204,9 @@ export const SkipperChartArtifact: React.FC<SkipperChartArtifactProps> = ({ payl
 
         {/* Hover Tooltip */}
         {hoveredIdx !== null && payload.dataPoints[hoveredIdx] && (
-          <div className="absolute top-3 right-4 bg-slate-900/95 border border-cyan-500/40 rounded-lg px-2.5 py-1.5 text-xs shadow-xl pointer-events-none">
+          <div className="absolute top-3 right-4 max-w-[calc(100%-2rem)] bg-slate-900/95 border border-cyan-500/40 rounded-lg px-2.5 py-1.5 text-xs shadow-xl pointer-events-none truncate z-10">
             <span className="font-semibold text-white mr-1.5">
-              {payload.dataPoints[hoveredIdx].label}:
+              {formatDisplayLabel(payload.dataPoints[hoveredIdx].label)}:
             </span>
             <span className="font-bold text-cyan-300">
               {payload.dataPoints[hoveredIdx].value.toLocaleString()} {payload.unit}
