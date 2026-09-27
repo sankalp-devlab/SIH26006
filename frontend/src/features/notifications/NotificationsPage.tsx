@@ -29,6 +29,7 @@ import {
 import { useNotifications } from '../../hooks/useNotifications';
 import { NotificationService } from '../../services/notifications/notification.service';
 import type { MaritimeNotification, NotificationSeverity } from '../../types/notification';
+import './notifications.css';
 
 export const NotificationsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -119,21 +120,21 @@ export const NotificationsPage: React.FC = () => {
     switch (prov) {
       case 'live':
         return (
-          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 flex items-center gap-1">
-            <Radio size={9} className="animate-pulse text-cyan-400" />
+          <span className="notif-badge-prov live">
+            <Radio size={9} />
             LIVE
           </span>
         );
       case 'simulated':
         return (
-          <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30">
+          <span className="notif-badge-prov simulated">
             SIMULATED
           </span>
         );
       case 'historical':
       default:
         return (
-          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">
+          <span className="notif-badge-prov historical">
             HISTORICAL
           </span>
         );
@@ -143,14 +144,14 @@ export const NotificationsPage: React.FC = () => {
   const getSeverityIcon = (sev: NotificationSeverity) => {
     switch (sev) {
       case 'warning':
-        return <AlertTriangle size={13} className="text-amber-400 flex-shrink-0" />;
+        return <AlertTriangle size={13} />;
       case 'success':
-        return <CheckCircle2 size={13} className="text-emerald-400 flex-shrink-0" />;
+        return <CheckCircle2 size={13} />;
       case 'danger':
-        return <AlertTriangle size={13} className="text-rose-400 flex-shrink-0" />;
+        return <AlertTriangle size={13} />;
       case 'info':
       default:
-        return <Info size={13} className="text-cyan-400 flex-shrink-0" />;
+        return <Info size={13} />;
     }
   };
 
@@ -183,58 +184,57 @@ export const NotificationsPage: React.FC = () => {
   };
 
   return (
-    <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-5 text-slate-200">
+    <div className="oceanlens-master-container notif-page-root">
       {/* ============================================================== */}
       {/* 1. OPERATIONAL CONTROL CENTER HEADER                           */}
       {/* ============================================================== */}
-      <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-slate-800/80 pb-5">
-        <div className="flex items-start gap-3.5">
-          <div className="p-2.5 rounded-xl bg-cyan-950/50 border border-cyan-500/30 text-cyan-400 shadow-sm shadow-cyan-950/50 mt-0.5 flex-shrink-0">
-            <Bell className="w-5 h-5 text-cyan-400" />
+      <header className="notif-header">
+        <div className="notif-header-left">
+          <div className="notif-header-icon-box">
+            <Bell size={22} />
           </div>
-          <div>
-            <h1 className="text-lg sm:text-xl font-bold text-white tracking-tight uppercase font-mono flex items-center gap-2">
-              Maritime Notification &amp; Operational Alert Ledger
+          <div className="notif-header-text">
+            <h1 className="notif-title">
+              MARITIME NOTIFICATION &amp; OPERATIONAL ALERT LEDGER
             </h1>
-            <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-2xl leading-relaxed">
+            <p className="notif-subtitle">
               Real-time operational event stream for fleet, fixtures, voyages, ports and maritime alerts.
             </p>
           </div>
         </div>
 
         {/* Right Status Indicator: Event Bus Active */}
-        <div className="flex items-center gap-2 self-start md:self-center flex-shrink-0">
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-950/50 border border-emerald-500/40 text-emerald-400 shadow-sm">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+        <div className="notif-header-right">
+          <div className="notif-status-badge">
+            <span className="notif-pulse-dot">
+              <span className="notif-pulse-dot-ring" />
+              <span className="notif-pulse-dot-core" />
             </span>
-            <span className="text-[11px] font-mono font-bold tracking-wider uppercase">
-              Event Bus Active
-            </span>
+            <span>EVENT BUS ACTIVE</span>
           </div>
         </div>
       </header>
 
       {/* ============================================================== */}
-      {/* 2. ACTION BAR (SECONDARY ACTIONS)                              */}
+      {/* 2. ACTION BAR (SECONDARY ACTIONS & AUDIT STREAM)               */}
       {/* ============================================================== */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-slate-900/40 border border-slate-800/70 rounded-xl px-4 py-2.5">
-        <div className="flex items-center gap-2 text-xs text-slate-400 font-mono">
-          <span className="inline-block w-2 h-2 rounded-full bg-cyan-400 shadow-sm shadow-cyan-400/50"></span>
-          <span className="text-slate-300 font-medium">Audit Ledger Stream</span>
-          <span className="text-slate-600">·</span>
-          <span className="text-slate-500 hidden sm:inline">Continuous Telemetry &amp; Contract Ingestion</span>
+      <div className="notif-action-strip">
+        <div className="notif-stream-info">
+          <span className="notif-stream-indicator" />
+          <span className="notif-stream-title">Audit Ledger Stream</span>
+          <span className="notif-stream-divider">·</span>
+          <span className="notif-stream-desc">Continuous Telemetry &amp; Contract Ingestion</span>
         </div>
 
-        <div className="flex items-center gap-2 self-end sm:self-center">
+        <div className="notif-strip-actions">
           {unreadCount > 0 && (
             <button
               type="button"
               onClick={markAllAsRead}
-              className="px-3 py-1.5 rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/30 text-xs font-semibold font-mono flex items-center gap-1.5 transition-all shadow-sm hover:border-cyan-400/50"
+              className="notif-btn notif-btn-readall"
+              title="Mark all notifications as read"
             >
-              <CheckCheck size={13} />
+              <CheckCheck size={14} />
               <span>Mark All as Read</span>
             </button>
           )}
@@ -242,8 +242,8 @@ export const NotificationsPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setShowClearModal(true)}
-              className="px-3 py-1.5 rounded-lg bg-slate-900/90 hover:bg-rose-950/30 text-slate-400 hover:text-rose-400 border border-slate-800 hover:border-rose-500/30 text-xs font-medium font-mono flex items-center gap-1.5 transition-all"
-              title="Clear all alerts"
+              className="notif-btn notif-btn-clear"
+              title="Clear all alerts from ledger"
             >
               <Trash2 size={13} />
               <span>Clear Ledger</span>
@@ -253,83 +253,75 @@ export const NotificationsPage: React.FC = () => {
       </div>
 
       {/* ============================================================== */}
-      {/* 3. KPI SUMMARY RIBBON — STRICT 4-COLUMN HORIZONTAL GRID        */}
+      {/* 3. KPI SUMMARY RIBBON — 4-COLUMN RESPONSIVE GRID               */}
       {/* ============================================================== */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+      <div className="notif-kpi-grid">
         {/* TOTAL ALERTS */}
-        <div className="relative overflow-hidden rounded-xl bg-slate-900/90 border border-slate-800/80 p-3.5 shadow-sm hover:border-cyan-500/40 transition-all">
-          <div className="absolute top-0 left-0 right-0 h-[2px] bg-cyan-500/80" />
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider font-mono">
-              Total Alerts
-            </span>
-            <div className="p-1.5 rounded-md bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
-              <Radio size={13} className="text-cyan-400" />
+        <div className="notif-kpi-card cyan">
+          <div className="notif-kpi-accent-bar" />
+          <div className="notif-kpi-header">
+            <span className="notif-kpi-label">Total Alerts</span>
+            <div className="notif-kpi-icon-pill">
+              <Radio size={14} />
             </div>
           </div>
-          <div className="text-2xl font-bold font-mono text-white mt-1.5 tracking-tight">
+          <div className="notif-kpi-value">
             {stats.total}
           </div>
-          <div className="text-[11px] text-slate-400 mt-1 flex items-center gap-1 font-mono">
-            <span className="text-cyan-400 font-semibold">{stats.live} live</span>
+          <div className="notif-kpi-desc">
+            <span className="notif-kpi-highlight-text">{stats.live} live</span>
             <span>/ session</span>
           </div>
         </div>
 
         {/* UNREAD ALERTS */}
-        <div className="relative overflow-hidden rounded-xl bg-slate-900/90 border border-slate-800/80 p-3.5 shadow-sm hover:border-cyan-400/40 transition-all">
-          <div className="absolute top-0 left-0 right-0 h-[2px] bg-cyan-400" />
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider font-mono">
-              Unread Alerts
-            </span>
-            <div className="p-1.5 rounded-md bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
-              <Bell size={13} className="text-cyan-400" />
+        <div className="notif-kpi-card cyan">
+          <div className="notif-kpi-accent-bar" />
+          <div className="notif-kpi-header">
+            <span className="notif-kpi-label">Unread</span>
+            <div className="notif-kpi-icon-pill">
+              <Bell size={14} />
             </div>
           </div>
-          <div className="text-2xl font-bold font-mono text-cyan-400 mt-1.5 tracking-tight">
+          <div className="notif-kpi-value highlight">
             {stats.unread}
           </div>
-          <div className="text-[11px] text-slate-400 mt-1 font-mono">
-            Need action
+          <div className="notif-kpi-desc">
+            <span>Need action</span>
           </div>
         </div>
 
         {/* FIXTURE EVENTS */}
-        <div className="relative overflow-hidden rounded-xl bg-slate-900/90 border border-slate-800/80 p-3.5 shadow-sm hover:border-amber-500/40 transition-all">
-          <div className="absolute top-0 left-0 right-0 h-[2px] bg-amber-400" />
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider font-mono">
-              Fixture Events
-            </span>
-            <div className="p-1.5 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/20">
-              <Ship size={13} className="text-amber-400" />
+        <div className="notif-kpi-card amber">
+          <div className="notif-kpi-accent-bar" />
+          <div className="notif-kpi-header">
+            <span className="notif-kpi-label">Fixture Events</span>
+            <div className="notif-kpi-icon-pill">
+              <Ship size={14} />
             </div>
           </div>
-          <div className="text-2xl font-bold font-mono text-amber-400 mt-1.5 tracking-tight">
+          <div className="notif-kpi-value highlight">
             {stats.fixtures}
           </div>
-          <div className="text-[11px] text-slate-400 mt-1 font-mono">
-            Lifecycle
+          <div className="notif-kpi-desc">
+            <span>Commercial lifecycle</span>
           </div>
         </div>
 
-        {/* WARNINGS */}
-        <div className="relative overflow-hidden rounded-xl bg-slate-900/90 border border-slate-800/80 p-3.5 shadow-sm hover:border-rose-500/40 transition-all">
-          <div className="absolute top-0 left-0 right-0 h-[2px] bg-rose-500" />
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider font-mono">
-              Warnings
-            </span>
-            <div className="p-1.5 rounded-md bg-rose-500/10 text-rose-400 border border-rose-500/20">
-              <AlertTriangle size={13} className="text-rose-400" />
+        {/* WARNINGS & DELAYS */}
+        <div className="notif-kpi-card rose">
+          <div className="notif-kpi-accent-bar" />
+          <div className="notif-kpi-header">
+            <span className="notif-kpi-label">Warnings &amp; Delays</span>
+            <div className="notif-kpi-icon-pill">
+              <AlertTriangle size={14} />
             </div>
           </div>
-          <div className="text-2xl font-bold font-mono text-rose-400 mt-1.5 tracking-tight">
+          <div className="notif-kpi-value highlight">
             {stats.warnings}
           </div>
-          <div className="text-[11px] text-slate-400 mt-1 font-mono">
-            Delays
+          <div className="notif-kpi-desc">
+            <span>Operational risks</span>
           </div>
         </div>
       </div>
@@ -337,37 +329,38 @@ export const NotificationsPage: React.FC = () => {
       {/* ============================================================== */}
       {/* 4. COMPACT OPERATIONAL SEARCH + FILTER TOOLBAR                */}
       {/* ============================================================== */}
-      <div className="rounded-xl bg-slate-900/80 border border-slate-800/90 p-3 shadow-md">
-        <div className="flex flex-col lg:flex-row lg:items-center gap-2.5">
-          {/* Search Box (Takes Most Width) */}
-          <div className="relative flex-1">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+      <div className="notif-toolbar">
+        <div className="notif-toolbar-inner">
+          {/* Search Box */}
+          <div className="notif-search-container">
+            <Search className="notif-search-icon" size={15} />
             <input
               type="text"
               value={filters.searchQuery}
               onChange={(e) => setFilters((prev) => ({ ...prev, searchQuery: e.target.value }))}
               placeholder="Search by alert title, vessel, IMO, fixture reference or charterer..."
-              className="w-full bg-slate-950/90 border border-slate-800 rounded-lg pl-9 pr-8 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/80 focus:ring-1 focus:ring-cyan-500/30 transition-all font-mono"
+              className="notif-search-input"
             />
             {filters.searchQuery && (
               <button
                 type="button"
                 onClick={() => setFilters((prev) => ({ ...prev, searchQuery: '' }))}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
+                className="notif-search-clear"
+                title="Clear search"
               >
-                <X size={13} />
+                <X size={14} />
               </button>
             )}
           </div>
 
           {/* Compact Filter Selects */}
-          <div className="flex items-center gap-2 flex-wrap text-xs">
+          <div className="notif-filters-group">
             {/* Category Filter */}
-            <div className="relative">
+            <div className="notif-select-wrapper">
               <select
                 value={filters.category}
                 onChange={(e) => setFilters((prev) => ({ ...prev, category: e.target.value as any }))}
-                className="appearance-none bg-slate-950/90 border border-slate-800 hover:border-slate-700 rounded-lg pl-3 pr-7 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-500/80 font-mono transition-colors cursor-pointer"
+                className="notif-select"
               >
                 <option value="all">All Categories</option>
                 <option value="fixture_lifecycle">Fixture Lifecycle</option>
@@ -375,15 +368,15 @@ export const NotificationsPage: React.FC = () => {
                 <option value="port_congestion">Port Insights</option>
                 <option value="operational_system">Operations</option>
               </select>
-              <ChevronDown size={12} className="text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <ChevronDown size={13} className="notif-select-chevron" />
             </div>
 
             {/* Severity Filter */}
-            <div className="relative">
+            <div className="notif-select-wrapper">
               <select
                 value={filters.severity}
                 onChange={(e) => setFilters((prev) => ({ ...prev, severity: e.target.value as any }))}
-                className="appearance-none bg-slate-950/90 border border-slate-800 hover:border-slate-700 rounded-lg pl-3 pr-7 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-500/80 font-mono transition-colors cursor-pointer"
+                className="notif-select"
               >
                 <option value="all">All Severities</option>
                 <option value="danger">Critical</option>
@@ -391,21 +384,21 @@ export const NotificationsPage: React.FC = () => {
                 <option value="info">Info</option>
                 <option value="success">Success</option>
               </select>
-              <ChevronDown size={12} className="text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <ChevronDown size={13} className="notif-select-chevron" />
             </div>
 
             {/* Status Filter */}
-            <div className="relative">
+            <div className="notif-select-wrapper">
               <select
                 value={filters.readStatus}
                 onChange={(e) => setFilters((prev) => ({ ...prev, readStatus: e.target.value as any }))}
-                className="appearance-none bg-slate-950/90 border border-slate-800 hover:border-slate-700 rounded-lg pl-3 pr-7 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-500/80 font-mono transition-colors cursor-pointer"
+                className="notif-select"
               >
                 <option value="all">All Statuses</option>
                 <option value="unread">Unread Only</option>
                 <option value="read">Read Only</option>
               </select>
-              <ChevronDown size={12} className="text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <ChevronDown size={13} className="notif-select-chevron" />
             </div>
 
             {/* Reset Filters Button */}
@@ -413,7 +406,7 @@ export const NotificationsPage: React.FC = () => {
               <button
                 type="button"
                 onClick={handleResetFilters}
-                className="p-2 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-cyan-400 border border-slate-700 transition-colors"
+                className="notif-btn-reset"
                 title="Reset Filters"
               >
                 <RotateCcw size={13} />
@@ -427,23 +420,15 @@ export const NotificationsPage: React.FC = () => {
       {/* TOAST NOTICE BANNER                                            */}
       {/* ============================================================== */}
       {toastNotice && (
-        <div
-          className={`p-3 rounded-xl border text-xs flex items-center justify-between gap-3 animate-fadeIn ${
-            toastNotice.type === 'warning'
-              ? 'bg-amber-500/15 border-amber-500/30 text-amber-300'
-              : toastNotice.type === 'info'
-              ? 'bg-cyan-500/15 border-cyan-500/30 text-cyan-300'
-              : 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300'
-          }`}
-        >
-          <div className="flex items-center gap-2">
-            <AlertTriangle size={15} className="flex-shrink-0 text-amber-400" />
+        <div className={`notif-toast-notice ${toastNotice.type}`}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <AlertTriangle size={15} style={{ flexShrink: 0 }} />
             <span>{toastNotice.message}</span>
           </div>
           <button
             type="button"
             onClick={() => setToastNotice(null)}
-            className="text-slate-400 hover:text-white"
+            className="notif-toast-close"
           >
             ✕
           </button>
@@ -453,123 +438,104 @@ export const NotificationsPage: React.FC = () => {
       {/* ============================================================== */}
       {/* 5. ALERT FEED — OPERATIONAL EVENT STREAM                      */}
       {/* ============================================================== */}
-      <div className="rounded-xl bg-slate-900/90 border border-slate-800/90 overflow-hidden shadow-xl">
+      <div className="notif-ledger-container">
         {/* Alert List Header */}
-        <div className="px-4 py-2.5 bg-slate-900/80 border-b border-slate-800 flex items-center justify-between text-xs">
-          <span className="font-semibold text-slate-300 uppercase tracking-wider font-mono text-[11px]">
+        <div className="notif-ledger-header">
+          <span className="notif-ledger-count">
             Showing {filteredNotifications.length} of {notifications.length} notifications
           </span>
-          <div className="flex items-center gap-1.5 font-mono text-slate-400 text-[11px]">
-            <SlidersHorizontal size={11} className="text-cyan-400" />
+          <div className="notif-ledger-sort">
+            <SlidersHorizontal size={12} className="notif-ledger-sort-icon" />
             <span>Newest first</span>
           </div>
         </div>
 
         {/* Alert Rows / Feed */}
-        <div className="divide-y divide-slate-800/70">
+        <div className="notif-ledger-feed">
           {isLoading ? (
-            <div className="p-4 space-y-3">
+            <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="flex items-center gap-4 p-3 rounded-lg bg-slate-950/40 animate-pulse border border-slate-800/40">
-                  <div className="w-16 h-6 rounded bg-slate-800" />
-                  <div className="flex-1 space-y-2">
-                    <div className="h-4 bg-slate-800 rounded w-1/3" />
-                    <div className="h-3 bg-slate-800/60 rounded w-3/4" />
-                  </div>
-                  <div className="w-20 h-4 bg-slate-800 rounded" />
-                </div>
+                <div
+                  key={i}
+                  style={{
+                    height: '72px',
+                    borderRadius: '8px',
+                    background: 'rgba(11, 29, 46, 0.6)',
+                    border: '1px solid rgba(100, 190, 240, 0.1)',
+                    animation: 'pulse 1.5s infinite',
+                  }}
+                />
               ))}
             </div>
           ) : isError ? (
-            <div className="p-12 text-center text-slate-400 text-sm flex flex-col items-center">
-              <AlertTriangle size={36} className="text-amber-400 mb-3" />
-              <p className="font-semibold text-white">Storage Synchronization Error</p>
-              <p className="text-xs text-slate-400 mt-1 max-w-sm">
+            <div className="notif-empty-state">
+              <div className="notif-empty-icon-box">
+                <AlertTriangle size={32} style={{ color: '#FFB020' }} />
+              </div>
+              <h3 className="notif-empty-title">Storage Synchronization Error</h3>
+              <p className="notif-empty-desc">
                 Unable to load operational alerts from platform storage. Local storage permissions or event bus connection interrupted.
               </p>
               <button
                 type="button"
                 onClick={() => refetch()}
-                className="mt-4 px-4 py-2 rounded-xl bg-cyan-500 text-slate-950 font-bold text-xs hover:bg-cyan-400 transition-colors font-mono"
+                className="notif-btn notif-btn-readall"
+                style={{ marginTop: '8px' }}
               >
                 Retry Synchronization
               </button>
             </div>
           ) : filteredNotifications.length === 0 ? (
-            <div className="p-12 text-center text-slate-500 text-sm flex flex-col items-center">
-              <div className="p-3.5 rounded-2xl bg-slate-800/40 border border-slate-700/50 mb-3 text-slate-400">
-                <Bell size={28} />
+            <div className="notif-empty-state">
+              <div className="notif-empty-icon-box">
+                <Bell size={30} />
               </div>
-              <p className="font-bold text-slate-200 uppercase tracking-wider font-mono text-sm">
-                No Alerts Found
+              <h3 className="notif-empty-title">No Alerts Found</h3>
+              <p className="notif-empty-desc">
+                No operational alerts match the selected search query or category/severity filters.
               </p>
-              <p className="text-xs text-slate-400 mt-1 max-w-sm">
-                No operational alerts match the selected filters.
-              </p>
-              <button
-                type="button"
-                onClick={handleResetFilters}
-                className="mt-4 px-4 py-2 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/30 font-semibold font-mono text-xs flex items-center gap-1.5 transition-colors"
-              >
-                <RotateCcw size={12} />
-                <span>Clear Filters</span>
-              </button>
+              {isFilterActive && (
+                <button
+                  type="button"
+                  onClick={handleResetFilters}
+                  className="notif-btn notif-btn-readall"
+                >
+                  <RotateCcw size={12} />
+                  <span>Clear Filters</span>
+                </button>
+              )}
             </div>
           ) : (
             filteredNotifications.map((notif) => (
               <div
                 key={notif.id}
                 onClick={() => handleSelectNotification(notif)}
-                className={`relative px-4 py-3.5 transition-all cursor-pointer group flex flex-col sm:flex-row sm:items-center gap-3.5 ${
-                  !notif.isRead
-                    ? 'bg-[#0b1728]/85 hover:bg-[#0f223b]/95 border-l-[3px] border-l-cyan-400'
-                    : 'bg-slate-900/30 hover:bg-slate-800/40 border-l-[3px] border-l-transparent text-slate-400'
-                }`}
+                className={`notif-card severity-${notif.severity} ${!notif.isRead ? 'unread' : 'read'}`}
               >
-                {/* Left: Severity Badge / Icon */}
-                <div className="flex-shrink-0 self-start sm:self-center">
-                  <div
-                    className={`px-2 py-1 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider flex items-center gap-1.5 border shadow-sm ${
-                      notif.severity === 'danger'
-                        ? 'bg-rose-500/15 text-rose-300 border-rose-500/30'
-                        : notif.severity === 'warning'
-                        ? 'bg-amber-500/15 text-amber-300 border-amber-500/30'
-                        : notif.severity === 'success'
-                        ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
-                        : 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30'
-                    }`}
-                  >
-                    {getSeverityIcon(notif.severity)}
-                    <span>{getSeverityLabel(notif.severity)}</span>
-                  </div>
-                </div>
-
-                {/* Center: Title, Description, Metadata Chips */}
-                <div className="flex-1 min-w-0 space-y-1.5">
-                  {/* Line 1: Title + Category + Status + Provenance */}
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span
-                      className={`text-sm font-semibold tracking-tight transition-colors ${
-                        !notif.isRead ? 'text-white group-hover:text-cyan-300' : 'text-slate-300 group-hover:text-white'
-                      }`}
-                    >
-                      {notif.title}
+                {/* Left: Main Alert Content */}
+                <div className="notif-card-main">
+                  {/* Row 1: Badges Header */}
+                  <div className="notif-badge-row">
+                    {/* Severity Badge */}
+                    <span className={`notif-badge-severity ${notif.severity}`}>
+                      {getSeverityIcon(notif.severity)}
+                      <span>{getSeverityLabel(notif.severity)}</span>
                     </span>
 
                     {/* Category Chip */}
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800/90 text-slate-300 border border-slate-700/80">
+                    <span className="notif-badge-category">
                       {getCategoryLabel(notif.category)}
                     </span>
 
                     {/* Fixture Lifecycle toStatus */}
                     {notif.metadata?.toStatus && (
                       <span
-                        className={`text-[10px] font-mono font-semibold px-2 py-0.5 rounded uppercase border ${
+                        className={`notif-badge-fixture-status ${
                           notif.metadata.toStatus === 'on_subjects'
-                            ? 'bg-amber-500/10 text-amber-300 border-amber-500/30'
+                            ? 'on-subjects'
                             : notif.metadata.toStatus === 'fully_fixed'
-                            ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30'
-                            : 'bg-rose-500/10 text-rose-300 border-rose-500/30'
+                            ? 'fully-fixed'
+                            : 'failed'
                         }`}
                       >
                         {notif.metadata.toStatus.replace('_', ' ')}
@@ -582,7 +548,7 @@ export const NotificationsPage: React.FC = () => {
                     {/* Data Unavailable Tag */}
                     {!NotificationService.checkAffectedObjectExists(notif) && (
                       <span
-                        className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-rose-500/15 text-rose-400 border border-rose-500/30"
+                        className="notif-badge-unavailable"
                         title="Referenced fixture or vessel record is no longer available in active registries"
                       >
                         DATA UNAVAILABLE
@@ -590,75 +556,81 @@ export const NotificationsPage: React.FC = () => {
                     )}
                   </div>
 
-                  {/* Line 2: Message Description */}
-                  <p className="text-xs text-slate-300/90 leading-relaxed font-sans line-clamp-2">
+                  {/* Row 2: Title */}
+                  <div className="notif-card-title">
+                    {notif.title}
+                  </div>
+
+                  {/* Row 3: Description */}
+                  <p className="notif-card-desc">
                     {notif.message}
                   </p>
 
-                  {/* Line 3: Structured Metadata Chips */}
-                  <div className="flex items-center gap-2 flex-wrap pt-0.5">
+                  {/* Row 4: Structured Metadata Chips */}
+                  <div className="notif-metadata-chips">
                     {notif.metadata?.vesselName && (
-                      <span className="inline-flex items-center gap-1 text-[11px] font-mono text-slate-300 bg-slate-800/70 border border-slate-700/60 px-2 py-0.5 rounded">
-                        <Ship size={11} className="text-cyan-400" />
+                      <span className="notif-chip">
+                        <Ship size={11} className="notif-chip-icon" />
                         <span>{notif.metadata.vesselName}</span>
                         {notif.metadata.vesselImo && (
-                          <span className="text-slate-400">({notif.metadata.vesselImo})</span>
+                          <span style={{ color: '#7189A3' }}>({notif.metadata.vesselImo})</span>
                         )}
                       </span>
                     )}
                     {notif.metadata?.fixtureReference && (
-                      <span className="inline-flex items-center gap-1 text-[11px] font-mono text-slate-300 bg-slate-800/70 border border-slate-700/60 px-2 py-0.5 rounded">
-                        <span className="text-slate-400">Ref:</span>
-                        <strong className="text-cyan-300 font-semibold">{notif.metadata.fixtureReference}</strong>
+                      <span className="notif-chip">
+                        <span className="notif-chip-label">Ref:</span>
+                        <strong className="notif-chip-val-cyan">{notif.metadata.fixtureReference}</strong>
                       </span>
                     )}
                     {notif.metadata?.portName && (
-                      <span className="inline-flex items-center gap-1 text-[11px] font-mono text-slate-300 bg-slate-800/70 border border-slate-700/60 px-2 py-0.5 rounded">
-                        <Building2 size={11} className="text-cyan-400" />
+                      <span className="notif-chip">
+                        <Building2 size={11} className="notif-chip-icon" />
                         <span>{notif.metadata.portName}</span>
                       </span>
                     )}
                     {notif.metadata?.charterer && (
-                      <span className="inline-flex items-center gap-1 text-[11px] font-mono text-slate-400 bg-slate-800/40 border border-slate-700/40 px-2 py-0.5 rounded">
-                        <span>Charterer:</span>
-                        <span className="text-slate-300">{notif.metadata.charterer}</span>
+                      <span className="notif-chip">
+                        <span className="notif-chip-label">Charterer:</span>
+                        <span>{notif.metadata.charterer}</span>
                       </span>
                     )}
                     {notif.metadata?.rateFormatted && (
-                      <span className="inline-flex items-center gap-1 text-[11px] font-mono text-slate-400 bg-slate-800/40 border border-slate-700/40 px-2 py-0.5 rounded">
-                        <span>Rate:</span>
-                        <span className="text-emerald-400 font-semibold">{notif.metadata.rateFormatted}</span>
+                      <span className="notif-chip">
+                        <span className="notif-chip-label">Rate:</span>
+                        <span className="notif-chip-val-green">{notif.metadata.rateFormatted}</span>
                       </span>
                     )}
                   </div>
                 </div>
 
                 {/* Right: Timestamp, Unread status, Action buttons */}
-                <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-2 flex-shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-800">
-                  <div className="flex items-center gap-2">
+                <div className="notif-card-aside">
+                  <div className="notif-card-meta-top">
                     {!notif.isRead && (
-                      <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                      <span className="notif-pill-unread">
+                        <span className="notif-pill-unread-dot" />
                         UNREAD
                       </span>
                     )}
                     <span
-                      className="text-[11px] font-mono text-slate-400"
+                      className="notif-timestamp"
                       title={NotificationService.formatFullDateTime(notif.timestamp)}
                     >
+                      <Clock size={11} style={{ display: 'inline', marginRight: '4px', verticalAlign: '-1px' }} />
                       {NotificationService.formatRelativeTime(notif.timestamp)}
                     </span>
                   </div>
 
                   {/* Operational Action Controls */}
-                  <div className="flex items-center gap-1.5 opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                  <div className="notif-card-actions">
                     <button
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleSelectNotification(notif);
                       }}
-                      className="px-2 py-1 rounded bg-slate-800 hover:bg-cyan-950/60 text-slate-300 hover:text-cyan-300 border border-slate-700 hover:border-cyan-500/40 text-[11px] font-mono flex items-center gap-1 transition-colors"
+                      className="notif-btn-details"
                       title="Inspect Alert Details"
                     >
                       <Eye size={12} />
@@ -672,11 +644,11 @@ export const NotificationsPage: React.FC = () => {
                           e.stopPropagation();
                           handleDirectNavigate(notif);
                         }}
-                        className="px-2 py-1 rounded bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 hover:text-cyan-200 border border-cyan-500/30 text-[11px] font-mono flex items-center gap-1 transition-colors"
+                        className="notif-btn-open"
                         title="Open Affected Object"
                       >
                         <ExternalLink size={12} />
-                        <span className="hidden md:inline">Open</span>
+                        <span>Open ↗</span>
                       </button>
                     )}
 
@@ -686,7 +658,7 @@ export const NotificationsPage: React.FC = () => {
                         e.stopPropagation();
                         deleteNotification(notif.id);
                       }}
-                      className="p-1.5 rounded bg-slate-800/80 hover:bg-rose-950/50 text-slate-400 hover:text-rose-400 border border-slate-700 hover:border-rose-500/30 transition-colors"
+                      className="notif-btn-delete"
                       title="Delete Alert Record"
                     >
                       <Trash2 size={12} />
@@ -703,26 +675,26 @@ export const NotificationsPage: React.FC = () => {
       {/* 6. ALERT DETAIL EXPERIENCE (RIGHT SLIDEOUT DRAWER)             */}
       {/* ============================================================== */}
       {selectedAlert && (
-        <div className="fixed inset-0 z-50 flex justify-end">
+        <>
           {/* Backdrop */}
           <div
-            className="fixed inset-0 bg-black/70 backdrop-blur-sm transition-opacity"
+            className="notif-drawer-backdrop"
             onClick={() => setSelectedAlert(null)}
           />
 
           {/* Drawer Panel */}
-          <div className="relative w-full max-w-lg bg-[#081220] border-l border-slate-800 shadow-2xl flex flex-col h-full z-10 animate-in slide-in-from-right duration-200">
+          <div className="notif-drawer-panel">
             {/* Drawer Header */}
-            <div className="px-5 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/70">
-              <div className="flex items-center gap-2.5">
-                <div className="p-1.5 rounded-md bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
-                  <Radio size={14} />
+            <div className="notif-drawer-header">
+              <div className="notif-drawer-header-left">
+                <div className="notif-drawer-icon-box">
+                  <Radio size={16} />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-white uppercase tracking-wider font-mono">
+                  <h3 className="notif-drawer-title">
                     Alert Intelligence Details
                   </h3>
-                  <span className="text-[10px] font-mono text-slate-400">
+                  <span className="notif-drawer-id">
                     ID: {selectedAlert.id}
                   </span>
                 </div>
@@ -730,54 +702,45 @@ export const NotificationsPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setSelectedAlert(null)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                className="notif-drawer-close"
+                title="Close drawer"
               >
                 <X size={16} />
               </button>
             </div>
 
             {/* Drawer Content */}
-            <div className="p-5 flex-1 overflow-y-auto space-y-5">
+            <div className="notif-drawer-body">
               {/* Severity & Status Ribbon */}
-              <div className="flex items-center justify-between gap-2 p-3 rounded-xl bg-slate-900/90 border border-slate-800">
-                <div className="flex items-center gap-2">
-                  <div
-                    className={`px-2.5 py-1 rounded-md text-xs font-mono font-bold flex items-center gap-1.5 border ${
-                      selectedAlert.severity === 'danger'
-                        ? 'bg-rose-500/15 text-rose-300 border-rose-500/30'
-                        : selectedAlert.severity === 'warning'
-                        ? 'bg-amber-500/15 text-amber-300 border-amber-500/30'
-                        : selectedAlert.severity === 'success'
-                        ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
-                        : 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30'
-                    }`}
-                  >
+              <div className="notif-drawer-status-strip">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span className={`notif-badge-severity ${selectedAlert.severity}`}>
                     {getSeverityIcon(selectedAlert.severity)}
                     <span>{getSeverityLabel(selectedAlert.severity)}</span>
-                  </div>
+                  </span>
                   {getProvenanceBadge(selectedAlert.provenance)}
                 </div>
-                <span className="text-xs font-mono text-slate-400">
+                <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '11px', color: '#8DA2B7' }}>
                   {selectedAlert.isRead ? 'Acknowledged' : 'Needs Action'}
                 </span>
               </div>
 
               {/* Section 1: Alert Details */}
-              <div className="space-y-2">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-cyan-400 block">
+              <div className="notif-drawer-section">
+                <span className="notif-drawer-section-title">
                   Alert Details
                 </span>
-                <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800/80 space-y-2.5">
-                  <h4 className="text-sm font-bold text-white">
+                <div className="notif-drawer-box">
+                  <h4 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#FFFFFF' }}>
                     {selectedAlert.title}
                   </h4>
-                  <p className="text-xs text-slate-300 leading-relaxed font-sans">
+                  <p style={{ margin: 0, fontSize: '13px', color: '#A5B8CC', lineHeight: 1.5 }}>
                     {selectedAlert.message}
                   </p>
-                  <div className="flex items-center gap-2 text-[11px] font-mono text-slate-400 pt-2 border-t border-slate-800/60">
-                    <Clock size={12} className="text-slate-400" />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', fontFamily: 'JetBrains Mono, monospace', color: '#7189A3', borderTop: '1px solid rgba(100, 190, 240, 0.12)', paddingTop: '8px' }}>
+                    <Clock size={12} />
                     <span>Timestamp:</span>
-                    <span className="text-white font-medium">
+                    <span style={{ color: '#F5F8FC' }}>
                       {NotificationService.formatFullDateTime(selectedAlert.timestamp)}
                     </span>
                   </div>
@@ -785,96 +748,97 @@ export const NotificationsPage: React.FC = () => {
               </div>
 
               {/* Section 2: Event Context & Entity Data */}
-              <div className="space-y-2">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-cyan-400 block">
+              <div className="notif-drawer-section">
+                <span className="notif-drawer-section-title">
                   Event Context &amp; Entity Data
                 </span>
-                <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800/80 grid grid-cols-2 gap-3 text-xs font-mono">
-                  <div>
-                    <span className="text-[10px] text-slate-400 uppercase block">Category</span>
-                    <span className="text-white font-medium">{getCategoryLabel(selectedAlert.category)}</span>
+                <div className="notif-drawer-box">
+                  <div className="notif-drawer-grid">
+                    <div className="notif-grid-item">
+                      <span className="notif-grid-label">Category</span>
+                      <span className="notif-grid-val">{getCategoryLabel(selectedAlert.category)}</span>
+                    </div>
+                    <div className="notif-grid-item">
+                      <span className="notif-grid-label">Affected Object</span>
+                      <span className="notif-grid-val" style={{ color: '#00D9FF' }}>{selectedAlert.affectedObjectType}</span>
+                    </div>
+                    {selectedAlert.metadata?.vesselName && (
+                      <div className="notif-grid-item">
+                        <span className="notif-grid-label">Vessel Name</span>
+                        <span className="notif-grid-val">{selectedAlert.metadata.vesselName}</span>
+                      </div>
+                    )}
+                    {selectedAlert.metadata?.vesselImo && (
+                      <div className="notif-grid-item">
+                        <span className="notif-grid-label">IMO Number</span>
+                        <span className="notif-grid-val" style={{ color: '#8DA2B7' }}>{selectedAlert.metadata.vesselImo}</span>
+                      </div>
+                    )}
+                    {selectedAlert.metadata?.fixtureReference && (
+                      <div className="notif-grid-item">
+                        <span className="notif-grid-label">Fixture Ref</span>
+                        <span className="notif-grid-val" style={{ color: '#00D9FF' }}>{selectedAlert.metadata.fixtureReference}</span>
+                      </div>
+                    )}
+                    {selectedAlert.metadata?.charterer && (
+                      <div className="notif-grid-item">
+                        <span className="notif-grid-label">Charterer</span>
+                        <span className="notif-grid-val">{selectedAlert.metadata.charterer}</span>
+                      </div>
+                    )}
+                    {selectedAlert.metadata?.commodity && (
+                      <div className="notif-grid-item">
+                        <span className="notif-grid-label">Commodity</span>
+                        <span className="notif-grid-val" style={{ color: '#8DA2B7' }}>{selectedAlert.metadata.commodity}</span>
+                      </div>
+                    )}
+                    {selectedAlert.metadata?.portName && (
+                      <div className="notif-grid-item">
+                        <span className="notif-grid-label">Port Location</span>
+                        <span className="notif-grid-val">{selectedAlert.metadata.portName}</span>
+                      </div>
+                    )}
+                    {selectedAlert.metadata?.rateFormatted && (
+                      <div className="notif-grid-item">
+                        <span className="notif-grid-label">Agreed Rate</span>
+                        <span className="notif-grid-val" style={{ color: '#20C98A' }}>{selectedAlert.metadata.rateFormatted}</span>
+                      </div>
+                    )}
+                    {selectedAlert.metadata?.toStatus && (
+                      <div className="notif-grid-item">
+                        <span className="notif-grid-label">Status Transition</span>
+                        <span className="notif-grid-val" style={{ color: '#FFB020' }}>
+                          {selectedAlert.metadata.toStatus.replace('_', ' ')}
+                        </span>
+                      </div>
+                    )}
                   </div>
-                  <div>
-                    <span className="text-[10px] text-slate-400 uppercase block">Affected Object</span>
-                    <span className="text-cyan-400 font-semibold uppercase">{selectedAlert.affectedObjectType}</span>
-                  </div>
-                  {selectedAlert.metadata?.vesselName && (
-                    <div>
-                      <span className="text-[10px] text-slate-400 uppercase block">Vessel Name</span>
-                      <span className="text-white font-medium">{selectedAlert.metadata.vesselName}</span>
-                    </div>
-                  )}
-                  {selectedAlert.metadata?.vesselImo && (
-                    <div>
-                      <span className="text-[10px] text-slate-400 uppercase block">IMO Number</span>
-                      <span className="text-slate-300">{selectedAlert.metadata.vesselImo}</span>
-                    </div>
-                  )}
-                  {selectedAlert.metadata?.fixtureReference && (
-                    <div>
-                      <span className="text-[10px] text-slate-400 uppercase block">Fixture Ref</span>
-                      <span className="text-cyan-300 font-semibold">{selectedAlert.metadata.fixtureReference}</span>
-                    </div>
-                  )}
-                  {selectedAlert.metadata?.charterer && (
-                    <div>
-                      <span className="text-[10px] text-slate-400 uppercase block">Charterer</span>
-                      <span className="text-white">{selectedAlert.metadata.charterer}</span>
-                    </div>
-                  )}
-                  {selectedAlert.metadata?.commodity && (
-                    <div>
-                      <span className="text-[10px] text-slate-400 uppercase block">Commodity</span>
-                      <span className="text-slate-300">{selectedAlert.metadata.commodity}</span>
-                    </div>
-                  )}
-                  {selectedAlert.metadata?.portName && (
-                    <div>
-                      <span className="text-[10px] text-slate-400 uppercase block">Port Location</span>
-                      <span className="text-white">{selectedAlert.metadata.portName}</span>
-                    </div>
-                  )}
-                  {selectedAlert.metadata?.rateFormatted && (
-                    <div>
-                      <span className="text-[10px] text-slate-400 uppercase block">Agreed Rate</span>
-                      <span className="text-emerald-400 font-bold">{selectedAlert.metadata.rateFormatted}</span>
-                    </div>
-                  )}
-                  {selectedAlert.metadata?.toStatus && (
-                    <div>
-                      <span className="text-[10px] text-slate-400 uppercase block">Status Transition</span>
-                      <span className="text-amber-400 font-semibold uppercase">
-                        {selectedAlert.metadata.toStatus.replace('_', ' ')}
-                      </span>
-                    </div>
-                  )}
                 </div>
               </div>
 
               {/* Section 3: Timeline & Audit Trace */}
-              <div className="space-y-2">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-cyan-400 block">
+              <div className="notif-drawer-section">
+                <span className="notif-drawer-section-title">
                   Timeline &amp; Audit Trace
                 </span>
-                <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800/80 space-y-2.5 text-xs font-mono">
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-400">Event Created:</span>
-                    <span className="text-slate-200">
-                      {NotificationService.formatFullDateTime(selectedAlert.timestamp)}
-                    </span>
+                <div className="notif-drawer-box" style={{ gap: '8px' }}>
+                  <div className="notif-drawer-timeline-row">
+                    <span style={{ color: '#7189A3' }}>Event Created:</span>
+                    <span>{NotificationService.formatFullDateTime(selectedAlert.timestamp)}</span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-400">Provenance:</span>
-                    <span className="text-slate-200 uppercase">{selectedAlert.provenance}</span>
+                  <div className="notif-drawer-timeline-row">
+                    <span style={{ color: '#7189A3' }}>Provenance:</span>
+                    <span style={{ textTransform: 'uppercase' }}>{selectedAlert.provenance}</span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-400">Object Registry Status:</span>
+                  <div className="notif-drawer-timeline-row">
+                    <span style={{ color: '#7189A3' }}>Object Registry Status:</span>
                     <span
-                      className={
-                        NotificationService.checkAffectedObjectExists(selectedAlert)
-                          ? 'text-emerald-400 font-semibold'
-                          : 'text-rose-400 font-semibold'
-                      }
+                      style={{
+                        fontWeight: 600,
+                        color: NotificationService.checkAffectedObjectExists(selectedAlert)
+                          ? '#20C98A'
+                          : '#FF4D55',
+                      }}
                     >
                       {NotificationService.checkAffectedObjectExists(selectedAlert)
                         ? 'Active In Registry'
@@ -886,20 +850,20 @@ export const NotificationsPage: React.FC = () => {
             </div>
 
             {/* Drawer Footer Actions */}
-            <div className="p-4 border-t border-slate-800 bg-slate-900/80 flex items-center justify-between gap-3">
+            <div className="notif-drawer-footer">
               <button
                 type="button"
                 onClick={() => {
                   deleteNotification(selectedAlert.id);
                   setSelectedAlert(null);
                 }}
-                className="px-3 py-2 rounded-lg bg-rose-950/30 hover:bg-rose-950/60 text-rose-300 border border-rose-500/30 text-xs font-mono font-semibold flex items-center gap-1.5 transition-colors"
+                className="notif-btn-drawer-delete"
               >
                 <Trash2 size={13} />
                 <span>Delete Alert</span>
               </button>
 
-              <div className="flex items-center gap-2">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 {!selectedAlert.isRead && (
                   <button
                     type="button"
@@ -907,7 +871,7 @@ export const NotificationsPage: React.FC = () => {
                       markAsRead(selectedAlert.id);
                       setSelectedAlert((prev) => (prev ? { ...prev, isRead: true } : null));
                     }}
-                    className="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-mono font-semibold flex items-center gap-1.5 transition-colors"
+                    className="notif-btn-drawer-markread"
                   >
                     <CheckCheck size={13} />
                     <span>Mark Read</span>
@@ -918,7 +882,7 @@ export const NotificationsPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => handleDirectNavigate(selectedAlert)}
-                    className="px-4 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-mono font-bold flex items-center gap-1.5 transition-colors shadow-sm shadow-cyan-500/20"
+                    className="notif-btn-drawer-open"
                   >
                     <span>Open in Module</span>
                     <ExternalLink size={13} />
@@ -927,36 +891,32 @@ export const NotificationsPage: React.FC = () => {
               </div>
             </div>
           </div>
-        </div>
+        </>
       )}
 
       {/* ============================================================== */}
       {/* 7. CLEAR LEDGER CONFIRMATION MODAL                             */}
       {/* ============================================================== */}
       {showClearModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div
-            className="fixed inset-0 bg-black/70 backdrop-blur-sm transition-opacity"
-            onClick={() => setShowClearModal(false)}
-          />
-          <div className="relative w-full max-w-md rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl p-6 space-y-4 z-10 animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center gap-3 text-rose-400">
-              <div className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/20 flex-shrink-0">
+        <div className="notif-modal-backdrop">
+          <div className="notif-modal-box">
+            <div className="notif-modal-header">
+              <div className="notif-modal-icon-box">
                 <AlertCircle size={22} />
               </div>
               <div>
-                <h3 className="text-base font-bold text-white">Clear Operational Ledger</h3>
-                <p className="text-xs text-slate-400">Irreversible operational ledger wipe</p>
+                <h3 className="notif-modal-title">Clear Operational Ledger</h3>
+                <p className="notif-modal-sub">Irreversible operational ledger wipe</p>
               </div>
             </div>
-            <p className="text-xs text-slate-300 leading-relaxed">
+            <p className="notif-modal-msg">
               Are you sure you want to clear all {notifications.length} operational alerts from the local ledger? Notification event history will be removed from this browser session.
             </p>
-            <div className="flex items-center justify-end gap-2.5 pt-2">
+            <div className="notif-modal-actions">
               <button
                 type="button"
                 onClick={() => setShowClearModal(false)}
-                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold font-mono transition-colors"
+                className="notif-btn-modal-cancel"
               >
                 Cancel
               </button>
@@ -967,7 +927,7 @@ export const NotificationsPage: React.FC = () => {
                   setShowClearModal(false);
                   setSelectedAlert(null);
                 }}
-                className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold font-mono transition-colors shadow-lg shadow-rose-950"
+                className="notif-btn-modal-confirm"
               >
                 Confirm Clear Ledger
               </button>
