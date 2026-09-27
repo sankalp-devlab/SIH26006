@@ -18,6 +18,28 @@
   padding: 0;
 }
 
+/* Global control reset — strips browser-default borders, backgrounds, and fonts
+   from interactive elements so the OceanLens design system classes take full effect. */
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+  background: transparent;
+  border: none;
+  outline: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+button {
+  cursor: pointer;
+}
+
 html,
 body {
   height: 100%;

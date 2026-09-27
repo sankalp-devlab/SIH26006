@@ -5543,14 +5543,25 @@
 
 /* Drawer Header */
 .vmp-drawer-header {
-  background: #08162c;
-  border-bottom: 1px solid rgba(56, 189, 248, 0.18);
-  padding: 16px 20px;
+  background: linear-gradient(180deg, #0a1e38 0%, #08162c 100%);
+  border-bottom: 1px solid rgba(56, 189, 248, 0.22);
+  padding: 18px 20px 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 12px;
   flex-shrink: 0;
+  position: relative;
+}
+
+.vmp-drawer-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 20px;
+  right: 20px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0, 240, 255, 0.3), transparent);
 }
 
 .vmp-drawer-header-left {
@@ -5561,17 +5572,22 @@
 }
 
 .vmp-drawer-ship-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
-  background: rgba(56, 189, 248, 0.12);
-  border: 1px solid rgba(56, 189, 248, 0.3);
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(2, 132, 199, 0.2) 0%, rgba(56, 189, 248, 0.28) 100%);
+  border: 1px solid rgba(56, 189, 248, 0.35);
   color: #38bdf8;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 0 12px rgba(56, 189, 248, 0.15);
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.18), inset 0 0 8px rgba(56, 189, 248, 0.06);
+  transition: box-shadow 0.2s ease;
+}
+
+.vmp-drawer-ship-avatar:hover {
+  box-shadow: 0 0 22px rgba(56, 189, 248, 0.3), inset 0 0 10px rgba(56, 189, 248, 0.1);
 }
 
 .vmp-drawer-header-info {
@@ -5588,16 +5604,17 @@
 }
 
 .vmp-drawer-title {
-  font-size: 1.25rem;
+  font-size: 1.3rem;
   font-weight: 800;
   color: #f8fafc;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
   line-height: 1.2;
   margin: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   font-family: var(--font-sans, system-ui, sans-serif);
+  text-shadow: 0 0 12px rgba(248, 250, 252, 0.08);
 }
 
 .vmp-drawer-sub {
@@ -5653,50 +5670,67 @@
 }
 
 .vmp-drawer-close {
-  width: 32px;
-  height: 32px;
-  border-radius: 6px;
-  background: #0b1a30;
-  border: 1px solid rgba(56, 189, 248, 0.22);
+  width: 34px;
+  height: 34px;
+  border-radius: 7px;
+  background: #0a1628;
+  border: 1px solid rgba(56, 189, 248, 0.2);
   color: #94a3b8;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.18s ease;
   padding: 0;
+  flex-shrink: 0;
 }
 
 .vmp-drawer-close:hover {
-  background: rgba(56, 189, 248, 0.15);
-  border-color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+  border-color: rgba(56, 189, 248, 0.5);
   color: #ffffff;
-  box-shadow: 0 0 10px rgba(56, 189, 248, 0.25);
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
+  transform: scale(1.05);
+}
+
+.vmp-drawer-close:active {
+  transform: scale(0.97);
 }
 
 .vmp-drawer-close:focus-visible {
   outline: 2px solid #00f0ff;
-  outline-offset: 1px;
+  outline-offset: 2px;
 }
 
 /* Tab Navigation */
 .vmp-drawer-tabs {
   display: flex;
-  background: #050e1b;
-  border-bottom: 1px solid rgba(56, 189, 248, 0.18);
-  padding: 0 8px;
+  background: #040c18;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.15);
+  padding: 0 10px;
   gap: 2px;
   flex-shrink: 0;
+  position: relative;
+}
+
+.vmp-drawer-tabs::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0, 240, 255, 0.15), transparent);
 }
 
 .vmp-drawer-tab {
   flex: 1;
-  padding: 10px 6px;
+  padding: 11px 8px;
   font-size: 0.72rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: #94a3b8;
+  letter-spacing: 0.05em;
+  color: #64748b;
   background: transparent;
   border: none;
   border-bottom: 2px solid transparent;
@@ -5705,31 +5739,44 @@
   justify-content: center;
   gap: 6px;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
   white-space: nowrap;
+  position: relative;
 }
 
 .vmp-drawer-tab:hover {
-  color: #e2e8f0;
-  background: rgba(255, 255, 255, 0.03);
+  color: #cbd5e1;
+  background: rgba(0, 240, 255, 0.04);
 }
 
 .vmp-drawer-tab.active {
   color: #00f0ff;
   border-bottom: 2px solid #00f0ff;
-  background: rgba(0, 240, 255, 0.08);
-  text-shadow: 0 0 8px rgba(0, 240, 255, 0.35);
+  background: linear-gradient(180deg, rgba(0, 240, 255, 0.1) 0%, rgba(0, 240, 255, 0.03) 100%);
+  text-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
+}
+
+.vmp-drawer-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 20%;
+  right: 20%;
+  height: 2px;
+  background: #00f0ff;
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.6);
+  border-radius: 1px;
 }
 
 /* Drawer Body */
 .vmp-drawer-body {
   flex: 1;
   overflow-y: auto;
-  padding: 16px 20px;
+  padding: 18px 20px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  background: #061224;
+  gap: 18px;
+  background: linear-gradient(180deg, #061224 0%, #051020 100%);
 }
 
 .vmp-drawer-body::-webkit-scrollbar {
@@ -5765,18 +5812,22 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.08);
+  margin-bottom: 2px;
 }
 
 .vmp-section-icon {
   color: #00f0ff;
   flex-shrink: 0;
+  filter: drop-shadow(0 0 4px rgba(0, 240, 255, 0.4));
 }
 
 .vmp-pane-heading {
-  font-size: 0.72rem;
+  font-size: 0.74rem;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.07em;
   color: #94a3b8;
   margin: 0;
   font-family: var(--font-sans, system-ui, sans-serif);
@@ -5790,19 +5841,38 @@
 }
 
 .vmp-spec-card {
-  background: #0a182e;
-  border: 1px solid rgba(56, 189, 248, 0.16);
+  background: linear-gradient(135deg, #091830 0%, #0a1c32 100%);
+  border: 1px solid rgba(56, 189, 248, 0.14);
   border-radius: 8px;
-  padding: 10px 14px;
+  padding: 12px 14px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  transition: all 0.15s ease;
+  gap: 6px;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.vmp-spec-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2px;
+  height: 100%;
+  background: transparent;
+  transition: background 0.2s ease;
 }
 
 .vmp-spec-card:hover {
   border-color: rgba(56, 189, 248, 0.35);
-  background: #0d203d;
+  background: linear-gradient(135deg, #0d2240 0%, #0e2444 100%);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+
+.vmp-spec-card:hover::before {
+  background: #00f0ff;
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.4);
 }
 
 .vmp-spec-label {
@@ -5843,14 +5913,15 @@
 
 /* Coordinates Position Card */
 .vmp-coords-box {
-  background: #0a182e;
-  border: 1px solid rgba(56, 189, 248, 0.2);
+  background: linear-gradient(135deg, #081830 0%, #0a1c34 100%);
+  border: 1px solid rgba(0, 240, 255, 0.18);
   border-left: 3px solid #00f0ff;
   border-radius: 8px;
-  padding: 12px 14px;
+  padding: 14px 16px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
+  box-shadow: inset 0 0 16px rgba(0, 240, 255, 0.03), 0 2px 12px rgba(0, 0, 0, 0.3);
 }
 
 .vmp-coords-header {
@@ -5896,12 +5967,13 @@
 }
 
 .vmp-coords-val {
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   font-weight: 700;
   color: #f8fafc;
   font-family: var(--font-mono, monospace);
   letter-spacing: 0.02em;
   line-height: 1.3;
+  text-shadow: 0 0 8px rgba(56, 189, 248, 0.15);
 }
 
 .vmp-coords-meta {
@@ -5929,10 +6001,10 @@
 
 /* Characteristics Table Card */
 .vmp-key-val-card {
-  background: #0a182e;
-  border: 1px solid rgba(56, 189, 248, 0.16);
+  background: linear-gradient(135deg, #091830 0%, #0a1c32 100%);
+  border: 1px solid rgba(56, 189, 248, 0.14);
   border-radius: 8px;
-  padding: 2px 14px;
+  padding: 2px 16px;
   display: flex;
   flex-direction: column;
 }
@@ -5941,8 +6013,13 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 11px 0;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.06);
+  transition: background 0.15s ease;
+}
+
+.vmp-kv-row:hover {
+  background: rgba(0, 240, 255, 0.02);
 }
 
 .vmp-kv-row:last-child {
@@ -5950,7 +6027,7 @@
 }
 
 .vmp-kv-key {
-  font-size: 0.75rem;
+  font-size: 0.76rem;
   color: #94a3b8;
   display: flex;
   align-items: center;
@@ -5963,19 +6040,32 @@
   font-weight: 700;
   color: #f8fafc;
   text-align: right;
+  font-family: var(--font-mono, monospace);
 }
 
 /* Feature Card: AIS Playback */
 .vmp-action-banner {
-  background: linear-gradient(135deg, rgba(14, 38, 70, 0.95), rgba(7, 18, 36, 0.95));
-  border: 1px solid rgba(0, 240, 255, 0.28);
-  border-radius: 8px;
-  padding: 14px 16px;
+  background: linear-gradient(135deg, rgba(8, 28, 56, 0.95), rgba(6, 18, 36, 0.98));
+  border: 1px solid rgba(0, 240, 255, 0.22);
+  border-radius: 10px;
+  padding: 16px 18px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 12px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), inset 0 0 12px rgba(0, 240, 255, 0.04);
+  gap: 14px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(0, 240, 255, 0.06), 0 0 20px rgba(0, 240, 255, 0.04);
+  position: relative;
+  overflow: hidden;
+}
+
+.vmp-action-banner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0, 240, 255, 0.25), transparent);
 }
 
 .vmp-banner-content {
@@ -6024,32 +6114,34 @@
 }
 
 .vmp-btn-replay {
-  background: #00f0ff;
+  background: linear-gradient(135deg, #00f0ff 0%, #38bdf8 100%);
   color: #04111d;
   font-size: 0.75rem;
   font-weight: 800;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
   border: none;
   border-radius: 8px;
-  padding: 8px 14px;
+  padding: 9px 16px;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
   cursor: pointer;
   white-space: nowrap;
-  transition: all 0.15s ease;
-  box-shadow: 0 0 14px rgba(0, 240, 255, 0.35);
+  transition: all 0.2s ease;
+  box-shadow: 0 0 16px rgba(0, 240, 255, 0.35), 0 2px 8px rgba(0, 0, 0, 0.3);
   flex-shrink: 0;
+  text-transform: uppercase;
 }
 
 .vmp-btn-replay:hover {
-  background: #38bdf8;
+  background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
   transform: translateY(-1px);
-  box-shadow: 0 0 18px rgba(0, 240, 255, 0.5);
+  box-shadow: 0 0 22px rgba(0, 240, 255, 0.5), 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
 .vmp-btn-replay:active {
   transform: translateY(0);
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
 }
 
 .vmp-btn-replay-compact {
@@ -6128,13 +6220,25 @@
 
 /* Voyage Tab Summary Card */
 .vmp-voyage-summary-card {
-  background: #0a182e;
-  border: 1px solid rgba(56, 189, 248, 0.18);
-  border-radius: 8px;
-  padding: 14px 16px;
+  background: linear-gradient(135deg, #091830 0%, #0a1c32 100%);
+  border: 1px solid rgba(56, 189, 248, 0.16);
+  border-radius: 10px;
+  padding: 16px 18px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
+  position: relative;
+  overflow: hidden;
+}
+
+.vmp-voyage-summary-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0, 240, 255, 0.2), transparent);
 }
 
 .vmp-voyage-ports {
@@ -6147,27 +6251,29 @@
 .vmp-vport {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
 }
 
 .vmp-vport-tag {
   font-size: 0.62rem;
   font-weight: 700;
   text-transform: uppercase;
-  color: #94a3b8;
-  letter-spacing: 0.04em;
+  color: #64748b;
+  letter-spacing: 0.05em;
 }
 
 .vmp-vport-name {
-  font-size: 0.92rem;
+  font-size: 0.95rem;
   font-weight: 800;
   color: #f8fafc;
+  letter-spacing: -0.01em;
 }
 
 .vmp-voyage-arrow {
   color: #00f0ff;
   display: flex;
   align-items: center;
+  filter: drop-shadow(0 0 4px rgba(0, 240, 255, 0.5));
 }
 
 .vmp-voyage-eta-row {
@@ -6281,12 +6387,25 @@
 }
 
 .vmp-ais-table-wrap {
-  background: #0a182e;
-  border: 1px solid rgba(56, 189, 248, 0.18);
+  background: linear-gradient(135deg, #091830 0%, #0a1c32 100%);
+  border: 1px solid rgba(56, 189, 248, 0.16);
   border-radius: 8px;
   overflow: hidden;
   max-height: 320px;
   overflow-y: auto;
+}
+
+.vmp-ais-table-wrap::-webkit-scrollbar {
+  width: 5px;
+}
+
+.vmp-ais-table-wrap::-webkit-scrollbar-track {
+  background: #050e1b;
+}
+
+.vmp-ais-table-wrap::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.2);
+  border-radius: 3px;
 }
 
 .vmp-ais-table {
@@ -6296,14 +6415,14 @@
 }
 
 .vmp-ais-table th {
-  background: #071222;
-  padding: 8px 10px;
+  background: #060e1f;
+  padding: 9px 10px;
   font-weight: 700;
   text-transform: uppercase;
-  color: #94a3b8;
+  color: #64748b;
   font-size: 0.65rem;
-  letter-spacing: 0.04em;
-  border-bottom: 1px solid rgba(56, 189, 248, 0.2);
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.15);
   text-align: left;
   position: sticky;
   top: 0;
@@ -6314,10 +6433,11 @@
   padding: 8px 10px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
   color: #cbd5e1;
+  transition: background 0.1s ease;
 }
 
 .vmp-ais-table tr:hover td {
-  background: rgba(56, 189, 248, 0.05);
+  background: rgba(0, 240, 255, 0.04);
 }
 
 .vmp-empty-state {
@@ -6344,10 +6464,10 @@
 
 /* SECA Compliance */
 .vmp-env-card {
-  background: #0a182e;
-  border: 1px solid rgba(56, 189, 248, 0.18);
-  border-radius: 8px;
-  padding: 14px 16px;
+  background: linear-gradient(135deg, #091830 0%, #0a1c32 100%);
+  border: 1px solid rgba(56, 189, 248, 0.16);
+  border-radius: 10px;
+  padding: 16px 18px;
 }
 
 .vmp-env-status.safe {
@@ -6375,22 +6495,64 @@
   line-height: 1.4;
 }
 
-/* Responsive adjustments */
+/* Responsive adjustments — Tablet */
+@media (max-width: 768px) {
+  .vmp-detail-drawer {
+    width: 90vw;
+  }
+
+  .vmp-drawer-title {
+    font-size: 1.1rem;
+  }
+
+  .vmp-drawer-tabs {
+    padding: 0 4px;
+  }
+
+  .vmp-drawer-tab {
+    font-size: 0.65rem;
+    padding: 10px 4px;
+    letter-spacing: 0.03em;
+  }
+}
+
+/* Responsive adjustments — Mobile */
 @media (max-width: 640px) {
   .vmp-detail-drawer {
     width: 100vw;
     max-width: 100vw;
   }
-  .vmp-spec-grid {
-    grid-template-columns: 1fr;
+
+  .vmp-drawer-header {
+    padding: 14px 16px;
   }
+
+  .vmp-drawer-body {
+    padding: 14px 16px;
+    gap: 14px;
+  }
+
+  .vmp-spec-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .vmp-spec-val {
+    font-size: 1rem;
+  }
+
   .vmp-action-banner {
     flex-direction: column;
     align-items: flex-start;
+    gap: 12px;
   }
+
   .vmp-btn-replay {
     width: 100%;
     justify-content: center;
+  }
+
+  .vmp-coords-val {
+    font-size: 1rem;
   }
 }
 
