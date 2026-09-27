@@ -5,7 +5,6 @@
 
 import React, { useState } from 'react';
 import { X, Radio, CheckCircle2, AlertTriangle, Shield } from 'lucide-react';
-import { Button } from '../../../components/ui/Button';
 import { trackingService } from '../../../services/api/tracking.service';
 import type { TrackedVesselSummary, PositionIngestPayload } from '../../../types/tracking';
 
@@ -284,7 +283,7 @@ export const TrackingTelemetryIngestModal: React.FC<TrackingTelemetryIngestModal
                 required
                 style={{
                   width: '100%',
-                  boxSpacing: 'border-box',
+                  boxSizing: 'border-box',
                   padding: '8px 10px',
                   borderRadius: '6px',
                   border: '1px solid rgba(100, 190, 240, 0.2)',
@@ -309,7 +308,7 @@ export const TrackingTelemetryIngestModal: React.FC<TrackingTelemetryIngestModal
                 required
                 style={{
                   width: '100%',
-                  boxSpacing: 'border-box',
+                  boxSizing: 'border-box',
                   padding: '8px 10px',
                   borderRadius: '6px',
                   border: '1px solid rgba(100, 190, 240, 0.2)',
@@ -337,7 +336,7 @@ export const TrackingTelemetryIngestModal: React.FC<TrackingTelemetryIngestModal
                 onChange={(e) => setSpeedKnots(e.target.value)}
                 style={{
                   width: '100%',
-                  boxSpacing: 'border-box',
+                  boxSizing: 'border-box',
                   padding: '8px 10px',
                   borderRadius: '6px',
                   border: '1px solid rgba(100, 190, 240, 0.2)',
@@ -363,7 +362,7 @@ export const TrackingTelemetryIngestModal: React.FC<TrackingTelemetryIngestModal
                 onChange={(e) => setHeading(e.target.value)}
                 style={{
                   width: '100%',
-                  boxSpacing: 'border-box',
+                  boxSizing: 'border-box',
                   padding: '8px 10px',
                   borderRadius: '6px',
                   border: '1px solid rgba(100, 190, 240, 0.2)',

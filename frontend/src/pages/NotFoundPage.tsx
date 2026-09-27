@@ -1,5 +1,5 @@
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { Compass, ArrowLeft, BarChart2, Radio, Ship, Compass as MapIcon, Activity } from 'lucide-react';
+import { Compass, ArrowLeft, BarChart2, Radio } from 'lucide-react';
 
 export function NotFoundPage() {
   const navigate = useNavigate();

@@ -2,15 +2,13 @@ import React from 'react';
 import {
   Ship,
   X,
-  CheckCircle2,
   DollarSign,
   Clock,
   Shield,
   Leaf,
   Compass,
   Layers,
-  ArrowRight,
-  TrendingDown,
+  TrendingUp,
   Sparkles,
 } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';

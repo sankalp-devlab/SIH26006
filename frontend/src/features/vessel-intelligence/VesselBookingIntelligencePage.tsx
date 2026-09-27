@@ -8,7 +8,6 @@ import {
   Clock,
   DollarSign,
   Shield,
-  Leaf,
   CheckCircle2,
   AlertCircle,
   Sparkles,
@@ -17,10 +16,8 @@ import {
   Sliders,
   ChevronDown,
   ChevronUp,
-  Layers,
   Calendar,
   Anchor,
-  Radio,
   Copy,
   ExternalLink,
   Info,
@@ -52,13 +49,10 @@ import type { Vessel } from '../../types/vessel';
 import type {
   RecommendationResponse,
   OptimizationPreference,
-  AlternativeCandidate,
   RejectedCandidate,
 } from '../../types/recommendation';
 import type { RouteCalculationResponse } from '../../types/route';
-import type { ETACalculationResponse } from '../../types/eta';
 import type { CostCalculationResponse } from '../../types/cost';
-import type { RiskAssessmentResponse } from '../../types/risk';
 import type { BookingRecord, CreateBookingRequest } from '../../types/booking';
 
 type IntelligenceWorkflowStage = 'input' | 'analyzing' | 'results' | 'booking_review' | 'confirmed';
@@ -68,8 +62,8 @@ export const VesselBookingIntelligencePage: React.FC = () => {
   const [searchParams] = useSearchParams();
 
   // Load authoritative registries
-  const { data: portsData, isLoading: isLoadingPorts } = usePorts(100);
-  const { data: vesselsData, isLoading: isLoadingVessels } = useVessels(100);
+  const { data: portsData } = usePorts(100);
+  const { data: vesselsData } = useVessels(100);
 
   const ports: Port[] = useMemo(() => portsData?.ports || [], [portsData]);
   const vessels: Vessel[] = useMemo(() => vesselsData?.vessels || [], [vesselsData]);
@@ -128,8 +122,6 @@ export const VesselBookingIntelligencePage: React.FC = () => {
   const [recommendations, setRecommendations] = useState<RecommendationResponse | null>(null);
   const [routeResult, setRouteResult] = useState<RouteCalculationResponse | null>(null);
   const [costResult, setCostResult] = useState<CostCalculationResponse | null>(null);
-  const [etaResult, setEtaResult] = useState<ETACalculationResponse | null>(null);
-  const [riskResult, setRiskResult] = useState<RiskAssessmentResponse | null>(null);
   const [trackingMap, setTrackingMap] = useState<Map<number, any>>(new Map());
 
   // Feasible candidates parsed and enriched
@@ -388,6 +380,7 @@ export const VesselBookingIntelligencePage: React.FC = () => {
       });
 
       const riskPromise = riskService.assessRisk({
+        vessel_id: 1,
         origin_port_id: oId,
         destination_port_id: dId,
       }).catch((err) => {
@@ -411,8 +404,6 @@ export const VesselBookingIntelligencePage: React.FC = () => {
       setRecommendations(recRes);
       setRouteResult(routeRes);
       setCostResult(costRes);
-      setEtaResult(etaRes);
-      setRiskResult(riskRes);
 
       // Process and enrich feasible candidates (Historical Cost -> XGBoost -> Predicted Cost)
       const parsedFeasible: DetailedVesselIntelligence[] = [];
@@ -452,8 +443,8 @@ export const VesselBookingIntelligencePage: React.FC = () => {
         const vSpec = vessels.find((v) => v.id === top.vessel_id);
         const tracked = trackingMap.get(top.vessel_id);
 
-        const estCost = recRes.estimates?.cost?.total_cost ?? costRes?.total_cost_usd ?? 87500;
-        const transitDays = recRes.estimates?.eta?.transit_days ?? (etaRes?.duration_hours ? Math.round(etaRes.duration_hours / 24) : 9);
+        const estCost = recRes.estimates?.cost?.total_cost ?? costRes?.total_cost ?? 87500;
+        const transitDays = recRes.estimates?.eta?.transit_days ?? (etaRes?.voyage_days ? Math.round(etaRes.voyage_days) : (etaRes?.voyage_hours ? Math.round(etaRes.voyage_hours / 24) : 9));
         const transitHours = Math.round(transitDays * 24);
         const arrivalDate = recRes.estimates?.eta?.estimated_arrival ?? etaRes?.estimated_arrival ?? new Date(Date.now() + transitDays * 86400000).toISOString();
 
@@ -509,9 +500,9 @@ export const VesselBookingIntelligencePage: React.FC = () => {
           capacity_tons: top.capacity_tons,
           draft_m: top.draft_m || vSpec?.draft_m,
           speed_knots: top.speed_knots || vSpec?.speed_laden_knots || 14.0,
-          beam_m: vSpec?.beam_m,
+          beam_m: vSpec?.width_m,
           length_m: vSpec?.length_m,
-          built_year: vSpec?.built_year,
+          built_year: vSpec?.year_built,
           status: vSpec?.status || 'underway',
           tracking_status: tracked?.tracking_status,
           current_location: tracked?.latest_position ? {
@@ -563,8 +554,10 @@ export const VesselBookingIntelligencePage: React.FC = () => {
           budget_difference_usd: topBudgetDiffUsd,
           risk_score: recRes.estimates?.risk?.risk_score ?? riskRes?.overall_risk_score ?? 35,
           risk_level: (recRes.estimates?.risk?.risk_level ?? riskRes?.risk_level ?? 'LOW') as 'LOW' | 'MODERATE' | 'HIGH',
-          known_risks: riskRes?.factors?.map((f: any) => `${f.factor}: ${f.finding}`) || ['Standard navigational security protocol verified'],
-          chokepoints: riskRes?.route_profile?.chokepoints_crossed,
+          known_risks: riskRes?.explanations && riskRes.explanations.length > 0
+            ? riskRes.explanations.map((e) => `${e.type}: ${e.message}`)
+            : ['Standard navigational security protocol verified'],
+          chokepoints: (riskRes as any)?.route_profile?.chokepoints_crossed,
           fuel_consumed_mt: fuelConsumed,
           fuel_burn_rate_mt_day: fuelBurnRate,
           estimated_co2_emissions_mt: co2Emissions,
@@ -580,7 +573,7 @@ export const VesselBookingIntelligencePage: React.FC = () => {
           const vSpec = vessels.find((v) => v.id === alt.vessel_id);
           const tracked = trackingMap.get(alt.vessel_id);
 
-          const estCost = alt.cost_usd ?? Math.round((costResult?.total_cost_usd || 87500) * 1.08);
+          const estCost = alt.cost_usd ?? Math.round((costRes?.total_cost ?? costResult?.total_cost ?? 87500) * 1.08);
           const transitDays = alt.sailing_days ?? 10;
           const transitHours = Math.round(transitDays * 24);
           const arrivalDate = new Date(Date.now() + transitDays * 86400000).toISOString();
@@ -634,9 +627,9 @@ export const VesselBookingIntelligencePage: React.FC = () => {
             capacity_tons: alt.capacity_tons,
             draft_m: alt.draft_m || vSpec?.draft_m,
             speed_knots: vSpec?.speed_laden_knots || 13.5,
-            beam_m: vSpec?.beam_m,
+            beam_m: vSpec?.width_m,
             length_m: vSpec?.length_m,
-            built_year: vSpec?.built_year,
+            built_year: vSpec?.year_built,
             status: vSpec?.status || 'underway',
             tracking_status: tracked?.tracking_status,
             current_location: tracked?.latest_position ? {

@@ -8,15 +8,7 @@ import {
   Shield,
   Leaf,
   CheckCircle2,
-  AlertTriangle,
-  MapPin,
-  Anchor,
-  Radio,
-  ArrowRight,
-  Info,
-  Calendar,
   Layers,
-  Fuel,
 } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
 
@@ -27,17 +19,17 @@ export interface DetailedVesselIntelligence {
   vessel_type: string;
   flag?: string | null;
   capacity_tons: number;
-  draft_m?: number;
-  speed_knots?: number;
-  beam_m?: number;
-  length_m?: number;
-  built_year?: number;
-  status?: string;
-  tracking_status?: string;
+  draft_m?: number | null;
+  speed_knots?: number | null;
+  beam_m?: number | null;
+  length_m?: number | null;
+  built_year?: number | null;
+  status?: string | null;
+  tracking_status?: string | null;
   current_location?: {
     latitude: number;
     longitude: number;
-    recorded_at?: string;
+    recorded_at?: string | null;
   } | null;
 
   // Cargo match metrics
@@ -49,16 +41,16 @@ export interface DetailedVesselIntelligence {
 
   // Route metrics
   origin_port: {
-    id?: number;
+    id?: number | null;
     name: string;
-    unlocode?: string;
-    country?: string;
+    unlocode?: string | null;
+    country?: string | null;
   };
   destination_port: {
-    id?: number;
+    id?: number | null;
     name: string;
-    unlocode?: string;
-    country?: string;
+    unlocode?: string | null;
+    country?: string | null;
   };
   distance_nm: number;
   route_type: string;
@@ -88,7 +80,7 @@ export interface DetailedVesselIntelligence {
   laycan_start?: string;
   laycan_end?: string;
   latest_acceptable_arrival?: string;
-  delivery_compliance?: 'FEASIBLE' | 'FEASIBLE_WITH_RISK' | 'EXCEEDS_REQUIREMENT';
+  delivery_compliance?: 'FEASIBLE' | 'FEASIBLE_WITH_RISK' | 'EXCEEDS_REQUIREMENT' | 'DOES_NOT_MEET_REQUIREMENT';
   delivery_compliance_reason?: string;
 
   // Budget & Operational Constraint Metrics
