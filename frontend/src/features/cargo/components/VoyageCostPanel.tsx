@@ -133,8 +133,8 @@ export const VoyageCostPanel: React.FC<VoyageCostPanelProps> = ({
             Estimated Voyage Cost
           </div>
           <div style={{ fontSize: '1.75rem', fontWeight: 800, color: hasPricedComponents ? '#00D9FF' : '#94a3b8', lineHeight: 1.2 }}>
-            {hasPricedComponents ? `$${cost.total_cost?.toLocaleString('en-US', { minimumFractionDigits: 2 })}` : 'Physical Metrics Only'}
-            <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--color-text-muted)', marginLeft: '6px' }}>
+            {hasPricedComponents ? `$${cost.total_cost?.toLocaleString('en-US', { minimumFractionDigits: 2 })}` : null}
+            <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--color-text-muted)', marginLeft: hasPricedComponents ? '6px' : undefined }}>
               {cost.currency}
             </span>
           </div>
